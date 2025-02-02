@@ -1,11 +1,11 @@
-from getkey import getkey
-from sys import exit
+from handle_exit import handle_exit
 
-print("Welcome to the trading app. Hit \'q\' to quit.")
+def main():
+    print("Welcome to the trading app. Hit \'q\' to quit.")
 
-while True:
-    key_pressed = getkey(blocking=False)
-    if key_pressed == "q":
-        print("Goodbye")
-        exit()
-    pass
+    while True:
+        handle_exit()
+
+
+if __name__ == "__main__":
+    main()
