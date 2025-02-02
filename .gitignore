@@ -5,3 +5,4 @@ tokens.json
 examples.py
 schwabdev_package/
 tokens.json
+logs/*
