@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS PRICES
+(
+    PRICE              MONEY,
+    TIMESTAMP          TIMESTAMP
+)
