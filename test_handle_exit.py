@@ -3,7 +3,7 @@ import getkey
 from handle_exit import handle_exit
 
 def mock_getkey():
-    print("hello")
+    pass
 
 def test_handle_exit_quits_on_q(mocker):
     mock_getkey = mocker.patch('handle_exit.getkey')
