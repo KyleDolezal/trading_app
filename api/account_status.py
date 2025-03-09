@@ -31,7 +31,7 @@ class AccountStatus(ApiBase):
         try:
             response = self.client.account_details(self.account_number, fields='positions').json()
         except(Exception) as e:
-            logger.error("Problem requesting account information", e)
+            logger.error("Problem requesting account information: {}".format(e))
             raise e
         
         return self.parse_account_info(response)

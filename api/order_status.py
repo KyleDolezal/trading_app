@@ -10,14 +10,14 @@ class OrderStatus(ApiBase):
         try:
             return order_resp.headers.get('location', '/').split('/')[-1]
         except(Exception) as e:
-            logger.error("Problem parsing order id", e)
+            logger.error("Problem parsing order id: {}".format(e))
             raise e
         
     def parse_order_response(self, order_response):
         try:
             return order_response.get('status')
         except(Exception) as e:
-            logger.error("Problem parsing order information", e)
+            logger.error("Problem parsing order information: {}".format(e))
             raise e
         
     def get_order_status(self, order_number):
@@ -26,5 +26,5 @@ class OrderStatus(ApiBase):
 
             return self.parse_order_response(response)
         except(Exception) as e:
-            logger.error("Problem getting order information", e)
+            logger.error("Problem getting order information: {}".format(e))
             raise e

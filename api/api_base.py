@@ -6,8 +6,6 @@ import pdb
 
 class ApiBase:
     def __init__(self):
-        logging.basicConfig(filename='logs/account_status.log', level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-
         self.account_number = os.getenv('ACCOUNT_NUMBER')
         self.app_key = os.getenv('APP_KEY') 
         self.app_secret = os.getenv('APP_SECRET')
@@ -19,5 +17,5 @@ class ApiBase:
         try:
             self.client = schwabdev.Client(self.app_key, self.app_secret)
         except(Exception) as e:
-            logger.error("Problem creating client", e)
+            logger.error("Problem creating client: {}".format(e))
             raise e
