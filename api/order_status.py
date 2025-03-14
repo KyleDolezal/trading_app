@@ -1,6 +1,7 @@
 import logging
 logger = logging.getLogger(__name__)
-from api_base import ApiBase
+from api.api_base import ApiBase
+import time
 
 class OrderStatus(ApiBase):
     def __init__(self):
@@ -28,3 +29,12 @@ class OrderStatus(ApiBase):
         except(Exception) as e:
             logger.error("Problem getting order information: {}".format(e))
             raise e
+        
+    def await_order_filled(self, order_number):
+        order_filled = False
+        while order_filled != True:
+            status = self.get_order_status(order_number)
+            if status.upper() == 'FILLED':
+                order_filled = True
+
+            time.sleep(1)
