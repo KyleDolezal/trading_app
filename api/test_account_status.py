@@ -1,9 +1,12 @@
 import pytest
+import pdb
 from account_status import AccountStatus
 import os
 
 class MockClient(object):
     def account_details(account_number, params, **kwargs):
+        return MockResponse()
+    def quotes(params, kwargs):
         return MockResponse()
     
 class MockResponse(object):
@@ -34,7 +37,8 @@ account_info_json = {'securitiesAccount': {'type': 'MARGIN', 'accountNumber': '1
                              'shortMarginValue': 0.0, 'sma': 81961.49}, 'projectedBalances': {'availableFunds': 81961.49, 
                              'availableFundsNonMarginableTrade': 81961.49, 'buyingPower': 163922.98, 'dayTradingBuyingPower': 417027.0, 
                              'dayTradingBuyingPowerCall': 0.0, 'maintenanceCall': 0.0, 'regTCall': 0.0, 'isInCall': False, 
-                             'stockBuyingPower': 163922.98}}, 'aggregatedBalance': {'currentLiquidationValue': 127283.54, 'liquidationValue': 127283.54}}
+                             'stockBuyingPower': 163922.98}}, 'aggregatedBalance': {'currentLiquidationValue': 127283.54, 'liquidationValue': 127283.54}, 
+                             'SCHB': {'extended': {'lastPrice': 123}}}
 
 def test_raise_error_on_missing_env_vars():
     try:
@@ -74,7 +78,7 @@ def test_parse_account_info(mocker):
     os.environ["CASH_TO_SAVE"] = '100'
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
-    mock_client.return_value = None
+    mock_client.return_value = MockClient()
     accountStatus = AccountStatus()
 
     assert accountStatus.parse_account_info(account_info_json) == {'position_balance': 93061.05, 'tradable_funds': 34122.49}
@@ -91,3 +95,43 @@ def test_get_account_status(mocker):
     accountStatus = AccountStatus().get_account_status()
 
     assert accountStatus == {'position_balance': 93061.05, 'tradable_funds': 34122.49}
+
+def test_update_positions(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+    os.environ["CASH_TO_SAVE"] = '100'
+
+    mock_client = mocker.patch('account_status.schwabdev.Client')
+    mock_client.return_value = MockClient()
+
+    astat = AccountStatus()
+    astat.update_positions()
+    assert astat.funds == 34122.49
+
+def test_calculate_buyable_shares(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+    os.environ["CASH_TO_SAVE"] = '100'
+
+    mock_client = mocker.patch('account_status.schwabdev.Client')
+    mock_client.return_value = MockClient()
+
+    astat = AccountStatus()
+    assert astat.calculate_buyable_shares() == {'price': 123, 'shares': 277} 
+
+def test_calculate_sellable_shares(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+    os.environ["CASH_TO_SAVE"] = '100'
+
+    mock_client = mocker.patch('account_status.schwabdev.Client')
+    mock_client.return_value = MockClient()
+
+    astat = AccountStatus()
+    assert astat.calculate_sellable_shares() == 757
