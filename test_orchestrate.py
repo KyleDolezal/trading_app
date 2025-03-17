@@ -42,6 +42,10 @@ class MockTTSell(object):
 class MockOS(object):
     def get_order_status(param, kwargs):
         return 'status'
+    def get_order_id(param, order):
+        if order.json()['SCHB']['extended']['lastPrice'] != 123:
+            assert False
+        return 555
     def await_order_filled(params, kwargs):
         pass
 
