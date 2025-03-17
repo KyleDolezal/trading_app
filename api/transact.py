@@ -1,6 +1,6 @@
 import logging
 logger = logging.getLogger(__name__)
-from api_base import ApiBase
+from api.api_base import ApiBase
 
 class TransactClient(ApiBase):
     def __init__(self):
