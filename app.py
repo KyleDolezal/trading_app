@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from orchestrate import orchestrate
 from handle_exit import handle_exit
 import logging
 logger = logging.getLogger(__name__)
@@ -10,8 +11,8 @@ def main():
     load_dotenv()
 
     while True:
+        orchestrate()
         handle_exit()
-
 
 if __name__ == "__main__":
     main()
