@@ -34,7 +34,10 @@ class OrderStatus(ApiBase):
         order_filled = False
         while order_filled != True:
             status = self.get_order_status(order_number)
-            if status.upper() == 'FILLED':
+            if status == None:
                 order_filled = True
+            else:
+                if status.upper() == 'FILLED':
+                    order_filled = True
 
             time.sleep(1)

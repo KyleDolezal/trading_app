@@ -21,6 +21,18 @@ order_info_json = {'session': 'NORMAL', 'duration': 'DAY', 'orderType': 'LIMIT',
 class MockClientFilled(object):
     def order_details(self, account_number, params):
         return MockResponseFilled()
+
+class MockClientFilledNone(object):
+    def order_details(self, account_number, params):
+        return MockResponseFilledNone()
+
+class MockResponseFilledNone(object):
+    def json(param):
+        return NoneObject()
+    
+class NoneObject(object):
+    def get(_, param):
+        return None
     
 class MockResponseFilled(object):
     def json(param):
@@ -96,6 +108,22 @@ def test_await_order_filled(mocker):
     mock_account_status = mocker.patch('order_status.OrderStatus.__init__', return_value=None)
     order_status = OrderStatus()
     order_status.client = MockClientFilled()
+    order_status.account_number = '123'
+
+    response = order_status.await_order_filled('123')
+
+    assert True
+
+def test_await_order_filled_immediately(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+
+    mock_account_status = mocker.patch('order_status.time.sleep')
+    mock_account_status = mocker.patch('order_status.OrderStatus.__init__', return_value=None)
+    order_status = OrderStatus()
+    order_status.client = MockClientFilledNone()
     order_status.account_number = '123'
 
     response = order_status.await_order_filled('123')

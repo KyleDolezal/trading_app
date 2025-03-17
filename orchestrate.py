@@ -33,7 +33,7 @@ class Orchestrator():
             self.account_status.update_positions()
             self.sellable_shares = self.account_status.calculate_sellable_shares()
             self.waiting_for_action = 'sell'
-        elif action == 'self':
+        elif action == 'sell':
             order = self.transact_client.sell(self.sellable_shares, 'LIMIT', self.bought_price)
             self.order_status.await_order_filled(order)
             self.account_status.update_positions()
