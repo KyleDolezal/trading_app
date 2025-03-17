@@ -42,6 +42,8 @@ class AccountStatus(ApiBase):
         account_status = self.get_account_status()
         self.funds = account_status['tradable_funds']
         self.position_balance = account_status['position_balance']
+        if self.position_balance == None:
+            self.position_balance = 0
         
     def get_account_status(self):
         try:
