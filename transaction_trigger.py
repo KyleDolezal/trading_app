@@ -24,7 +24,6 @@ class TransactionTrigger:
 
         percent_difference = (difference/average) * 100
 
-        print(self.next_action, percent_difference)
         if (self.next_action == 'buy') and (percent_difference > self.change_threshold):
             self.next_action = 'sell'
             return 'buy'
