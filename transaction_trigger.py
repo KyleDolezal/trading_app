@@ -21,7 +21,6 @@ class TransactionTrigger:
         average = statistics.mean(self.history)
 
         difference = price - average
-
         percent_difference = (difference/average) * 100
 
         if (self.next_action == 'buy') and (percent_difference > self.change_threshold):
@@ -29,7 +28,10 @@ class TransactionTrigger:
             return 'buy'
         elif (self.next_action == 'sell') and (percent_difference < self.change_threshold) and abs(percent_difference) > self.change_threshold:
             self.next_action = 'buy'
-            return 'sell'
+            if abs(percent_difference) > (self.change_threshold * 5):
+                return 'sell_market'
+            else:
+                return 'sell'
         else:
             return 'hold'
         

@@ -31,6 +31,17 @@ class MockClientSell(object):
         assert order_info['orderLegCollection'][0]['instruction'] == 'SELL'
         return MockResponse()
     
+class MockClientMarket(object):
+    def order_details(a, b, c):
+        return MockResponse()
+    def account_details(account_number, params, **kwargs):
+        return MockResponse()
+    def quotes(params, kwargs):
+        return MockResponse()
+    def order_place(params, arg, order_info):
+        assert order_info['orderType'] == 'MARKET'
+        return MockResponse()
+    
 class MockTT(object):
     def get_action(param, kwargs):
         return 'buy'
@@ -38,6 +49,9 @@ class MockTT(object):
 class MockTTSell(object):
     def get_action(param, kwargs):
         return 'sell'
+class MockTTSellMarket(object):
+    def get_action(param, kwargs):
+        return 'sell_market'
 
 class MockOS(object):
     def get_order_status(param, kwargs):
@@ -128,5 +142,28 @@ def test_sell(mocker):
 
     orchestrator = Orchestrator()
     orchestrator.transaction_trigger = MockTTSell()
+    orchestrator.order_status = MockOS()
+    orchestrator.orchestrate()
+
+def test_sell_market(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+    os.environ["HISTORY_LENGTH"] = '3'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    mocker.patch('orchestrate.time.sleep')
+    mocker.patch('currency_quote.requests.get', return_value=MockFXResponse())
+    mock_client = mocker.patch('api.equity_quote.RESTClient')
+
+    mock_client = mocker.patch('account_status.schwabdev.Client')
+    mock_client.return_value = MockClientMarket()
+
+    orchestrator = Orchestrator()
+    orchestrator.transaction_trigger = MockTTSellMarket()
     orchestrator.order_status = MockOS()
     orchestrator.orchestrate()
