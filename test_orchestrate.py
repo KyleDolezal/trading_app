@@ -94,8 +94,11 @@ def test_buy(mocker):
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["EQUITY_API_KEY"] = 'abc'
+    os.environ["CASH_TO_SAVE"] = '100'
     mocker.patch('orchestrate.time.sleep')
     mocker.patch('currency_quote.requests.get', return_value=MockFXResponse())
+    mock_client = mocker.patch('api.equity_quote.RESTClient')
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClientBuy()
 
@@ -112,10 +115,14 @@ def test_sell(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     os.environ["HISTORY_LENGTH"] = '3'
     os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
     mocker.patch('orchestrate.time.sleep')
     mocker.patch('currency_quote.requests.get', return_value=MockFXResponse())
+    mock_client = mocker.patch('api.equity_quote.RESTClient')
+
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClientSell()
 

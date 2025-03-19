@@ -10,8 +10,22 @@ class MockClient(object):
         return MockResponse()
     
 class MockResponse(object):
+    def __init__(self):
+        self.price = 46.75
     def json(param):
         return account_info_json
+    
+class MockEqClient(object):
+    def get_equity_quote(params):
+        return MockResponse()
+    def quotes(params, kwargs):
+        return MockResponse()
+    def get_last_trade(self, params):
+        return MockResponse()
+    
+class MockEqResponse(object):
+    def __init__(self):
+        self.price = 46.75
     
 account_info_json = {'securitiesAccount': {'type': 'MARGIN', 'accountNumber': '12345', 'roundTrips': 0, 'isDayTrader': False, 
                             'isClosingOnlyRestricted': False, 'pfcbFlag': False, 'positions': [{'shortQuantity': 0.0, 'averagePrice': 
@@ -51,6 +65,8 @@ def test_initializes_when_env_vars_present(mocker):
     os.environ["APP_KEY"] = 'key'
     os.environ["APP_SECRET"] = 'secret'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
+    os.environ["EQUITY_API_KEY"] = 'abc'
+
 
     mock_account_status = mocker.patch('account_status.AccountStatus.__init__')
     mock_account_status.return_value = None
@@ -64,6 +80,7 @@ def test_calculate_tradable_funds(mocker):
     os.environ["APP_KEY"] = 'key'
     os.environ["APP_SECRET"] = 'secret'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
+    os.environ["EQUITY_API_KEY"] = 'abc'
 
     mock_account_status = mocker.patch('account_status.AccountStatus.__init__')
     mock_account_status.return_value = None
@@ -75,6 +92,7 @@ def test_parse_account_info(mocker):
     os.environ["APP_KEY"] = 'key'
     os.environ["APP_SECRET"] = 'secret'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
+    os.environ["EQUITY_API_KEY"] = 'abc'
     os.environ["CASH_TO_SAVE"] = '100'
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
@@ -89,6 +107,7 @@ def test_get_account_status(mocker):
     os.environ["APP_SECRET"] = 'secret'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClient()
@@ -102,6 +121,7 @@ def test_update_positions(mocker):
     os.environ["APP_SECRET"] = 'secret'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClient()
@@ -116,12 +136,15 @@ def test_calculate_buyable_shares(mocker):
     os.environ["APP_SECRET"] = 'secret'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClient()
+    mock_eq = mocker.patch('api.equity_quote.RESTClient')
+    mock_eq.return_value = MockEqClient()
 
     astat = AccountStatus()
-    assert astat.calculate_buyable_shares() == {'price': 123, 'shares': 277} 
+    assert astat.calculate_buyable_shares() == {'price': 46.75, 'shares': 730}
 
 def test_calculate_sellable_shares(mocker):
     os.environ["ACCOUNT_NUMBER"] = '123'
@@ -129,9 +152,12 @@ def test_calculate_sellable_shares(mocker):
     os.environ["APP_SECRET"] = 'secret'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClient()
+    mock_eq = mocker.patch('api.equity_quote.RESTClient')
+    mock_eq.return_value = MockEqClient()
 
     astat = AccountStatus()
-    assert astat.calculate_sellable_shares() == 757
+    assert astat.calculate_sellable_shares() == 1991
