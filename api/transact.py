@@ -32,22 +32,40 @@ class TransactClient(ApiBase):
         return order
 
     def sell(self, quantity, mode, bounds_value):
-        request_body_json = {
-            "orderType": mode,
-            "session": "NORMAL",
-            "duration": "DAY",
-            "orderStrategyType": "SINGLE",
-            "price": bounds_value,
-            "orderLegCollection": [
-                {"instruction": "SELL",
-                "quantity": quantity,
-                "instrument": {
-                    "symbol": self.target_symbol,
-                    "assetType": "EQUITY"
-                }
-                }
-            ]
-        }
+        request_body_json = {}
+        if mode == 'market':
+            request_body_json = {
+                "orderType": 'MARKET',
+                "session": "NORMAL",
+                "duration": "DAY",
+                "orderStrategyType": "SINGLE",
+                "orderLegCollection": [
+                    {"instruction": "SELL",
+                    "quantity": quantity,
+                    "instrument": {
+                        "symbol": self.target_symbol,
+                        "assetType": "EQUITY"
+                    }
+                    }
+                ]
+            }
+        else:
+            request_body_json = {
+                "orderType": mode,
+                "session": "NORMAL",
+                "duration": "DAY",
+                "orderStrategyType": "SINGLE",
+                "price": bounds_value,
+                "orderLegCollection": [
+                    {"instruction": "SELL",
+                    "quantity": quantity,
+                    "instrument": {
+                        "symbol": self.target_symbol,
+                        "assetType": "EQUITY"
+                    }
+                    }
+                ]
+            }
 
         order = self.client.order_place(self.account_number, request_body_json)
 
