@@ -30,9 +30,8 @@ class Orchestrator():
         if action == 'buy':
             order = self.transact_client.buy(self.buyable_shares)
             order_id = self.order_status.get_order_id(order)
-            self.order_status.await_order_filled(order_id)
+            self.bought_price = self.order_status.await_order_filled(order_id)
             self.account_status.update_positions()
-            self.bought_price = self.account_status.calculate_buyable_shares()['price']
             self.sellable_shares = self.account_status.calculate_sellable_shares()
             self.waiting_for_action = 'sell'
         elif action == 'sell':

@@ -2,6 +2,7 @@ import logging
 logger = logging.getLogger(__name__)
 from api.api_base import ApiBase
 import time
+import pdb
 
 class OrderStatus(ApiBase):
     def __init__(self):
@@ -15,8 +16,10 @@ class OrderStatus(ApiBase):
             raise e
         
     def parse_order_response(self, order_response):
-        try:
-            return order_response.get('status')
+        try:    
+            price = order_response['orderActivityCollection'][0]['executionLegs'][0]['price']
+            status = order_response.get('status')
+            return {"status": status, "price": price}
         except(Exception) as e:
             logger.error("Problem parsing order information: {}".format(e))
             raise e
@@ -28,16 +31,15 @@ class OrderStatus(ApiBase):
             return self.parse_order_response(response)
         except(Exception) as e:
             logger.error("Problem getting order information: {}".format(e))
-            raise e
         
     def await_order_filled(self, order_number):
         order_filled = False
         while order_filled != True:
-            status = self.get_order_status(order_number)
-            if status == None:
+            order_info = self.get_order_status(order_number)
+            status = order_info['status']
+           
+            if status.upper() == 'FILLED':
                 order_filled = True
-            else:
-                if status.upper() == 'FILLED':
-                    order_filled = True
+                return order_info['price']
 
             time.sleep(1)
