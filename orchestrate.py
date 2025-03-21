@@ -46,16 +46,12 @@ class Orchestrator():
             order_id = self.order_status.get_order_id(order)
             self.order_status.await_order_filled(order_id)
             self.account_status.update_positions()
-            buyable_dict = self.account_status.calculate_buyable_shares()
-            self.buyable_shares = buyable_dict['shares']
-            self.bought_price = buyable_dict['price']
+            self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
             self.waiting_for_action = 'buy'
             time.sleep(5)
         elif action == 'hold':
             if self.waiting_for_action == 'buy':
-                buyable_dict = self.account_status.calculate_buyable_shares()
-                self.buyable_shares = buyable_dict['shares']
-                self.bought_price = buyable_dict['price']
+                self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
             elif self.waiting_for_action == 'sell':
                 self.sellable_shares = self.account_status.calculate_sellable_shares()
 
