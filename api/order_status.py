@@ -2,7 +2,6 @@ import logging
 logger = logging.getLogger(__name__)
 from api.api_base import ApiBase
 import time
-import pdb
 
 class OrderStatus(ApiBase):
     def __init__(self):
@@ -17,7 +16,7 @@ class OrderStatus(ApiBase):
         
     def parse_order_response(self, order_response):
         try:    
-            price = order_response['orderActivityCollection'][0]['executionLegs'][0]['price']
+            price = round(order_response['orderActivityCollection'][0]['executionLegs'][0]['price'], 2)
             status = order_response.get('status')
             return {"status": status, "price": price}
         except(Exception) as e:
