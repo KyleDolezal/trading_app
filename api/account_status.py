@@ -1,5 +1,6 @@
 import os
 import schwabdev 
+import time
 import logging
 logger = logging.getLogger(__name__)
 from api.api_base import ApiBase
@@ -46,10 +47,13 @@ class AccountStatus(ApiBase):
             self.position_balance = 0
         
     def get_account_status(self):
-        try:
-            response = self.client.account_details(self.account_number, fields='positions').json()
-        except(Exception) as e:
-            logger.error("Problem requesting account information: {}".format(e))
-            raise e
+        response = None
+        for i in range(10):
+            try:
+                response = self.client.account_details(self.account_number, fields='positions').json()
+                return self.parse_account_info(response)
+            except(Exception) as e:
+                logger.error("Problem requesting account information: {}".format(e))
+                time.sleep(5)
         
-        return self.parse_account_info(response)
+        raise Exception('Problem with getting account status')

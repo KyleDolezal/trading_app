@@ -25,13 +25,16 @@ class OrderStatus(ApiBase):
             raise e
         
     def get_order_status(self, order_number):
-        try:
-            response = self.client.order_details(self.account_number, order_number).json()
+        response = None
+        for i in range(10):
+            try:
+                response = self.client.order_details(self.account_number, order_number).json()
+                return self.parse_order_response(response)
+            except(Exception) as e:
+                logger.error("Problem getting order information: {}".format(e))
+                time.sleep(5)
+        raise Exception('Problem with getting order status')
 
-            return self.parse_order_response(response)
-        except(Exception) as e:
-            logger.error("Problem getting order information: {}".format(e))
-        
     def await_order_filled(self, order_number):
         order_filled = False
         while order_filled != True:
