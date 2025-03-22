@@ -1,10 +1,13 @@
 import logging
 logger = logging.getLogger(__name__)
 from api.api_base import ApiBase
+import time
+from api.order_status import OrderStatus
 
 class TransactClient(ApiBase):
     def __init__(self):
         super().__init__()
+        self.order_status = OrderStatus()
 
     def buy(self, quantity):
         request_body_json = {
@@ -23,8 +26,14 @@ class TransactClient(ApiBase):
             ]
         }
 
-        order = self.client.order_place(self.account_number, request_body_json)
-
+        order = None
+        for i in range(20):
+            try:
+                order = self.client.order_place(self.account_number, request_body_json)
+                break
+            except(Exception) as e:
+                time.sleep(5)
+    
         if order.status_code != 201:
             logger.error("Error with order: {}".format(order.headers))
             raise Exception()
@@ -32,6 +41,7 @@ class TransactClient(ApiBase):
         return order
 
     def sell(self, quantity, mode, bounds_value):
+        bounds_value = round(bounds_value, 2)
         request_body_json = {}
         if mode == 'market':
             request_body_json = {
@@ -66,9 +76,15 @@ class TransactClient(ApiBase):
                     }
                 ]
             }
-
-        order = self.client.order_place(self.account_number, request_body_json)
-
+        
+        order = None
+        for i in range(20):
+            try:
+                order = self.client.order_place(self.account_number, request_body_json)
+                break
+            except(Exception) as e:
+                time.sleep(5)
+    
         if order.status_code != 201:
             logger.error("Error with order: {}".format(order.headers))
             raise Exception()
