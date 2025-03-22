@@ -48,7 +48,7 @@ class AccountStatus(ApiBase):
         
     def get_account_status(self):
         response = None
-        for i in range(10):
+        for i in range(20):
             try:
                 response = self.client.account_details(self.account_number, fields='positions').json()
                 return self.parse_account_info(response)

@@ -27,7 +27,7 @@ class OrderStatus(ApiBase):
         
     def get_order_status(self, order_number):
         response = None
-        for i in range(10):
+        for i in range(20):
             try:
                 response = self.client.order_details(self.account_number, order_number).json()
                 return self.parse_order_response(response)
