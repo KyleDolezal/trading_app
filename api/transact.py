@@ -36,6 +36,7 @@ class TransactClient(ApiBase):
         if order.status_code != 201:
             logger.error("Error with order: {}".format(order.headers))
             logger.error(self.order_status.get_order_id(order))
+            logger.error(request_body_json)
             return None
         else:
             return order
@@ -89,6 +90,7 @@ class TransactClient(ApiBase):
         if order.status_code != 201:
             logger.error("Error with order: {}".format(order.headers))
             logger.error(self.order_status.get_order_id(order))
+            logger.error(request_body_json)
             return None
         else:
             return order

@@ -17,6 +17,7 @@ class Orchestrator():
         self.equity_client = EquityClient()
         self.currency_client = CurrencyClient()
         self.transaction_trigger = TransactionTrigger()
+        self.bought_price = 0
         self.buyable_shares = self.account_status.calculate_buyable_shares()
         time.sleep(1)
         self.sellable_shares = self.account_status.calculate_sellable_shares()
