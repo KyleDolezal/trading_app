@@ -8,6 +8,22 @@ class TransactClient(ApiBase):
     def __init__(self):
         super().__init__()
         self.order_status = OrderStatus()
+    
+    def _transact(self, json):
+        order = None
+        for i in range(20):
+            try:
+                order = self.client.order_place(self.account_number, json)
+                break
+            except(Exception) as e:
+                time.sleep(5)
+        if order.status_code != 201:
+            logger.error("Error with order: {}".format(order.headers))
+            logger.error(self.order_status.get_order_id(order))
+            logger.error(json)
+            return None
+        else:
+            return order
 
     def buy(self, quantity):
         request_body_json = {
@@ -26,21 +42,8 @@ class TransactClient(ApiBase):
             ]
         }
 
-        order = None
-        for i in range(20):
-            try:
-                order = self.client.order_place(self.account_number, request_body_json)
-                break
-            except(Exception) as e:
-                time.sleep(5)
-        if order.status_code != 201:
-            logger.error("Error with order: {}".format(order.headers))
-            logger.error(self.order_status.get_order_id(order))
-            logger.error(request_body_json)
-            return None
-        else:
-            return order
-        
+        return self._transact(request_body_json)
+    
 
     def sell(self, quantity, mode, bounds_value):
         bounds_value = round(bounds_value, 2)
@@ -79,19 +82,5 @@ class TransactClient(ApiBase):
                 ]
             }
         
-        order = None
-        for i in range(20):
-            try:
-                order = self.client.order_place(self.account_number, request_body_json)
-                break
-            except(Exception) as e:
-                time.sleep(5)
-    
-        if order.status_code != 201:
-            logger.error("Error with order: {}".format(order.headers))
-            logger.error(self.order_status.get_order_id(order))
-            logger.error(request_body_json)
-            return None
-        else:
-            return order
+        return self._transact(request_body_json)
         
