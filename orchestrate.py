@@ -29,26 +29,29 @@ class Orchestrator():
 
         if action == 'buy':
             order = self.transact_client.buy(self.buyable_shares)
-            order_id = self.order_status.get_order_id(order)
-            self.bought_price = self.order_status.await_order_filled(order_id)
+            if order:
+                order_id = self.order_status.get_order_id(order)
+                self.bought_price = self.order_status.await_order_filled(order_id)
+                self.waiting_for_action = 'sell'
             self.account_status.update_positions()
             self.sellable_shares = self.account_status.calculate_sellable_shares()
-            self.waiting_for_action = 'sell'
         elif action == 'sell':
             order = self.transact_client.sell(self.sellable_shares, 'LIMIT', self.bought_price)
-            order_id = self.order_status.get_order_id(order)
-            self.order_status.await_order_filled(order_id)
+            if order:
+                order_id = self.order_status.get_order_id(order)
+                self.order_status.await_order_filled(order_id)
+                self.waiting_for_action = 'buy'
             self.account_status.update_positions()
             self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
-            self.waiting_for_action = 'buy'
         elif action == 'sell_market':
             order = self.transact_client.sell(self.sellable_shares, 'MARKET', self.bought_price)
-            order_id = self.order_status.get_order_id(order)
-            self.order_status.await_order_filled(order_id)
+            if order:
+                order_id = self.order_status.get_order_id(order)
+                self.order_status.await_order_filled(order_id)
+                self.waiting_for_action = 'buy'
+                time.sleep(5)
             self.account_status.update_positions()
             self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
-            self.waiting_for_action = 'buy'
-            time.sleep(5)
         elif action == 'hold':
             if self.waiting_for_action == 'buy':
                 self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']

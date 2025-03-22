@@ -33,12 +33,13 @@ class TransactClient(ApiBase):
                 break
             except(Exception) as e:
                 time.sleep(5)
-    
         if order.status_code != 201:
             logger.error("Error with order: {}".format(order.headers))
-            raise Exception()
+            logger.error(self.order_status.get_order_id(order))
+            return None
+        else:
+            return order
         
-        return order
 
     def sell(self, quantity, mode, bounds_value):
         bounds_value = round(bounds_value, 2)
@@ -87,6 +88,8 @@ class TransactClient(ApiBase):
     
         if order.status_code != 201:
             logger.error("Error with order: {}".format(order.headers))
-            raise Exception()
+            logger.error(self.order_status.get_order_id(order))
+            return None
+        else:
+            return order
         
-        return order
