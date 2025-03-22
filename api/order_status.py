@@ -15,8 +15,10 @@ class OrderStatus(ApiBase):
             raise e
         
     def parse_order_response(self, order_response):
-        try:    
-            price = round(order_response['orderActivityCollection'][0]['executionLegs'][0]['price'], 2)
+        try:
+            price = 0
+            if order_response.get('orderActivityCollection'):
+                price = round(order_response['orderActivityCollection'][0]['executionLegs'][0]['price'], 2)
             status = order_response.get('status')
             return {"status": status, "price": price}
         except(Exception) as e:
