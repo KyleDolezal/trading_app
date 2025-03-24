@@ -12,6 +12,7 @@ class TransactionTrigger:
         self.history = []
         self.next_action = None
         self._boot_strap()
+        self.bought_price = None
     
     def get_action(self, price):
         self.history.append(price)
@@ -25,8 +26,9 @@ class TransactionTrigger:
 
         if (self.next_action == 'buy') and (percent_difference > self.change_threshold):
             self.next_action = 'sell'
+            self.bought_price = price
             return 'buy'
-        elif (self.next_action == 'sell') and (percent_difference < self.change_threshold) and abs(percent_difference) > self.change_threshold:
+        elif (self.next_action == 'sell') and (price >= self.bought_price) and (percent_difference < self.change_threshold) and abs(percent_difference) > self.change_threshold:
             self.next_action = 'buy'
             if abs(percent_difference) > (self.change_threshold * 5):
                 return 'sell_market'
@@ -34,6 +36,16 @@ class TransactionTrigger:
                 return 'sell'
         else:
             return 'hold'
+        # Inverted
+        #         if (self.next_action == 'sell') and (percent_difference > self.change_threshold):
+        #     self.next_action = 'buy'
+        #     return 'sell'
+        # elif (self.next_action == 'buy') and (percent_difference < self.change_threshold) and abs(percent_difference) > self.change_threshold:
+        #     self.next_action = 'sell'
+        #     return 'buy'
+        # else:
+        #     logging.info("holding")
+        #     return 'hold'
         
     def _boot_strap(self):
         currency_client = CurrencyClient()

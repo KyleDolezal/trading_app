@@ -17,7 +17,6 @@ class Orchestrator():
         self.equity_client = EquityClient()
         self.currency_client = CurrencyClient()
         self.transaction_trigger = TransactionTrigger()
-        self.bought_price = 0
         self.buyable_shares = self.account_status.calculate_buyable_shares()
         time.sleep(1)
         self.sellable_shares = self.account_status.calculate_sellable_shares()
@@ -30,25 +29,15 @@ class Orchestrator():
             order = self.transact_client.buy(self.buyable_shares)
             if order:
                 order_id = self.order_status.get_order_id(order)
-                self.bought_price = self.order_status.await_order_filled(order_id)
                 self.waiting_for_action = 'sell'
             self.account_status.update_positions()
             self.sellable_shares = self.account_status.calculate_sellable_shares()
-        elif action == 'sell':
-            order = self.transact_client.sell(self.sellable_shares, 'LIMIT', self.bought_price)
+        elif 'sell' in action:
+            order = self.transact_client.sell(self.sellable_shares, 'MARKET')
             if order:
                 order_id = self.order_status.get_order_id(order)
                 self.order_status.await_order_filled(order_id)
                 self.waiting_for_action = 'buy'
-            self.account_status.update_positions()
-            self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
-        elif action == 'sell_market':
-            order = self.transact_client.sell(self.sellable_shares, 'MARKET', self.bought_price)
-            if order:
-                order_id = self.order_status.get_order_id(order)
-                self.order_status.await_order_filled(order_id)
-                self.waiting_for_action = 'buy'
-                time.sleep(5)
             self.account_status.update_positions()
             self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
         elif action == 'hold':

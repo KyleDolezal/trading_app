@@ -22,6 +22,7 @@ def test_get_crypto_quote_sell(mocker):
     tt.get_action(10)
     tt.get_action(10)
     tt.get_action(13)
+    tt.bought_price = 10
     assert tt.get_action(11.45) == 'sell'
 
 def test_get_crypto_quote_sell_market(mocker):
@@ -36,6 +37,7 @@ def test_get_crypto_quote_sell_market(mocker):
     tt.get_action(10)
     tt.get_action(10)
     tt.get_action(13)
+    tt.bought_price = 9
     assert tt.get_action(9) == 'sell_market'
 
 def test_get_crypto_quote_buy(mocker):
