@@ -36,16 +36,6 @@ class TransactionTrigger:
                 return 'sell'
         else:
             return 'hold'
-        # Inverted
-        #         if (self.next_action == 'sell') and (percent_difference > self.change_threshold):
-        #     self.next_action = 'buy'
-        #     return 'sell'
-        # elif (self.next_action == 'buy') and (percent_difference < self.change_threshold) and abs(percent_difference) > self.change_threshold:
-        #     self.next_action = 'sell'
-        #     return 'buy'
-        # else:
-        #     logging.info("holding")
-        #     return 'hold'
         
     def _boot_strap(self):
         currency_client = CurrencyClient()
