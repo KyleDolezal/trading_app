@@ -48,7 +48,7 @@ class TransactClient(ApiBase):
     def sell(self, quantity, mode, bounds_value=0):
         bounds_value = round(bounds_value, 2)
         request_body_json = {}
-        if mode == 'market':
+        if bounds_value == 0 or mode == 'market':
             request_body_json = {
                 "orderType": 'MARKET',
                 "session": "NORMAL",

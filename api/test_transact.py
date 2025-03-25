@@ -48,6 +48,15 @@ def test_sell(mocker):
 
     assert transact_client.sell(1, 'LIMIT', 10.0) == transact_client.client.response
 
+def test_sell_zero_limit(mocker):
+    mocker.patch('transact.TransactClient.__init__', return_value=None)
+    transact_client = TransactClient()
+    transact_client.client = MockClient()
+    transact_client.target_symbol = "SCHB"
+    transact_client.account_number = "1234"
+
+    assert transact_client.sell(1, 'LIMIT', 0) == transact_client.client.response
+
 def test_sell_market(mocker):
     mocker.patch('transact.TransactClient.__init__', return_value=None)
     transact_client = TransactClient()
