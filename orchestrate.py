@@ -25,6 +25,7 @@ class Orchestrator():
         time.sleep(1)
         self.sellable_shares = self.account_status.calculate_sellable_shares()
         self.waiting_for_action = 'buy'
+        self._bootstrap()
 
     def orchestrate(self):
         action = self.transaction_trigger.get_action(self.currency_client.get_crypto_quote())
@@ -62,3 +63,13 @@ class Orchestrator():
             order_id,
             quantity)
         self.pg_adapter.exec_query(sql_string)
+
+    def _bootstrap(self):
+        sql_string = 'select * from trades order by timestamp desc limit 1;'
+        resp = self.pg_adapter.exec_query(sql_string)
+        if resp:
+            action = resp[0][0]
+            price = resp[0][1]
+            if action == 'buy':
+                self.transaction_trigger.next_action = 'sell'
+                self.transaction_trigger.bought_price = price
