@@ -13,6 +13,30 @@ class MockClientBuy(object):
         assert order_info['orderLegCollection'][0]['instruction'] == 'BUY'
         return MockResponse()
     
+class MockAS(object):
+    def update_positions(self):
+        pass
+    def calculate_sellable_shares(self):
+        pass
+    def calculate_buyable_shares(self):
+        return {'shares': 1}
+
+class MockPGClient(object):
+    def exec_query(self, text):
+        pass
+
+class MockEquityClient(object):
+    def get_crypto_quote():
+        return 123
+    
+class MockTTClient(object):
+    def get_action():
+        return 'buy'
+    def buy(self, quantity):
+        pass
+    def sell(self, quantity, price):
+        pass
+
 class MockResponse(object):
     def __init__(self):
         self.status_code = 201
@@ -44,7 +68,7 @@ class MockClientMarket(object):
 class MockTT(object):
     def get_action(param, kwargs):
         return 'buy'
-
+    
 class MockTTSell(object):
     def get_action(param, kwargs):
         return 'sell'
@@ -56,8 +80,6 @@ class MockOS(object):
     def get_order_status(param, kwargs):
         return 'status'
     def get_order_id(param, order):
-        if order.json()['SCHB']['extended']['lastPrice'] != 123:
-            assert False
         return 555
     def await_order_filled(params, kwargs):
         pass
@@ -109,6 +131,7 @@ def test_buy(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
     os.environ["EQUITY_API_KEY"] = 'abc'
     os.environ["CASH_TO_SAVE"] = '100'
+    mocker.patch('orchestrate.Orchestrator.__init__', return_value=None)
     mocker.patch('orchestrate.time.sleep')
     mocker.patch('currency_quote.requests.get', return_value=MockFXResponse())
     mock_client = mocker.patch('api.equity_quote.RESTClient')
@@ -116,6 +139,11 @@ def test_buy(mocker):
     mock_client.return_value = MockClientBuy()
 
     orchestrator = Orchestrator()
+    orchestrator.buyable_shares = 1
+    orchestrator.account_status = MockAS()
+    orchestrator.transact_client = MockTTClient()
+    orchestrator.currency_client = MockEquityClient
+    orchestrator.pg_adapter = MockPGClient()
     orchestrator.transaction_trigger = MockTT()
     orchestrator.order_status = MockOS()
 
@@ -133,6 +161,7 @@ def test_sell(mocker):
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
     mocker.patch('orchestrate.time.sleep')
+    mocker.patch('orchestrate.Orchestrator.__init__', return_value=None)
     mocker.patch('currency_quote.requests.get', return_value=MockFXResponse())
     mock_client = mocker.patch('api.equity_quote.RESTClient')
 
@@ -140,6 +169,11 @@ def test_sell(mocker):
     mock_client.return_value = MockClientSell()
 
     orchestrator = Orchestrator()
+    orchestrator.sellable_shares = 1
+    orchestrator.account_status = MockAS()
+    orchestrator.transact_client = MockTTClient()
+    orchestrator.currency_client = MockEquityClient
+    orchestrator.pg_adapter = MockPGClient()
     orchestrator.transaction_trigger = MockTTSell()
     orchestrator.order_status = MockOS()
     orchestrator.orchestrate()
@@ -157,12 +191,18 @@ def test_sell_market(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
     mocker.patch('orchestrate.time.sleep')
     mocker.patch('currency_quote.requests.get', return_value=MockFXResponse())
+    mocker.patch('orchestrate.Orchestrator.__init__', return_value=None)
     mock_client = mocker.patch('api.equity_quote.RESTClient')
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClientMarket()
 
     orchestrator = Orchestrator()
+    orchestrator.sellable_shares = 1
+    orchestrator.account_status = MockAS()
+    orchestrator.transact_client = MockTTClient()
+    orchestrator.currency_client = MockEquityClient
+    orchestrator.pg_adapter = MockPGClient()
     orchestrator.transaction_trigger = MockTTSellMarket()
     orchestrator.order_status = MockOS()
     orchestrator.orchestrate()

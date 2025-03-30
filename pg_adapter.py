@@ -9,6 +9,10 @@ class PG_Adapter:
 
     def exec_query(self, query):
         self.cursor.execute(query)
-        record = self.cursor.fetchall()
+        record = None
+        try:
+            record = self.cursor.fetchall()
+        except:
+            pass
 
         return record
