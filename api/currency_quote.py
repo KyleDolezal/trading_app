@@ -2,6 +2,7 @@ import logging
 logger = logging.getLogger(__name__)
 import os
 import requests
+import time
 
 class CurrencyClient:
     def __init__(self):
@@ -12,7 +13,13 @@ class CurrencyClient:
             raise ValueError("api key must be present")
 
     def get_crypto_quote(self):
-        response = requests.get("https://api.polygon.io/v1/last/crypto/{}/USD?apiKey={}".format(self.currency_ticker, self.api_key))
+        response = None
+        for i in range(20):
+            try:
+                response = requests.get("https://api.polygon.io/v1/last/crypto/{}/USD?apiKey={}".format(self.currency_ticker, self.api_key))
+            except(Exception) as e:
+                logger.error("Problem requesting currency information: {}".format(e))
+                time.sleep(1)
         
         if response.json()['status'] != 'success':
             logger.error('Problem getting currency information')
