@@ -5,3 +5,4 @@ pyway==0.3.32
 python-dotenv==1.0.1
 psycopg2-binary==2.9.10
 polygon-api-client
+freezegun

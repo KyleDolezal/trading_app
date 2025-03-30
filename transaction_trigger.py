@@ -4,6 +4,7 @@ import os
 import statistics
 from api.currency_quote import CurrencyClient
 import time
+import datetime
 
 class TransactionTrigger:
     def __init__(self):
@@ -24,7 +25,14 @@ class TransactionTrigger:
         difference = price - average
         percent_difference = (difference/average) * 100
 
-        if (self.next_action == 'buy') and (percent_difference > self.change_threshold):
+        now = datetime.datetime.now()
+        today830am = now.replace(hour=8, minute=30, second=0, microsecond=0)
+        if now < today830am:
+            return 'hold'
+        
+        today230pm = now.replace(hour=14, minute=30, second=0, microsecond=0)
+
+        if (self.next_action == 'buy') and (percent_difference > self.change_threshold) and (now < today230pm):
             self.next_action = 'sell'
             self.bought_price = price
             return 'buy'

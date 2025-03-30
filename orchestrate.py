@@ -46,4 +46,4 @@ class Orchestrator():
             elif self.waiting_for_action == 'sell':
                 self.sellable_shares = self.account_status.calculate_sellable_shares()
 
-        time.sleep(1)
+        time.sleep(.5)
