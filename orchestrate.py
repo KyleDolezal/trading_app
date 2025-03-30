@@ -27,17 +27,15 @@ class Orchestrator():
 
         if action == 'buy':
             order = self.transact_client.buy(self.buyable_shares)
-            if order:
-                order_id = self.order_status.get_order_id(order)
-                self.waiting_for_action = 'sell'
+            order_id = self.order_status.get_order_id(order)
+            self.waiting_for_action = 'sell'
             self.account_status.update_positions()
             self.sellable_shares = self.account_status.calculate_sellable_shares()
         elif 'sell' in action:
-            order = self.transact_client.sell(self.sellable_shares, 'MARKET')
-            if order:
-                order_id = self.order_status.get_order_id(order)
-                self.order_status.await_order_filled(order_id)
-                self.waiting_for_action = 'buy'
+            order = self.transact_client.sell(self.sellable_shares, 'MARKET')       
+            order_id = self.order_status.get_order_id(order)
+            self.order_status.await_order_filled(order_id)
+            self.waiting_for_action = 'buy'
             self.account_status.update_positions()
             self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
         elif action == 'hold':
