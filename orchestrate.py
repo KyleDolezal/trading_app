@@ -72,4 +72,4 @@ class Orchestrator():
             price = resp[0][1]
             if action == 'buy':
                 self.transaction_trigger.next_action = 'sell'
-                self.transaction_trigger.bought_price = price
+                self.transaction_trigger.bought_price = float(price)
