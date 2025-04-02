@@ -10,10 +10,12 @@ import time
 import datetime
 from pg_adapter import PG_Adapter
 logger = logging.getLogger(__name__)
+import os
 
 
 class Orchestrator():
     def __init__(self):
+        self.target_symbol = os.getenv("TARGET_SYMBOL")
         self.pg_adapter = PG_Adapter()
         self.account_status = AccountStatus()
         self.order_status = OrderStatus()
@@ -57,15 +59,16 @@ class Orchestrator():
         time.sleep(.5)
 
     def record_transaction(self, price, instruction, quantity, order_id):
-        sql_string = "insert into trades (order_type, price, timestamp, order_id, quantity) values ('{}', {}, '{}', {}, '{}');".format(instruction, 
+        sql_string = "insert into trades (order_type, price, timestamp, order_id, quantity, ticker) values ('{}', {}, '{}', {}, '{}', {});".format(instruction, 
             price,
             datetime.datetime.now(), 
             order_id,
-            quantity)
+            quantity,
+            self.target_symbol)
         self.pg_adapter.exec_query(sql_string)
 
     def _bootstrap(self):
-        sql_string = 'select * from trades order by timestamp desc limit 1;'
+        sql_string = "select * from trades where ticker = '{}' order by timestamp desc limit 1;".format(self.target_symbol)
         resp = self.pg_adapter.exec_query(sql_string)
         if resp:
             action = resp[0][0]
