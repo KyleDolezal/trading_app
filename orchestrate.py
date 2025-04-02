@@ -59,7 +59,7 @@ class Orchestrator():
         time.sleep(.5)
 
     def record_transaction(self, price, instruction, quantity, order_id):
-        sql_string = "insert into trades (order_type, price, timestamp, order_id, quantity, ticker) values ('{}', {}, '{}', {}, '{}', {});".format(instruction, 
+        sql_string = "insert into trades (order_type, price, timestamp, order_id, quantity, ticker) values ('{}', {}, '{}', {}, '{}', '{}');".format(instruction, 
             price,
             datetime.datetime.now(), 
             order_id,
@@ -74,5 +74,6 @@ class Orchestrator():
             action = resp[0][0]
             price = resp[0][1]
             if action == 'buy':
+                self.waiting_for_action = 'sell'
                 self.transaction_trigger.next_action = 'sell'
-                self.transaction_trigger.bought_price = float(price)
+                self.transaction_trigger.bought_price = float(price[1:])

@@ -41,3 +41,16 @@ class CurrencyClient:
 
     def parse_forex_response(response):
         return response.json()['last']['ask']
+    
+    def get_snapshot(self):
+        response = None
+        for i in range(20):
+            try:
+                response = requests.get("https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/tickers/X:{}USD?apiKey={}".format(self.currency_ticker, self.api_key))
+                return self.parse_snapshot(response.json())
+            except(Exception) as e:
+                logger.error("Problem requesting currency information: {}".format(e))
+                time.sleep(1)
+    
+    def parse_snapshot(self, resp):
+        return float(resp['ticker']['todaysChangePerc'])

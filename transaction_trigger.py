@@ -12,6 +12,7 @@ class TransactionTrigger:
         self.change_threshold = float(os.getenv('CHANGE_THRESHOLD'))
         self.history = []
         self.next_action = None
+        self.currency_client = CurrencyClient()
         self._boot_strap()
         self.bought_price = None
         self.today830am = datetime.datetime.now().replace(hour=8, minute=30, second=0, microsecond=0)
@@ -27,11 +28,16 @@ class TransactionTrigger:
         if datetime.datetime.now() < self.today830am:
             return 'hold'
 
-        if (self.next_action == 'buy') and (percent_difference > self.change_threshold) and (datetime.datetime.now() < self.today230pm):
+        if (self.next_action == 'buy') and \
+                (percent_difference > self.change_threshold) and \
+                (datetime.datetime.now() < self.today230pm) and \
+                not self._is_down_market():
             self.next_action = 'sell'
             self.bought_price = price
             return 'buy'
-        elif (self.next_action == 'sell') and (price >= self.bought_price) and (percent_difference < self.change_threshold) and abs(percent_difference) > self.change_threshold:
+        elif (self.next_action == 'sell') and (price >= self.bought_price) \
+                and (percent_difference < self.change_threshold) \
+                and abs(percent_difference) > self.change_threshold:
             self.next_action = 'buy'
             return 'sell'
         else:
@@ -43,12 +49,12 @@ class TransactionTrigger:
         return ((difference/average) * 100)
         
     def _boot_strap(self):
-        currency_client = CurrencyClient()
-
         for i in range(self.history_length):
-            self.history.append(currency_client.get_crypto_quote())
+            self.history.append(self.currency_client.get_crypto_quote())
             time.sleep(1)
 
         self.next_action = 'buy'
-
+    
+    def _is_down_market(self):
+        return self.currency_client.get_snapshot() <= -1
         
