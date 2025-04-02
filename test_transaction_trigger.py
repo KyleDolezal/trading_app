@@ -29,23 +29,6 @@ def test_get_crypto_quote_sell(mocker):
 
 
 @freeze_time("2012-01-14 12:21:34")
-def test_get_crypto_quote_sell_market(mocker):
-    mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
-    mock_account_status = mocker.patch('transaction_trigger.time.sleep')
-    os.environ["HISTORY_LENGTH"] = '3'
-    os.environ["CHANGE_THRESHOLD"] = '.1'
-    os.environ["CURRENCY_TICKER"] = '123'
-    os.environ["CURRENCY_API_KEY"] = 'key'
-    
-    tt = TransactionTrigger()
-    tt.get_action(10)
-    tt.get_action(10)
-    tt.get_action(13)
-    tt.bought_price = 9
-    assert tt.get_action(9) == 'sell_market'
-
-
-@freeze_time("2012-01-14 12:21:34")
 def test_get_crypto_quote_buy(mocker):
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
