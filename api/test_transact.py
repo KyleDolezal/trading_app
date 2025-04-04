@@ -32,6 +32,7 @@ class MockFailedResponse(object):
 
 def test_buy(mocker):
     mocker.patch('transact.TransactClient.__init__', return_value=None)
+    mocker.patch('transact.time.sleep')
     transact_client = TransactClient()
     transact_client.client = MockClient()
     transact_client.target_symbol = "SCHB"
@@ -41,6 +42,7 @@ def test_buy(mocker):
 
 def test_sell(mocker):
     mocker.patch('transact.TransactClient.__init__', return_value=None)
+    mocker.patch('transact.time.sleep')
     transact_client = TransactClient()
     transact_client.client = MockClient()
     transact_client.target_symbol = "SCHB"
@@ -50,6 +52,7 @@ def test_sell(mocker):
 
 def test_sell_zero_limit(mocker):
     mocker.patch('transact.TransactClient.__init__', return_value=None)
+    mocker.patch('transact.time.sleep')
     transact_client = TransactClient()
     transact_client.client = MockClient()
     transact_client.target_symbol = "SCHB"
@@ -59,6 +62,7 @@ def test_sell_zero_limit(mocker):
 
 def test_sell_market(mocker):
     mocker.patch('transact.TransactClient.__init__', return_value=None)
+    mocker.patch('transact.time.sleep')
     transact_client = TransactClient()
     transact_client.client = MockClient()
     transact_client.target_symbol = "SCHB"
@@ -68,6 +72,7 @@ def test_sell_market(mocker):
 
 def test_buy_bad_response(mocker):
     mocker.patch('transact.TransactClient.__init__', return_value=None)
+    mocker.patch('transact.time.sleep')
     transact_client = TransactClient()
     transact_client.client = MockClientFailed()
     transact_client.target_symbol = "SCHB"
@@ -80,6 +85,7 @@ def test_buy_bad_response(mocker):
 
 def test_sell_bad_response(mocker):
     mocker.patch('transact.TransactClient.__init__', return_value=None)
+    mocker.patch('transact.time.sleep')
     transact_client = TransactClient()
     transact_client.client = MockClientFailed()
     transact_client.target_symbol = "SCHB"

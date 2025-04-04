@@ -10,20 +10,18 @@ class TransactClient(ApiBase):
         self.order_status = OrderStatus()
     
     def _transact(self, json):
-        order = None
         for i in range(20):
             try:
                 order = self.client.order_place(self.account_number, json)
-                break
+                if order.status_code != 201:
+                    logger.error("Error with order: {}".format(order.headers))
+                    logger.error(self.order_status.get_order_id(order))
+                    logger.error(json)
+                    time.sleep(15)
+                    raise Exception('Order error')
+                return order
             except(Exception) as e:
                 time.sleep(5)
-        if order.status_code != 201:
-            logger.error("Error with order: {}".format(order.headers))
-            logger.error(self.order_status.get_order_id(order))
-            logger.error(json)
-            return None
-        else:
-            return order
 
     def buy(self, quantity):
         request_body_json = {
