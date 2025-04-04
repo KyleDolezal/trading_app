@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 from orchestrate import Orchestrator
 from handle_exit import handle_exit
 import logging
+import os
 logger = logging.getLogger(__name__)
 
 def main():
@@ -10,7 +11,7 @@ def main():
 
     load_dotenv()
 
-    orchestrator = Orchestrator()
+    orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'))
 
     while True:
         orchestrator.orchestrate()

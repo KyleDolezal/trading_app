@@ -5,8 +5,9 @@ import time
 from api.order_status import OrderStatus
 
 class TransactClient(ApiBase):
-    def __init__(self):
+    def __init__(self, target_symbol):
         super().__init__()
+        self.target_symbol = target_symbol
         self.order_status = OrderStatus()
     
     def _transact(self, json):

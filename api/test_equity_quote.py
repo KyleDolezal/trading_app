@@ -29,7 +29,7 @@ def test_initializes_when_env_vars_present(mocker):
     mock_account_status = mocker.patch('equity_quote.EquityClient.__init__')
     mock_account_status.return_value = None
 
-    EquityClient()
+    EquityClient('IBIT')
 
     assert True
 
@@ -41,7 +41,7 @@ def test_parse_quote(mocker):
     os.environ["CASH_TO_SAVE"] = '100'
     os.environ["EQUITY_API_KEY"] = 'abc'
 
-    equity_client = EquityClient()
+    equity_client = EquityClient('IBIT')
 
     assert equity_client.parse_quote(MockResponse()) == 46.75
 
@@ -55,6 +55,6 @@ def test_quote(mocker):
 
     mock_client = mocker.patch('equity_quote.RESTClient')
     mock_client.return_value = MockClient()
-    quote = EquityClient().get_equity_quote()
+    quote = EquityClient('IBIT').get_equity_quote()
 
     assert quote == 46.75

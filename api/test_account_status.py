@@ -16,7 +16,7 @@ class MockResponse(object):
     
 class MockEqClient(object):
     def get_equity_quote(params):
-        return MockResponse()
+        return 46.75
     def quotes(params, kwargs):
         return MockResponse()
     def get_last_trade(self, params):
@@ -55,7 +55,7 @@ account_info_json = {'securitiesAccount': {'type': 'MARGIN', 'accountNumber': '1
 
 def test_raise_error_on_missing_env_vars():
     try:
-        AccountStatus()
+        AccountStatus(MockEqClient(), 'SCHB')
     except ValueError:
         assert True
 
@@ -70,7 +70,7 @@ def test_initializes_when_env_vars_present(mocker):
     mock_account_status = mocker.patch('account_status.AccountStatus.__init__')
     mock_account_status.return_value = None
 
-    AccountStatus()
+    AccountStatus(MockEqClient(), 'SCHB')
 
     assert True
 
@@ -84,7 +84,7 @@ def test_calculate_tradable_funds(mocker):
     mock_account_status = mocker.patch('account_status.AccountStatus.__init__')
     mock_account_status.return_value = None
 
-    assert AccountStatus().calculate_tradable_funds(100, 50, 60) == 50
+    assert AccountStatus(MockEqClient(), 'SCHB').calculate_tradable_funds(100, 50, 60) == 50
 
 def test_parse_account_info(mocker):
     os.environ["ACCOUNT_NUMBER"] = '123'
@@ -96,7 +96,7 @@ def test_parse_account_info(mocker):
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClient()
-    accountStatus = AccountStatus()
+    accountStatus = AccountStatus(MockEqClient(), 'SCHB')
 
     assert accountStatus.parse_account_info(account_info_json) == {'position_balance': 93061.05, 'tradable_funds': 34122.49}
 
@@ -110,7 +110,7 @@ def test_get_account_status(mocker):
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClient()
-    accountStatus = AccountStatus().get_account_status()
+    accountStatus = AccountStatus(MockEqClient(), 'SCHB').get_account_status()
 
     assert accountStatus == {'position_balance': 93061.05, 'tradable_funds': 34122.49}
 
@@ -125,7 +125,7 @@ def test_update_positions(mocker):
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClient()
 
-    astat = AccountStatus()
+    astat = AccountStatus(MockEqClient(), 'SCHB')
     astat.update_positions()
     assert astat.funds == 34122.49
 
@@ -142,7 +142,7 @@ def test_calculate_buyable_shares(mocker):
     mock_eq = mocker.patch('api.equity_quote.RESTClient')
     mock_eq.return_value = MockEqClient()
 
-    astat = AccountStatus()
+    astat = AccountStatus(MockEqClient(), 'SCHB')
     assert astat.calculate_buyable_shares() == {'price': 46.75, 'shares': 730}
 
 def test_calculate_sellable_shares(mocker):
@@ -158,5 +158,5 @@ def test_calculate_sellable_shares(mocker):
     mock_eq = mocker.patch('api.equity_quote.RESTClient')
     mock_eq.return_value = MockEqClient()
 
-    astat = AccountStatus()
+    astat = AccountStatus(MockEqClient(), 'SCHB')
     assert astat.calculate_sellable_shares() == 1991

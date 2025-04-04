@@ -7,9 +7,10 @@ from api.api_base import ApiBase
 from api.equity_quote import EquityClient
 
 class AccountStatus(ApiBase):
-    def __init__(self):
+    def __init__(self, equity_client, target_symbol):
         super().__init__()
-        self.equity_client = EquityClient()
+        self.equity_client = equity_client
+        self.target_symbol = target_symbol
         self.update_positions()
         
     def parse_account_info(self, account_response):

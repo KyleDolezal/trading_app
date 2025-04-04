@@ -9,7 +9,6 @@ class ApiBase:
         self.app_key = os.getenv('APP_KEY') 
         self.app_secret = os.getenv('APP_SECRET')
         self.cash_to_save = os.getenv('CASH_TO_SAVE')
-        self.target_symbol = os.getenv("TARGET_SYMBOL")
 
         if self.account_number is None or self.app_key is None or self.app_secret is None:
             raise ValueError("account number, app key, and app secret environment variables must be present")

@@ -4,9 +4,10 @@ logger = logging.getLogger(__name__)
 from polygon import RESTClient
 
 class EquityClient:
-    def __init__(self):
+    def __init__(self, target_symbol):
         self.api_key = os.getenv('EQUITY_API_KEY')
         self.equity_ticker = os.getenv('TARGET_SYMBOL')
+        self.target_symbol = target_symbol
 
         if self.api_key is None:
             raise ValueError("api key must be present")

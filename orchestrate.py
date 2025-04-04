@@ -14,39 +14,40 @@ import os
 
 
 class Orchestrator():
-    def __init__(self):
-        self.target_symbol = os.getenv("TARGET_SYMBOL")
+    def __init__(self, target_symbol):
+        self.target_symbol = target_symbol
         self.pg_adapter = PG_Adapter()
-        self.account_status = AccountStatus()
+        self.account_status = AccountStatus(EquityClient(target_symbol), target_symbol)
         self.order_status = OrderStatus()
-        self.transact_client = TransactClient()
-        self.equity_client = EquityClient()
+        self.transact_client = TransactClient(target_symbol)
+        self.equity_client = EquityClient(target_symbol)
         self.currency_client = CurrencyClient()
         self.transaction_trigger = TransactionTrigger()
-        self.buyable_shares = self.account_status.calculate_buyable_shares()
+        self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
         time.sleep(1)
         self.sellable_shares = self.account_status.calculate_sellable_shares()
         self.waiting_for_action = 'buy'
         self._bootstrap()
 
     def orchestrate(self):
-        action = self.transaction_trigger.get_action(self.currency_client.get_crypto_quote())
+        source_price = self.currency_client.get_crypto_quote()
+        action = self.transaction_trigger.get_action(source_price)
 
         if action == 'buy':
             order = self.transact_client.buy(self.buyable_shares)
             order_id = self.order_status.get_order_id(order)
-            price = self.order_status.await_order_filled(order_id)
+            self.order_status.await_order_filled(order_id)
             quantity = self.buyable_shares
-            self.record_transaction(price, 'buy', quantity, order_id)
+            self.record_transaction(source_price, 'buy', quantity, order_id)
             self.waiting_for_action = 'sell'
             self.account_status.update_positions()
             self.sellable_shares = self.account_status.calculate_sellable_shares()
         elif 'sell' in action:
             order = self.transact_client.sell(self.sellable_shares, 'MARKET')       
             order_id = self.order_status.get_order_id(order)
-            price = self.order_status.await_order_filled(order_id)
+            self.order_status.await_order_filled(order_id)
             quantity = self.sellable_shares
-            self.record_transaction(price, 'buy', quantity, order_id)
+            self.record_transaction(source_price, 'sell', quantity, order_id)
             self.waiting_for_action = 'buy'
             self.account_status.update_positions()
             self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
