@@ -14,7 +14,7 @@ import os
 
 
 class Orchestrator():
-    def __init__(self, target_symbol):
+    def __init__(self, target_symbol, transaction_trigger):
         self.target_symbol = target_symbol
         self.pg_adapter = PG_Adapter()
         self.account_status = AccountStatus(EquityClient(target_symbol), target_symbol)
@@ -22,7 +22,7 @@ class Orchestrator():
         self.transact_client = TransactClient(target_symbol)
         self.equity_client = EquityClient(target_symbol)
         self.currency_client = CurrencyClient()
-        self.transaction_trigger = TransactionTrigger()
+        self.transaction_trigger = transaction_trigger
         self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
         time.sleep(1)
         self.sellable_shares = self.account_status.calculate_sellable_shares()
