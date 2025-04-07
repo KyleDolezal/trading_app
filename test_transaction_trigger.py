@@ -96,3 +96,4 @@ def test_is_up_market(mocker):
 
     tt = TransactionTrigger()
     assert tt._is_down_market() == False
+    assert tt._is_up_market() == True
