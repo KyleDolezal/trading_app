@@ -5,6 +5,7 @@ from api.currency_quote import CurrencyClient
 from api.order_status import OrderStatus
 from api.equity_quote import EquityClient
 from api.transact import TransactClient
+from orchestrator_base import OrchestratorBase
 from transaction_trigger import TransactionTrigger
 import time
 import datetime
@@ -13,10 +14,10 @@ logger = logging.getLogger(__name__)
 import os
 
 
-class Orchestrator():
+class Orchestrator(OrchestratorBase):
     def __init__(self, target_symbol):
+        super().__init__()
         self.target_symbol = target_symbol
-        self.pg_adapter = PG_Adapter()
         self.account_status = AccountStatus(EquityClient(target_symbol), target_symbol)
         self.order_status = OrderStatus()
         self.transact_client = TransactClient(target_symbol)
