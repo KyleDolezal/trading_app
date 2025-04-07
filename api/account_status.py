@@ -11,6 +11,7 @@ class AccountStatus(ApiBase):
         super().__init__()
         self.equity_client = equity_client
         self.target_symbol = target_symbol
+        self.num_clients = int(os.getenv('NUM_CLIENTS'))
         self.update_positions()
         
     def parse_account_info(self, account_response):
@@ -29,7 +30,7 @@ class AccountStatus(ApiBase):
 
     def calculate_tradable_funds(self, current_cash, cash_to_save, dtbp):
         usable_cash = current_cash - int(float(cash_to_save))
-        return min(usable_cash, dtbp)
+        return (min(usable_cash, dtbp)/self.num_clients)
     
     def calculate_buyable_shares(self):
         price = self.equity_client.get_equity_quote()

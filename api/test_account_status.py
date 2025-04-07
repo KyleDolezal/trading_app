@@ -65,7 +65,7 @@ def test_initializes_when_env_vars_present(mocker):
     os.environ["APP_SECRET"] = 'secret'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     os.environ["EQUITY_API_KEY"] = 'abc'
-
+    os.environ['NUM_CLIENTS'] = '1'
 
     mock_account_status = mocker.patch('account_status.AccountStatus.__init__')
     mock_account_status.return_value = None
@@ -80,11 +80,14 @@ def test_calculate_tradable_funds(mocker):
     os.environ["APP_SECRET"] = 'secret'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     os.environ["EQUITY_API_KEY"] = 'abc'
+    os.environ['NUM_CLIENTS'] = '1'
 
     mock_account_status = mocker.patch('account_status.AccountStatus.__init__')
     mock_account_status.return_value = None
 
-    assert AccountStatus(MockEqClient(), 'SCHB').calculate_tradable_funds(100, 50, 60) == 50
+    astat = AccountStatus(MockEqClient(), 'SCHB')
+    astat.num_clients = 1
+    assert astat.calculate_tradable_funds(100, 50, 60) == 50
 
 def test_parse_account_info(mocker):
     os.environ["ACCOUNT_NUMBER"] = '123'
@@ -93,6 +96,7 @@ def test_parse_account_info(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     os.environ["EQUITY_API_KEY"] = 'abc'
     os.environ["CASH_TO_SAVE"] = '100'
+    os.environ['NUM_CLIENTS'] = '1'
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClient()
@@ -107,6 +111,7 @@ def test_get_account_status(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     os.environ["CASH_TO_SAVE"] = '100'
     os.environ["EQUITY_API_KEY"] = 'abc'
+    os.environ['NUM_CLIENTS'] = '1'
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClient()
@@ -121,6 +126,7 @@ def test_update_positions(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     os.environ["CASH_TO_SAVE"] = '100'
     os.environ["EQUITY_API_KEY"] = 'abc'
+    os.environ['NUM_CLIENTS'] = '1'
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClient()
@@ -136,6 +142,7 @@ def test_calculate_buyable_shares(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     os.environ["CASH_TO_SAVE"] = '100'
     os.environ["EQUITY_API_KEY"] = 'abc'
+    os.environ['NUM_CLIENTS'] = '1'
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClient()
@@ -145,6 +152,23 @@ def test_calculate_buyable_shares(mocker):
     astat = AccountStatus(MockEqClient(), 'SCHB')
     assert astat.calculate_buyable_shares() == {'price': 46.75, 'shares': 730}
 
+def test_calculate_buyable_shares_multiple_clients(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+    os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
+    os.environ['NUM_CLIENTS'] = '2'
+
+    mock_client = mocker.patch('account_status.schwabdev.Client')
+    mock_client.return_value = MockClient()
+    mock_eq = mocker.patch('api.equity_quote.RESTClient')
+    mock_eq.return_value = MockEqClient()
+
+    astat = AccountStatus(MockEqClient(), 'SCHB')
+    assert astat.calculate_buyable_shares() == {'price': 46.75, 'shares': 365}
+
 def test_calculate_sellable_shares(mocker):
     os.environ["ACCOUNT_NUMBER"] = '123'
     os.environ["APP_KEY"] = 'key'
@@ -152,6 +176,7 @@ def test_calculate_sellable_shares(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     os.environ["CASH_TO_SAVE"] = '100'
     os.environ["EQUITY_API_KEY"] = 'abc'
+    os.environ['NUM_CLIENTS'] = '1'
 
     mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClient()
