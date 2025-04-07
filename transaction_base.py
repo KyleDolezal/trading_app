@@ -17,31 +17,6 @@ class TransactionBase:
         self.bought_price = None
         self.today830am = datetime.datetime.now().replace(hour=8, minute=30, second=0, microsecond=0)
         self.today230pm = datetime.datetime.now().replace(hour=14, minute=30, second=0, microsecond=0)
-    
-    def get_action(self, price):
-        self.history.append(price)
-        if len(self.history) > self.history_length:
-            self.history = self.history[1:]
-
-        percent_difference = self._get_price_difference(price)
-
-        if datetime.datetime.now() < self.today830am:
-            return 'hold'
-
-        if (self.next_action == 'buy') and \
-                (percent_difference > self.change_threshold) and \
-                (datetime.datetime.now() < self.today230pm) and \
-                not self._is_down_market():
-            self.next_action = 'sell'
-            self.bought_price = price
-            return 'buy'
-        elif (self.next_action == 'sell') and (price >= self.bought_price) \
-                and (percent_difference < self.change_threshold) \
-                and abs(percent_difference) > self.change_threshold:
-            self.next_action = 'buy'
-            return 'sell'
-        else:
-            return 'hold'
         
     def _get_price_difference(self, price):
         average = statistics.mean(self.history)

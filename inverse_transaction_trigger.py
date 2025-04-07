@@ -7,7 +7,7 @@ import time
 from transaction_base import TransactionBase
 import datetime
 
-class TransactionTrigger(TransactionBase):
+class InverseTransactionTrigger(TransactionBase):
     def __init__(self):
         super().__init__()
     
@@ -17,7 +17,7 @@ class TransactionTrigger(TransactionBase):
             self.history = self.history[1:]
 
         percent_difference = self._get_price_difference(price)
-
+        
         if datetime.datetime.now() < self.today830am:
             return 'hold'
 

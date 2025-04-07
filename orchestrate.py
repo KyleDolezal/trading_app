@@ -74,6 +74,7 @@ class Orchestrator():
         if resp:
             action = resp[0][0]
             price = resp[0][1]
+            price = price.replace(',', '')
             if action == 'buy':
                 self.waiting_for_action = 'sell'
                 self.transaction_trigger.next_action = 'sell'
