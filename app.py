@@ -13,12 +13,14 @@ def main():
 
     load_dotenv()
 
+    symbols = [os.getenv('TARGET_SYMBOL'), os.getenv('INVERSE_TARGET_SYMBOL')]
+
     transaction_trigger = TransactionTrigger()
-    orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), transaction_trigger)
+    orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), transaction_trigger, symbols)
 
 
     inverse_transaction_trigger = InverseTransactionTrigger()
-    inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), inverse_transaction_trigger)
+    inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), inverse_transaction_trigger, symbols)
 
     while True:
         orchestrator.orchestrate()

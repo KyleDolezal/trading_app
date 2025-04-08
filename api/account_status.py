@@ -5,13 +5,16 @@ import logging
 logger = logging.getLogger(__name__)
 from api.api_base import ApiBase
 from api.equity_quote import EquityClient
+from pg_adapter import PG_Adapter
 
 class AccountStatus(ApiBase):
-    def __init__(self, equity_client, target_symbol):
+    def __init__(self, equity_client, target_symbol, symbols):
         super().__init__()
         self.equity_client = equity_client
         self.target_symbol = target_symbol
         self.num_clients = int(os.getenv('NUM_CLIENTS'))
+        self.pg_adapter = PG_Adapter()
+        self.symbols = symbols
         self.update_positions()
         
     def parse_account_info(self, account_response):
@@ -30,11 +33,14 @@ class AccountStatus(ApiBase):
 
     def calculate_tradable_funds(self, current_cash, cash_to_save, dtbp):
         usable_cash = current_cash - int(float(cash_to_save))
-        return (min(usable_cash, dtbp)/self.num_clients)
+        return min(usable_cash, dtbp)
     
     def calculate_buyable_shares(self):
         price = self.equity_client.get_equity_quote()
         shares = int(round(self.funds / price, 0))
+        if not self.securities_bought():
+            shares = round(shares / self.num_clients)
+            
         return {"price": price, "shares": shares}
     
     def calculate_sellable_shares(self):
@@ -59,3 +65,12 @@ class AccountStatus(ApiBase):
                 time.sleep(5)
         
         raise Exception('Problem with getting account status')
+    
+    def securities_bought(self):
+        sql_string = "with trades as ( select row_number() over (partition by ticker order by timestamp desc), * from trades where ticker in ({})) select order_type from trades where row_number = 1;".format(", ".join([f"'{s}'" for s in self.symbols]))
+        resp = self.pg_adapter.exec_query(sql_string)
+        if resp:
+            for action in resp[0]:
+                if action == 'buy':
+                    return True
+        return False

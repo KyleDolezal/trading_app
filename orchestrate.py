@@ -14,10 +14,10 @@ import os
 
 
 class Orchestrator():
-    def __init__(self, target_symbol, transaction_trigger):
+    def __init__(self, target_symbol, transaction_trigger, symbols):
         self.target_symbol = target_symbol
         self.pg_adapter = PG_Adapter()
-        self.account_status = AccountStatus(EquityClient(target_symbol), target_symbol)
+        self.account_status = AccountStatus(EquityClient(target_symbol), target_symbol, symbols)
         self.order_status = OrderStatus()
         self.transact_client = TransactClient(target_symbol)
         self.equity_client = EquityClient(target_symbol)

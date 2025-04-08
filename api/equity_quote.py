@@ -6,7 +6,6 @@ from polygon import RESTClient
 class EquityClient:
     def __init__(self, target_symbol):
         self.api_key = os.getenv('EQUITY_API_KEY')
-        self.equity_ticker = os.getenv('TARGET_SYMBOL')
         self.target_symbol = target_symbol
 
         if self.api_key is None:
@@ -19,7 +18,7 @@ class EquityClient:
 
     def get_equity_quote(self):
         try:
-            response = self.client.get_last_trade(self.equity_ticker)
+            response = self.client.get_last_trade(self.target_symbol)
         except(Exception) as e:
             logger.error("Problem requesting quote information: {}".format(e))
             raise e
