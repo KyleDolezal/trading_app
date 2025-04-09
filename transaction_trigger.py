@@ -30,7 +30,7 @@ class TransactionTrigger(TransactionBase):
             self.running_total -= price
             self.number_of_holds = 0
             return 'buy'
-        elif (self.next_action == 'sell') and (price >= self.bought_price) \
+        elif (self.next_action == 'sell') and ((price >= self.bought_price) or self._override_sell_price(price)) \
                 and (percent_difference < self.change_threshold) \
                 and abs(percent_difference) > self.change_threshold:
             self.next_action = 'buy'
@@ -40,3 +40,9 @@ class TransactionTrigger(TransactionBase):
         else:
             self.number_of_holds += 1
             return 'hold'
+    
+    def _override_sell_price(self, price):
+        override_amount = (.01 / self.holds_per_override_cent) * self.number_of_holds
+        spread = self.bought_price - price
+        return (override_amount - spread <= 0) and (self.running_total + price >= 0)
+    

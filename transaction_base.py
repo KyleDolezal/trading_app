@@ -19,6 +19,7 @@ class TransactionBase:
         self.today230pm = datetime.datetime.now().replace(hour=14, minute=30, second=0, microsecond=0)
         self.running_total = 0
         self.number_of_holds = 0
+        self.holds_per_override_cent = int(os.getenv('HOLDS_PER_OVERRIDE_CENT', 100000000000))
         
     def _get_price_difference(self, price):
         average = statistics.mean(self.history)
