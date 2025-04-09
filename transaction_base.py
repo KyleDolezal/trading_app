@@ -17,6 +17,7 @@ class TransactionBase:
         self.bought_price = None
         self.today830am = datetime.datetime.now().replace(hour=8, minute=30, second=0, microsecond=0)
         self.today230pm = datetime.datetime.now().replace(hour=14, minute=30, second=0, microsecond=0)
+        self.running_total = 0
         
     def _get_price_difference(self, price):
         average = statistics.mean(self.history)

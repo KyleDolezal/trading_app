@@ -19,19 +19,21 @@ class TransactionTrigger(TransactionBase):
         percent_difference = self._get_price_difference(price)
 
         if datetime.datetime.now() < self.today830am:
+            self.running_total = 0
             return 'hold'
-
         if (self.next_action == 'buy') and \
                 (percent_difference > self.change_threshold) and \
                 (datetime.datetime.now() < self.today230pm) and \
                 not self._is_down_market():
             self.next_action = 'sell'
             self.bought_price = price
+            self.running_total -= price
             return 'buy'
         elif (self.next_action == 'sell') and (price >= self.bought_price) \
                 and (percent_difference < self.change_threshold) \
                 and abs(percent_difference) > self.change_threshold:
             self.next_action = 'buy'
+            self.running_total += price
             return 'sell'
         else:
             return 'hold'

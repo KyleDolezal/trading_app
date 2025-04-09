@@ -58,6 +58,24 @@ def test_get_crypto_quote_buy(mocker):
     tt.get_action(10)
     assert tt.get_action(10.1) == 'buy'
 
+@freeze_time("2012-01-14 12:21:34")
+def test_running_total(mocker):
+    mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
+    mock_account_status = mocker.patch('transaction_trigger.time.sleep')
+    os.environ["HISTORY_LENGTH"] = '3'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    
+    tt = TransactionTrigger()
+    tt.get_action(10)
+    tt.get_action(10)
+    tt.get_action(14)
+    tt.get_action(20)
+    tt.get_action(20)
+    tt.get_action(20)
+    tt.get_action(15)
+    assert tt.running_total == 1
 
 @freeze_time("2012-01-14 12:21:34")
 def test_get_crypto_quote_hold(mocker):
