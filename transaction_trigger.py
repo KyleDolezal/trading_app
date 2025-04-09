@@ -28,12 +28,15 @@ class TransactionTrigger(TransactionBase):
             self.next_action = 'sell'
             self.bought_price = price
             self.running_total -= price
+            self.number_of_holds = 0
             return 'buy'
         elif (self.next_action == 'sell') and (price >= self.bought_price) \
                 and (percent_difference < self.change_threshold) \
                 and abs(percent_difference) > self.change_threshold:
             self.next_action = 'buy'
             self.running_total += price
+            self.number_of_holds = 0
             return 'sell'
         else:
+            self.number_of_holds += 1
             return 'hold'

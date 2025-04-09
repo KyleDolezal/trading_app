@@ -91,6 +91,20 @@ def test_get_crypto_quote_hold(mocker):
     tt.get_action(10)
     assert tt.get_action(10.01) == 'hold'
 
+@freeze_time("2012-01-14 12:21:34")
+def test_number_of_holds(mocker):
+    mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
+    mock_account_status = mocker.patch('transaction_trigger.time.sleep')
+    os.environ["HISTORY_LENGTH"] = '3'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    
+    tt = TransactionTrigger()
+    tt.get_action(10)
+    tt.get_action(10)
+    assert tt.number_of_holds == 2
+
 def test_is_down_market(mocker):
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockDownResponse())
