@@ -70,11 +70,10 @@ def test_override_true(mocker):
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
-    os.environ['HOLDS_PER_OVERRIDE_CENT'] = '100'
+    os.environ['HOLDS_PER_OVERRIDE_CENT'] = '1'
     
     tt = TransactionTrigger()
     tt.number_of_holds=10
-    tt.running_total=2
     tt.next_action='sell'
     tt.bought_price=10
     tt.running_total = -1
