@@ -17,6 +17,7 @@ class CurrencyClient:
         for i in range(20):
             try:
                 response = requests.get("https://api.polygon.io/v1/last/crypto/{}/USD?apiKey={}".format(self.currency_ticker, self.api_key))
+                break
             except(Exception) as e:
                 logger.error("Problem requesting currency information: {}".format(e))
                 time.sleep(1)
