@@ -44,5 +44,7 @@ class TransactionTrigger(TransactionBase):
     def _override_sell_price(self, price):
         override_amount = float(.01 / self.holds_per_override_cent) * self.number_of_holds
         spread = self.bought_price - price
-        return (spread - override_amount <= 0) and (self.running_total + price >= 0)
-    
+        will_override = (spread - override_amount <= 0) and (self.running_total + price >= 0)
+        if will_override:
+            logger.info('Overriding sell behavior', self)
+        return will_override
