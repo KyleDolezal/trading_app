@@ -34,7 +34,7 @@ class TransactionBase:
         self.next_action = 'buy'
     
     def _is_down_market(self):
-        return self.currency_client.get_snapshot() <= -1
+        return self.currency_client.get_snapshot() <= -.5
         
     def _is_up_market(self):
-        return self.currency_client.get_snapshot() >= 1
+        return self.currency_client.get_snapshot() >= .5
