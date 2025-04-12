@@ -7,7 +7,7 @@ import time
 import datetime
 
 class TransactionBase:
-    def __init__(self):
+    def __init__(self, test_mode=False):
         self.history_length = int(os.getenv('HISTORY_LENGTH'))
         self.change_threshold = float(os.getenv('CHANGE_THRESHOLD'))
         self.history = []
@@ -20,6 +20,7 @@ class TransactionBase:
         self.running_total = 0
         self.number_of_holds = 0
         self.holds_per_override_cent = int(os.getenv('HOLDS_PER_OVERRIDE_CENT', 100000000000))
+        self.test_mode = test_mode
         
     def _get_price_difference(self, price):
         average = statistics.mean(self.history)
@@ -34,7 +35,11 @@ class TransactionBase:
         self.next_action = 'buy'
     
     def _is_down_market(self):
+        if self.test_mode:
+            return False
         return self.currency_client.get_snapshot() <= -.5
         
     def _is_up_market(self):
+        if self.test_mode:
+            return False
         return self.currency_client.get_snapshot() >= .5

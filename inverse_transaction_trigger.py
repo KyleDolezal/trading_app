@@ -8,8 +8,8 @@ from transaction_base import TransactionBase
 import datetime
 
 class InverseTransactionTrigger(TransactionBase):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, test_mode=False):
+        super().__init__(test_mode)
     
     def get_action(self, price):
         self.history.append(price)
@@ -18,7 +18,7 @@ class InverseTransactionTrigger(TransactionBase):
 
         percent_difference = self._get_price_difference(price)
         
-        if datetime.datetime.now() < self.today830am:
+        if datetime.datetime.now() < self.today830am and not self.test_mode:
             return 'hold'
 
         if (self.next_action == 'sell') and \
@@ -29,7 +29,7 @@ class InverseTransactionTrigger(TransactionBase):
         elif (self.next_action == 'buy') \
                 and (percent_difference < self.change_threshold) \
                 and abs(percent_difference) > self.change_threshold and \
-                (datetime.datetime.now() < self.today230pm) and \
+                (datetime.datetime.now() < self.today230pm or self.test_mode) and \
                 not self._is_up_market():
             self.next_action = 'sell'
             self.bought_price = price
