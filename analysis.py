@@ -9,14 +9,14 @@ load_dotenv()
 
 TARGET_SYMBOL = 'IBIT'
 SOURCE_SYMBOL = 'BTC'
-START_TIMESTAMP = 1738765800000000000
-END_TIMESTAMP = 1738789200000000000
+START_TIMESTAMP = 1743687000000000000
+END_TIMESTAMP = 1743710400000000000
 HISTORY_LENGTH=50
-CHANGE_THRESHOLD=.01
+CHANGE_THRESHOLD=.077
 
 currency_client = CurrencyClient()
 equity_client = EquityClient(TARGET_SYMBOL)
-transaction_trigger = TransactionTrigger()
+transaction_trigger = TransactionTrigger(test_mode=True)
 
 total = 0
 sold_price = 0
@@ -26,7 +26,7 @@ bought_price = 0
 transaction_trigger.history_length = HISTORY_LENGTH
 transaction_trigger.change_threshold = CHANGE_THRESHOLD
 
-for timestamp in range(START_TIMESTAMP, END_TIMESTAMP, 1000000000):
+for timestamp in range(START_TIMESTAMP, END_TIMESTAMP, 500000000):
     try:
         resp = requests.get("https://api.polygon.io/v3/trades/X:{}-USD?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(SOURCE_SYMBOL, timestamp,  os.getenv('EQUITY_API_KEY')))
         price = resp.json()['results'][0]['price']
