@@ -21,6 +21,7 @@ class TransactionBase:
         self.number_of_holds = 0
         self.holds_per_override_cent = int(os.getenv('HOLDS_PER_OVERRIDE_CENT', 100000000000))
         self.test_mode = test_mode
+        self.market_direction_threshold = float(os.getenv('MARKET_DIRECTION_THRESHOLD'))
         
     def _get_price_difference(self, price):
         average = statistics.mean(self.history)
@@ -37,9 +38,9 @@ class TransactionBase:
     def _is_down_market(self):
         if self.test_mode:
             return False
-        return self.currency_client.get_snapshot() <= -.5
+        return self.currency_client.get_snapshot() <= self.market_direction_threshold
         
     def _is_up_market(self):
         if self.test_mode:
             return False
-        return self.currency_client.get_snapshot() >= .5
+        return self.currency_client.get_snapshot() >= self.market_direction_threshold

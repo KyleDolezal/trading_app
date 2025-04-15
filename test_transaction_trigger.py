@@ -34,6 +34,7 @@ def test_get_crypto_quote_sell(mocker):
     os.environ["HISTORY_LENGTH"] = '3'
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     os.environ["CURRENCY_API_KEY"] = 'key'
     
     tt = TransactionTrigger()
@@ -51,6 +52,7 @@ def test_override_false(mocker):
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     os.environ['HOLDS_PER_OVERRIDE_CENT'] = '100'
     
     tt = TransactionTrigger()
@@ -68,6 +70,7 @@ def test_override_true(mocker):
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
     os.environ["HISTORY_LENGTH"] = '3'
     os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
     os.environ['HOLDS_PER_OVERRIDE_CENT'] = '1'
@@ -88,6 +91,7 @@ def test_get_crypto_quote_buy(mocker):
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     
     tt = TransactionTrigger()
     tt.get_action(10)
@@ -102,6 +106,7 @@ def test_running_total(mocker):
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     
     tt = TransactionTrigger()
     tt.get_action(10)
@@ -121,6 +126,7 @@ def test_get_crypto_quote_hold(mocker):
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     
     tt = TransactionTrigger()
     tt.get_action(10)
@@ -135,6 +141,7 @@ def test_number_of_holds(mocker):
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     
     tt = TransactionTrigger()
     tt.get_action(10)
@@ -149,6 +156,7 @@ def test_is_down_market(mocker):
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
 
     tt = TransactionTrigger()
     assert tt._is_down_market() == True
@@ -161,6 +169,7 @@ def test_is_up_market(mocker):
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
 
     tt = TransactionTrigger()
     assert tt._is_down_market() == False
