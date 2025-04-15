@@ -23,8 +23,12 @@ def main():
     inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), inverse_transaction_trigger, symbols)
 
     while True:
-        orchestrator.orchestrate()
-        inverse_orchestrator.orchestrate()
+        if orchestrator.orchestrate() != 'hold':
+            inverse_orchestrator.account_status.update_positions()
+
+        if inverse_orchestrator.orchestrate() != 'hold':
+            orchestrator.account_status.update_positions()
+
         handle_exit()
 
 if __name__ == "__main__":

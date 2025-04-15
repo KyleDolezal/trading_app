@@ -58,6 +58,7 @@ class Orchestrator():
                 self.sellable_shares = self.account_status.calculate_sellable_shares()
 
         time.sleep(.5)
+        return action
 
     def record_transaction(self, price, instruction, quantity, order_id):
         sql_string = "insert into trades (order_type, price, timestamp, order_id, quantity, ticker) values ('{}', {}, '{}', {}, '{}', '{}');".format(instruction, 
