@@ -52,14 +52,17 @@ class Orchestrator():
             self.account_status.update_positions()
             self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
         elif action == 'hold':
-            if self.waiting_for_action == 'buy':
-                self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
-            elif self.waiting_for_action == 'sell':
-                self.sellable_shares = self.account_status.calculate_sellable_shares()
+            self._prepare_next_transaction()
 
         time.sleep(.5)
         return action
 
+    def _prepare_next_transaction(self):
+        if self.waiting_for_action == 'buy':
+            self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
+        elif self.waiting_for_action == 'sell':
+            self.sellable_shares = self.account_status.calculate_sellable_shares()
+            
     def record_transaction(self, price, instruction, quantity, order_id):
         sql_string = "insert into trades (order_type, price, timestamp, order_id, quantity, ticker) values ('{}', {}, '{}', {}, '{}', '{}');".format(instruction, 
             price,

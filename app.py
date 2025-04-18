@@ -25,9 +25,11 @@ def main():
     while True:
         if orchestrator.orchestrate() != 'hold':
             inverse_orchestrator.account_status.update_positions()
+            inverse_orchestrator._prepare_next_transaction()
 
         if inverse_orchestrator.orchestrate() != 'hold':
             orchestrator.account_status.update_positions()
+            orchestrator._prepare_next_transaction()
 
         handle_exit()
 
