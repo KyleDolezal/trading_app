@@ -43,5 +43,5 @@ class InverseTransactionTrigger(TransactionBase):
         will_override = (spread - override_amount <= 0) and (self.running_total + price <= 0)
 
         if will_override:
-            logger.info('Overriding sell behavior', self.__class__.__name__)
+            logger.info('Overriding sell behavior for inverse transaction trigger')
         return will_override
