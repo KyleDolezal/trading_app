@@ -70,7 +70,7 @@ class AccountStatus(ApiBase):
         sql_string = "with trades as ( select row_number() over (partition by ticker order by timestamp desc), * from trades where ticker in ({})) select order_type from trades where row_number = 1;".format(", ".join([f"'{s}'" for s in self.symbols]))
         resp = self.pg_adapter.exec_query(sql_string)
         if resp:
-            for action in resp[0]:
-                if action == 'buy':
+            for action in resp:
+                if action[0] == 'buy':
                     return True
         return False
