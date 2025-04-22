@@ -12,7 +12,8 @@ SOURCE_SYMBOL = 'BTC'
 START_TIMESTAMP = 1743687000000000000
 END_TIMESTAMP = 1743710400000000000
 HISTORY_LENGTH=50
-CHANGE_THRESHOLD=.077
+CHANGE_THRESHOLD=.05
+HOLDS_PER_OVERRIDE_CENT=7
 
 currency_client = CurrencyClient()
 equity_client = EquityClient(TARGET_SYMBOL)
@@ -25,6 +26,7 @@ bought_price = 0
 
 transaction_trigger.history_length = HISTORY_LENGTH
 transaction_trigger.change_threshold = CHANGE_THRESHOLD
+transaction_trigger.holds_per_override_cent = HOLDS_PER_OVERRIDE_CENT
 
 for timestamp in range(START_TIMESTAMP, END_TIMESTAMP, 500000000):
     try:
