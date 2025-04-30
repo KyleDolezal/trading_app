@@ -131,3 +131,21 @@ def test_override_true(mocker):
     tt.running_total = -1
     tt.history=[10, 10, 10, 10, 10, 10, 10]
     assert tt._override_sell_price(10.1) == False
+
+def test_negative_price_action(mocker):
+    mock_account_status = mocker.patch('transaction_trigger.time.sleep')
+    mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockUpResponse())
+
+    os.environ["HISTORY_LENGTH"] = '3'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
+
+    tt = InverseTransactionTrigger()
+    tt.next_action='sell'
+    tt.bought_price=10
+    tt.running_total = -100
+    tt.history=[10, 10, 10, 10, 10, 10, 10]
+
+    assert tt.get_action(10000000000000) == 'sell'

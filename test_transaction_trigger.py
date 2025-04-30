@@ -174,3 +174,21 @@ def test_is_up_market(mocker):
     tt = TransactionTrigger()
     assert tt._is_down_market() == False
     assert tt._is_up_market() == True
+
+def test_negative_price_action(mocker):
+    mock_account_status = mocker.patch('transaction_trigger.time.sleep')
+    mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockUpResponse())
+
+    os.environ["HISTORY_LENGTH"] = '3'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
+
+    tt = TransactionTrigger()
+    tt.next_action='sell'
+    tt.bought_price=10
+    tt.running_total = -100
+    tt.history=[10, 10, 10, 10, 10, 10, 10]
+
+    assert tt.get_action(1) == 'sell'

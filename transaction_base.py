@@ -22,6 +22,7 @@ class TransactionBase:
         self.holds_per_override_cent = int(os.getenv('HOLDS_PER_OVERRIDE_CENT', 100000000000))
         self.test_mode = test_mode
         self.market_direction_threshold = float(os.getenv('MARKET_DIRECTION_THRESHOLD'))
+        self.quick_selloff_multiplier = float(os.getenv('QUICK_SELLOFF_MULTIPLIER', 10))
         
     def _get_price_difference(self, price):
         average = statistics.mean(self.history)
@@ -44,3 +45,7 @@ class TransactionBase:
         if self.test_mode:
             return False
         return self.currency_client.get_snapshot() >= self.market_direction_threshold
+    
+    def _significant_negative_price_action(self, price):
+        percent_difference = self._get_price_difference(price)
+        return abs(percent_difference) > (self.change_threshold * self.quick_selloff_multiplier)
