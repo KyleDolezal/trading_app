@@ -19,10 +19,11 @@ class TransactionBase:
         self.today230pm = datetime.datetime.now().replace(hour=14, minute=30, second=0, microsecond=0)
         self.running_total = 0
         self.number_of_holds = 0
-        self.holds_per_override_cent = int(os.getenv('HOLDS_PER_OVERRIDE_CENT', 100000000000))
+        self.holds_per_override_cent = float(os.getenv('HOLDS_PER_OVERRIDE_CENT', 100000000000))
         self.test_mode = test_mode
         self.market_direction_threshold = float(os.getenv('MARKET_DIRECTION_THRESHOLD'))
         self.quick_selloff_multiplier = float(os.getenv('QUICK_SELLOFF_MULTIPLIER', 10))
+        self.test_preserve_asset_value = False
         
     def _get_price_difference(self, price):
         average = statistics.mean(self.history)

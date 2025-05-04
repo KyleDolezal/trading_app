@@ -8,13 +8,14 @@ from api.equity_quote import EquityClient
 from pg_adapter import PG_Adapter
 
 class AccountStatus(ApiBase):
-    def __init__(self, equity_client, target_symbol, symbols):
+    def __init__(self, equity_client, target_symbol, symbols, transaction_trigger):
         super().__init__()
         self.equity_client = equity_client
         self.target_symbol = target_symbol
         self.num_clients = int(os.getenv('NUM_CLIENTS'))
         self.pg_adapter = PG_Adapter()
         self.symbols = symbols
+        self.transaction_trigger = transaction_trigger
         self.update_positions()
         
     def parse_account_info(self, account_response):
@@ -38,7 +39,7 @@ class AccountStatus(ApiBase):
     def calculate_buyable_shares(self):
         price = self.equity_client.get_equity_quote()
         shares = int(round(self.funds / price, 0))
-        if not self.securities_bought():
+        if not self.securities_bought() and not self.transaction_trigger._is_down_market() and not self.transaction_trigger._is_up_market():
             shares = round(shares / self.num_clients)
             
         return {"price": price, "shares": shares}

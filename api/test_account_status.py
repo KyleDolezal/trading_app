@@ -29,6 +29,12 @@ class MockEqClient(object):
 class MockEqResponse(object):
     def __init__(self):
         self.price = 46.75
+
+class MockTransactionTrigger(object):
+    def _is_down_market(self):
+        return False
+    def _is_up_market(self):
+        return True
     
 account_info_json = {'securitiesAccount': {'type': 'MARGIN', 'accountNumber': '12345', 'roundTrips': 0, 'isDayTrader': False, 
                             'isClosingOnlyRestricted': False, 'pfcbFlag': False, 'positions': [{'shortQuantity': 0.0, 'averagePrice': 
@@ -59,7 +65,7 @@ account_info_json = {'securitiesAccount': {'type': 'MARGIN', 'accountNumber': '1
 
 def test_raise_error_on_missing_env_vars():
     try:
-        AccountStatus(MockEqClient(), 'SCHB', ['SCHB'])
+        AccountStatus(MockEqClient(), 'SCHB', ['SCHB'], MockTransactionTrigger())
     except ValueError:
         assert True
 
@@ -184,7 +190,8 @@ def test_calculate_buyable_shares(mocker):
     mocker.patch('account_status.AccountStatus.__init__', return_value=None)
 
     mock_client.return_value = MockClient()
-    accountStatus = AccountStatus(MockEqClient(), 'SCHB', ['SCHB'])
+    accountStatus = AccountStatus(MockEqClient(), 'SCHB', ['SCHB'], MockTransactionTrigger())
+    accountStatus.transaction_trigger = MockTransactionTrigger()
     accountStatus.target_symbol = 'SCHB'
     accountStatus.cash_to_save = 1
     accountStatus.symbols = ['SCHB']
@@ -213,7 +220,8 @@ def test_calculate_buyable_shares_multiple_clients(mocker):
     mocker.patch('account_status.AccountStatus.__init__', return_value=None)
 
     mock_client.return_value = MockClient()
-    accountStatus = AccountStatus(MockEqClient(), 'SCHB', ['SCHB'])
+    accountStatus = AccountStatus(MockEqClient(), 'SCHB', ['SCHB'], MockTransactionTrigger())
+    accountStatus.transaction_trigger = MockTransactionTrigger()
     accountStatus.target_symbol = 'SCHB'
     accountStatus.cash_to_save = 1
     accountStatus.symbols = ['SCHB']

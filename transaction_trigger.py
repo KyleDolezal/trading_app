@@ -18,9 +18,11 @@ class TransactionTrigger(TransactionBase):
 
         percent_difference = self._get_price_difference(price)
 
-        if datetime.datetime.now() < self.today830am and not self.test_mode:
+        if datetime.datetime.now() < self.today830am:
             self.running_total = 0
             return 'hold'
+        if datetime.datetime.now() > self.today230pm:
+            self.holds_per_override_cent = self.holds_per_override_cent * .99
         if (self.next_action == 'buy') and \
                 (percent_difference > self.change_threshold) and \
                 (datetime.datetime.now() < self.today230pm or self.test_mode) and \
@@ -30,7 +32,7 @@ class TransactionTrigger(TransactionBase):
             self.running_total -= price
             self.number_of_holds = 0
             return 'buy'
-        elif (self.next_action == 'sell') and ((price >= self.bought_price) or self._override_sell_price(price)) \
+        elif (self.next_action == 'sell') and (self._preserve_asset_value(price) or self._override_sell_price(price)) \
                 and (percent_difference < self.change_threshold) \
                 and abs(percent_difference) > self.change_threshold:
             self.next_action = 'buy'
@@ -49,3 +51,6 @@ class TransactionTrigger(TransactionBase):
         if will_override:
             logger.info('Overriding sell behavior for transaction trigger')
         return will_override
+    
+    def _preserve_asset_value(self, price):
+        return self._is_down_market() or (datetime.datetime.now() > self.today230pm) or (price >= self.bought_price) or self.test_preserve_asset_value

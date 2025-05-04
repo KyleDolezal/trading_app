@@ -20,9 +20,12 @@ class InverseTransactionTrigger(TransactionBase):
         
         if datetime.datetime.now() < self.today830am and not self.test_mode:
             return 'hold'
+        
+        if datetime.datetime.now() > self.today230pm:
+            self.holds_per_override_cent = self.holds_per_override_cent * .99
 
         if (self.next_action == 'sell') and \
-                ((price <= self.bought_price) or self._override_sell_price(price)) and \
+                (self._preserve_asset_value(price) or self._override_sell_price(price)) and \
                 (percent_difference > self.change_threshold):
             self.next_action = 'buy'
             return 'sell'
@@ -46,3 +49,7 @@ class InverseTransactionTrigger(TransactionBase):
         if will_override:
             logger.info('Overriding sell behavior for inverse transaction trigger')
         return will_override
+
+
+    def _preserve_asset_value(self, price):
+        return self._is_up_market() or (datetime.datetime.now() > self.today230pm) or (price <= self.bought_price) or self.test_preserve_asset_value

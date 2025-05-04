@@ -1,6 +1,7 @@
 import pytest
 from inverse_transaction_trigger import InverseTransactionTrigger
 import os
+import datetime
 from freezegun import freeze_time
 
 response = {"last":{"conditions":[1],"exchange":1,"price":83712.2,"size":0.00473092,""
@@ -149,3 +150,30 @@ def test_negative_price_action(mocker):
     tt.history=[10, 10, 10, 10, 10, 10, 10]
 
     assert tt.get_action(10000000000000) == 'sell'
+
+def test_preserve_asset_value(mocker):
+    mock_account_status = mocker.patch('transaction_trigger.time.sleep')
+    mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockUpResponse())
+
+    os.environ["HISTORY_LENGTH"] = '3'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
+
+    tt = InverseTransactionTrigger()
+    tt.next_action='sell'
+    tt.bought_price=10
+    tt.running_total = -100
+    tt._is_up_market = lambda a=None : False
+    tt.test_preserve_asset_value = False
+    tt.history=[10, 10, 10, 10, 10, 10, 10]
+    assert tt._preserve_asset_value(11) == True
+
+    tt.history=[10, 10, 10, 10, 10, 10, 10]
+    assert tt._preserve_asset_value(9) == True
+
+    tt._is_up_market = lambda a=None : True
+    assert tt._preserve_asset_value(10) == True
+
+
