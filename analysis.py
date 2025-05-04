@@ -1,4 +1,5 @@
 from api.currency_quote import CurrencyClient
+import datetime
 from api.equity_quote import EquityClient
 from transaction_trigger import TransactionTrigger
 import requests
@@ -14,6 +15,8 @@ START_TIMESTAMP = 1745415000000000000
 END_TIMESTAMP = 1745438400000000000
 TWO_THIRTY_PM = END_TIMESTAMP - 1800000000000
 
+# Volatile flat day
+
 HISTORY_LENGTH=50
 CHANGE_THRESHOLD=.075
 HOLDS_PER_OVERRIDE_CENT=.1
@@ -28,7 +31,7 @@ total = 0
 sold_price = 0
 last_action = None
 bought_price = 0
-sold_in_last_hour = False
+sold_in_last_half_hour = False
 num_of_transactions = 0
 
 transaction_trigger.history_length = HISTORY_LENGTH
@@ -36,7 +39,13 @@ transaction_trigger.change_threshold = CHANGE_THRESHOLD
 transaction_trigger.holds_per_override_cent = HOLDS_PER_OVERRIDE_CENT
 transaction_trigger.quick_selloff_multiplier = QUICK_SELLOFF_MULTIPLIER
 transaction_trigger.test_preserve_asset_value = TEST_PRESERVE_ASSET_VALUE
+transaction_trigger.today230pm = 9745415000000000000
+future = datetime.datetime.now().replace(year=2030, hour=8, minute=31, second=0, microsecond=0)
+past = datetime.datetime.now().replace(year=1990, hour=14, minute=31, second=0, microsecond=0)
+transaction_trigger.today230pm = future
 for timestamp in range(START_TIMESTAMP, END_TIMESTAMP, 500000000):
+    if timestamp == TWO_THIRTY_PM:
+        transaction_trigger.today230pm = past
     try:
         resp = requests.get("https://api.polygon.io/v3/trades/X:{}-USD?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(SOURCE_SYMBOL, timestamp,  os.getenv('EQUITY_API_KEY')))
         price = resp.json()['results'][0]['price']
