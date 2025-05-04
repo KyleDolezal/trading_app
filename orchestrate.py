@@ -54,7 +54,6 @@ class Orchestrator():
         elif action == 'hold':
             self._prepare_next_transaction()
 
-        time.sleep(.5)
         return action
 
     def _prepare_next_transaction(self):
