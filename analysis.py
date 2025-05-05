@@ -52,7 +52,7 @@ for timestamp in range(START_TIMESTAMP, END_TIMESTAMP, 500000000):
         action = transaction_trigger.get_action(price)
         if action != 'hold':
             num_of_transactions += 1
-            resp = requests.get("https://api.polygon.io/v3/trades/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(TARGET_SYMBOL, timestamp,  os.getenv('EQUITY_API_KEY')))
+            resp = requests.get("https://api.polygon.io/v3/trades/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(TARGET_SYMBOL, timestamp + 500000000,  os.getenv('EQUITY_API_KEY')))
             price = resp.json()['results'][0]['price']
             if action == 'buy':
                 print("bought at:", timestamp)
