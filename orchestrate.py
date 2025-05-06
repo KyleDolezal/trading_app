@@ -33,8 +33,16 @@ class Orchestrator():
         source_price = self.currency_client.get_crypto_quote()
         action = self.transaction_trigger.get_action(source_price)
 
-        if action == 'buy':
-            order = self.transact_client.buy(self.buyable_shares)
+        if action == 'buy' and self.buyable_shares > 0:
+            order = None
+            for i in range(20):
+                try:
+                    order = self.transact_client.buy(self.buyable_shares)
+                    break
+                except(Exception) as e:
+                    self.account_status.update_positions()
+                    self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
+                    time.sleep(5)
             order_id = self.order_status.get_order_id(order)
             self.order_status.await_order_filled(order_id)
             quantity = self.buyable_shares
@@ -42,8 +50,16 @@ class Orchestrator():
             self.waiting_for_action = 'sell'
             self.account_status.update_positions()
             self.sellable_shares = self.account_status.calculate_sellable_shares()
-        elif 'sell' in action:
-            order = self.transact_client.sell(self.sellable_shares, 'MARKET')       
+        elif 'sell' in action and self.sellable_shares > 0:
+            order = None
+            for i in range(20):
+                try:
+                    order = self.transact_client.sell(self.sellable_shares, 'MARKET')       
+                    break
+                except(Exception) as e:
+                    self.account_status.update_positions()
+                    self.sellable_shares = self.account_status.calculate_sellable_shares()
+                    time.sleep(5)
             order_id = self.order_status.get_order_id(order)
             self.order_status.await_order_filled(order_id)
             quantity = self.sellable_shares
@@ -51,7 +67,7 @@ class Orchestrator():
             self.waiting_for_action = 'buy'
             self.account_status.update_positions()
             self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
-        elif action == 'hold':
+        else:
             self._prepare_next_transaction()
 
         return action
@@ -69,7 +85,14 @@ class Orchestrator():
             order_id,
             quantity,
             self.target_symbol)
-        self.pg_adapter.exec_query(sql_string)
+        for i in range(20):
+            try:
+                self.pg_adapter.exec_query(sql_string)
+                return
+            except(Exception) as e:
+                logger.error("Problem with db txn: {}".format(e))
+                time.sleep(5)
+        
 
     def _bootstrap(self):
         sql_string = "select * from trades where ticker = '{}' order by timestamp desc limit 1;".format(self.target_symbol)
