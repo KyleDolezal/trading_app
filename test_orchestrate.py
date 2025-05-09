@@ -148,7 +148,7 @@ def test_buy(mocker):
     orchestrator.transaction_trigger = MockTT()
     orchestrator.order_status = MockOS()
 
-    orchestrator.orchestrate()
+    orchestrator.orchestrate(100)
 
 def test_sell(mocker):
     os.environ["ACCOUNT_NUMBER"] = '123'
@@ -178,7 +178,7 @@ def test_sell(mocker):
     orchestrator.pg_adapter = MockPGClient()
     orchestrator.transaction_trigger = MockTTSell()
     orchestrator.order_status = MockOS()
-    orchestrator.orchestrate()
+    orchestrator.orchestrate(100)
 
 def test_sell_market(mocker):
     os.environ["ACCOUNT_NUMBER"] = '123'
@@ -208,4 +208,4 @@ def test_sell_market(mocker):
     orchestrator.pg_adapter = MockPGClient()
     orchestrator.transaction_trigger = MockTTSellMarket()
     orchestrator.order_status = MockOS()
-    orchestrator.orchestrate()
+    orchestrator.orchestrate(100)

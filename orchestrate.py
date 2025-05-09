@@ -29,8 +29,7 @@ class Orchestrator():
         self.waiting_for_action = 'buy'
         self._bootstrap()
 
-    def orchestrate(self):
-        source_price = self.currency_client.get_crypto_quote()
+    def orchestrate(self, source_price):
         action = self.transaction_trigger.get_action(source_price)
 
         if action == 'buy' and self.buyable_shares > 0:
