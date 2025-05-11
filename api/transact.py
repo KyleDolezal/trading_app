@@ -62,6 +62,37 @@ class TransactClient(ApiBase):
             }
         else:
             request_body_json = {
+                "orderType": "LIMIT",
+                "session": "SEAMLESS",
+                "duration": "GOOD_TILL_CANCEL",
+                "orderStrategyType": "SINGLE",
+                "price": bounds_value,
+                "orderLegCollection": [
+                    {
+                    "instruction": 'SELL',
+                    "quantity": quantity,
+                    "instrument": {
+                        "symbol": self.target_symbol,
+                        "assetType": "EQUITY"
+                    }
+                    }
+                ]
+            }
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            {
                 "orderType": mode,
                 "session": "NORMAL",
                 "duration": "DAY",

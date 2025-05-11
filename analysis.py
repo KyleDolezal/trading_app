@@ -43,7 +43,8 @@ transaction_trigger.today230pm = 9745415000000000000
 future = datetime.datetime.now().replace(year=2030, hour=8, minute=31, second=0, microsecond=0)
 past = datetime.datetime.now().replace(year=1990, hour=14, minute=31, second=0, microsecond=0)
 transaction_trigger.today230pm = future
-for timestamp in range(START_TIMESTAMP, END_TIMESTAMP, 500000000):
+transaction_trigger.today7pm = future
+for timestamp in range(START_TIMESTAMP, END_TIMESTAMP, 150000000):
     if timestamp == TWO_THIRTY_PM:
         transaction_trigger.today230pm = past
     try:
@@ -52,7 +53,7 @@ for timestamp in range(START_TIMESTAMP, END_TIMESTAMP, 500000000):
         action = transaction_trigger.get_action(price)
         if action != 'hold':
             num_of_transactions += 1
-            resp = requests.get("https://api.polygon.io/v3/trades/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(TARGET_SYMBOL, timestamp + 500000000,  os.getenv('EQUITY_API_KEY')))
+            resp = requests.get("https://api.polygon.io/v3/trades/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(TARGET_SYMBOL, timestamp + 300000000,  os.getenv('EQUITY_API_KEY')))
             price = resp.json()['results'][0]['price']
             if action == 'buy':
                 print("bought at:", timestamp)

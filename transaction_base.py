@@ -23,6 +23,8 @@ class TransactionBase:
         self.bought_price = None
         self.today830am = datetime.datetime.now().replace(hour=8, minute=30, second=0, microsecond=0)
         self.today230pm = datetime.datetime.now().replace(hour=14, minute=30, second=0, microsecond=0)
+        self.today7pm = datetime.datetime.now().replace(hour=19, minute=00, second=0, microsecond=0)
+
         self.running_total = 0
         self.number_of_holds = 0
         self.holds_per_override_cent = float(os.getenv('HOLDS_PER_OVERRIDE_CENT', 100000000000))

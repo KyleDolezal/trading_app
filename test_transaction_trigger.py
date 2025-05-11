@@ -185,7 +185,7 @@ def test_negative_price_action(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
 
-    tt = TransactionTrigger()
+    tt = TransactionTrigger(test_mode=True)
     tt.next_action='sell'
     tt.bought_price=10
     tt.running_total = -100
@@ -194,7 +194,7 @@ def test_negative_price_action(mocker):
     assert tt.get_action(1) == 'sell'
 
 
-def test_(mocker):
+def test_sell(mocker):
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockUpResponse())
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
@@ -205,7 +205,7 @@ def test_(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
 
-    tt = TransactionTrigger()
+    tt = TransactionTrigger(test_mode=True)
     tt.next_action='sell'
     tt.bought_price=10
     tt.running_total = -100

@@ -157,7 +157,7 @@ def test_negative_price_action(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
 
-    tt = InverseTransactionTrigger()
+    tt = InverseTransactionTrigger(test_mode=True)
     tt.next_action='sell'
     tt.bought_price=10
     tt.running_total = -100

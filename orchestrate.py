@@ -28,6 +28,7 @@ class Orchestrator():
         self.sellable_shares = self.account_status.calculate_sellable_shares()
         self.waiting_for_action = 'buy'
         self._bootstrap()
+        self.today3pm = datetime.datetime.now().replace(hour=15, minute=00, second=0, microsecond=0)
 
     def orchestrate(self, source_price):
         action = self.transaction_trigger.get_action(source_price)
@@ -53,7 +54,10 @@ class Orchestrator():
             order = None
             for i in range(20):
                 try:
-                    order = self.transact_client.sell(self.sellable_shares, 'MARKET')       
+                    if datetime.datetime.now() < self.today3pm:
+                        order = self.transact_client.sell(self.sellable_shares, 'MARKET')  
+                    else:
+                        order = self.transact_client.sell(self.sellable_shares, 'LIMIT', self.equity_client.get_equity_quote())
                     break
                 except(Exception) as e:
                     self.account_status.update_positions()
