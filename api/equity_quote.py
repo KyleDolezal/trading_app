@@ -35,8 +35,6 @@ class EquityClient:
 
     def update_price(self, msgs: List[WebSocketMessage]):
         for m in msgs:
-            if self.target_symbol == 'SPY':
-                print(m)
             self.price = m.price
 
     def get_equity_quote(self):
