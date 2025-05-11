@@ -44,7 +44,7 @@ future = datetime.datetime.now().replace(year=2030, hour=8, minute=31, second=0,
 past = datetime.datetime.now().replace(year=1990, hour=14, minute=31, second=0, microsecond=0)
 transaction_trigger.today230pm = future
 transaction_trigger.today7pm = future
-for timestamp in range(START_TIMESTAMP, END_TIMESTAMP, 150000000):
+for timestamp in range((START_TIMESTAMP-40500000000), END_TIMESTAMP, 150000000):
     if timestamp == TWO_THIRTY_PM:
         transaction_trigger.today230pm = past
     try:
