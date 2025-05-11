@@ -65,4 +65,9 @@ class TransactionBase:
     
     def _significant_negative_price_action(self, price):
         percent_difference = self._get_price_difference(price)
-        return abs(percent_difference) > (self.change_threshold * self.quick_selloff_multiplier)
+        will_selloff = abs(percent_difference) > (self.change_threshold * self.quick_selloff_multiplier)
+        
+        if will_selloff:
+            logger.info("Selling off due to negative price action")
+
+        return will_selloff

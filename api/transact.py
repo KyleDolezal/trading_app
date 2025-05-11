@@ -13,9 +13,6 @@ class TransactClient(ApiBase):
     
     def _transact(self, json):
         order = self.client.order_place(self.account_number, json)
-        print("\n\n\n")
-        print(datetime.now())
-        print("----------------------------")
         if order.status_code != 201:
             logger.error("Error with order: {}".format(order.headers))
             logger.error(self.order_status.get_order_id(order))
