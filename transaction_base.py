@@ -9,6 +9,7 @@ from api.equity_quote import EquityClient
 
 class TransactionBase:
     def __init__(self, test_mode=False):
+        self.test_mode = test_mode
         self.history_length = int(os.getenv('HISTORY_LENGTH'))
         self.change_threshold = float(os.getenv('CHANGE_THRESHOLD'))
         self.history = []
@@ -28,7 +29,6 @@ class TransactionBase:
         self.running_total = 0
         self.number_of_holds = 0
         self.holds_per_override_cent = float(os.getenv('HOLDS_PER_OVERRIDE_CENT', 100000000000))
-        self.test_mode = test_mode
         self.market_direction_threshold = float(os.getenv('MARKET_DIRECTION_THRESHOLD'))
         self.quick_selloff_multiplier = float(os.getenv('QUICK_SELLOFF_MULTIPLIER', 10))
         self.test_preserve_asset_value = False
