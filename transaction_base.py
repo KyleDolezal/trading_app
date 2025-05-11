@@ -40,9 +40,11 @@ class TransactionBase:
         
     def _boot_strap(self):
         for i in range(self.history_length):
-            self.history.append(self.equity_client.get_equity_quote())
-            time.sleep(1)
-
+            if self.test_mode:
+                self.history.append('0.0')
+            else:
+                self.history.append(self.equity_client.get_equity_quote())
+                time.sleep(.1)
         self.next_action = 'buy'
     
     def _is_down_market(self):
