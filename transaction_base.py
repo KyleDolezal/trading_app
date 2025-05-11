@@ -5,6 +5,7 @@ import statistics
 from api.currency_quote import CurrencyClient
 import time
 import datetime
+from api.equity_quote import EquityClient
 
 class TransactionBase:
     def __init__(self, test_mode=False):
@@ -13,6 +14,11 @@ class TransactionBase:
         self.history = []
         self.next_action = None
         self.currency_client = CurrencyClient()
+        self.is_up_market = None
+        self.is_down_market = None
+        self.cached_checks = 0
+        self.cached_checks_limit = 9
+        self.equity_client = EquityClient(os.getenv('EQUITY_TICKER', 'SCHB'))
         self._boot_strap()
         self.bought_price = None
         self.today830am = datetime.datetime.now().replace(hour=8, minute=30, second=0, microsecond=0)
@@ -32,7 +38,7 @@ class TransactionBase:
         
     def _boot_strap(self):
         for i in range(self.history_length):
-            self.history.append(self.currency_client.get_crypto_quote())
+            self.history.append(self.equity_client.get_equity_quote())
             time.sleep(1)
 
         self.next_action = 'buy'
@@ -40,12 +46,22 @@ class TransactionBase:
     def _is_down_market(self):
         if self.test_mode:
             return False
-        return self.currency_client.get_snapshot() <= self.market_direction_threshold
+        if self.is_down_market == None or self.cached_checks >= self.cached_checks_limit:
+            self.is_down_market = self.currency_client.get_snapshot() <= self.market_direction_threshold
+            self.cached_checks = 0
+        else:
+            self.cached_checks += 1
+        return self.is_down_market
         
     def _is_up_market(self):
         if self.test_mode:
             return False
-        return self.currency_client.get_snapshot() >= self.market_direction_threshold
+        if self.is_up_market == None or self.cached_checks >= self.cached_checks_limit:
+            self.is_up_market = self.currency_client.get_snapshot() >= self.market_direction_threshold
+            self.cached_checks = 0
+        else:
+            self.cached_checks += 1
+        return self.is_up_market
     
     def _significant_negative_price_action(self, price):
         percent_difference = self._get_price_difference(price)

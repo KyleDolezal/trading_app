@@ -5,9 +5,12 @@ from polygon import RESTClient
 from polygon import WebSocketClient
 from polygon.websocket.models import WebSocketMessage, Feed, Market
 from typing import List
+import time
+import threading
 
 class EquityClient:
     def __init__(self, target_symbol):
+        self.price = 0
         self.api_key = os.getenv('EQUITY_API_KEY')
         self.target_symbol = target_symbol
         self.equity_ticker = os.getenv('EQUITY_TICKER', 'SCHB')
@@ -18,21 +21,26 @@ class EquityClient:
         self.client = RESTClient(self.api_key)
 
         self.streaming_client = WebSocketClient(
-	    api_key=self.api_key,
+	        api_key=self.api_key,
             feed=Feed.RealTime,
             market=Market.Stocks
 	    )
+        self.streaming_client.subscribe("T.{}".format(self.target_symbol))
 
-        self.streaming_client.subscribe("T.{}".format(self.equity_ticker))
+        self.threading_update = threading.Thread(target=self.updates)
+        self.threading_update.start()
 
-    def parse_quote(self, quote_response):
-        return quote_response.price
+    def updates(self):
+        self.streaming_client.run(self.update_price)
+
+    def update_price(self, msgs: List[WebSocketMessage]):
+        for m in msgs:
+            if self.target_symbol == 'SPY':
+                print(m)
+            self.price = m.price
 
     def get_equity_quote(self):
-        try:
-            response = self.client.get_last_trade(self.target_symbol)
-        except(Exception) as e:
-            logger.error("Problem requesting quote information: {}".format(e))
-            raise e
-        
-        return self.parse_quote(response)
+        while self.price == 0:
+            time.sleep(1)
+
+        return self.price

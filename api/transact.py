@@ -3,6 +3,7 @@ logger = logging.getLogger(__name__)
 from api.api_base import ApiBase
 import time
 from api.order_status import OrderStatus
+from datetime import datetime
 
 class TransactClient(ApiBase):
     def __init__(self, target_symbol):
@@ -12,6 +13,9 @@ class TransactClient(ApiBase):
     
     def _transact(self, json):
         order = self.client.order_place(self.account_number, json)
+        print("\n\n\n")
+        print(datetime.now())
+        print("----------------------------")
         if order.status_code != 201:
             logger.error("Error with order: {}".format(order.headers))
             logger.error(self.order_status.get_order_id(order))

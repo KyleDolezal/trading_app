@@ -36,6 +36,8 @@ class MockMarketDown(object):
 def test_get_crypto_quote_sell(mocker):
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('transaction_base.TransactionBase._boot_strap')
     os.environ["HISTORY_LENGTH"] = '3'
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     os.environ["CHANGE_THRESHOLD"] = '.1'
@@ -52,6 +54,8 @@ def test_get_crypto_quote_sell(mocker):
 
 @freeze_time("2012-01-14 12:21:34")
 def test_get_crypto_quote_hold(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('transaction_base.TransactionBase._boot_strap')
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
     os.environ["HISTORY_LENGTH"] = '3'
@@ -66,6 +70,8 @@ def test_get_crypto_quote_hold(mocker):
     assert tt.get_action(10.01) == 'hold'
 
 def test_is_down_market(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('transaction_base.TransactionBase._boot_strap')
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockDownResponse())
 
@@ -79,6 +85,8 @@ def test_is_down_market(mocker):
     assert tt._is_down_market() == True
 
 def test_is_up_market(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('transaction_base.TransactionBase._boot_strap')
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockUpResponse())
 
@@ -96,6 +104,8 @@ def test_is_up_market(mocker):
 
 @freeze_time("2012-01-14 12:21:34")
 def test_override_false(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('transaction_base.TransactionBase._boot_strap')
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
     mock_account_status = mocker.patch('inverse_transaction_trigger.time.sleep')
     os.environ["HISTORY_LENGTH"] = '3'
@@ -115,6 +125,8 @@ def test_override_false(mocker):
     
 @freeze_time("2012-01-14 12:21:34")
 def test_override_true(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('transaction_base.TransactionBase._boot_strap')
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
     mock_account_status = mocker.patch('inverse_transaction_trigger.time.sleep')
     os.environ["HISTORY_LENGTH"] = '3'
@@ -134,6 +146,8 @@ def test_override_true(mocker):
     assert tt._override_sell_price(10.1) == False
 
 def test_negative_price_action(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('transaction_base.TransactionBase._boot_strap')
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockUpResponse())
 
@@ -152,6 +166,8 @@ def test_negative_price_action(mocker):
     assert tt.get_action(10000000000000) == 'sell'
 
 def test_preserve_asset_value(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('transaction_base.TransactionBase._boot_strap')
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockUpResponse())
 
