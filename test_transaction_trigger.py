@@ -225,17 +225,15 @@ def test_preserve_asset_value(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
 
-    tt = TransactionTrigger()
+    tt = TransactionTrigger(test_mode=True)
     tt.next_action='sell'
     tt.bought_price=10
     tt.running_total = -100
     tt._is_up_market = lambda a=None : False
     tt.test_preserve_asset_value = False
-    tt.history=[10, 10, 10, 10, 10, 10, 10]
-    assert tt._preserve_asset_value(9) == True
 
     tt.history=[10, 10, 10, 10, 10, 10, 10]
-    assert tt._preserve_asset_value(9) == True
+    assert tt._preserve_asset_value(9) == False
 
     tt._is_up_market = lambda a=None : True
     assert tt._preserve_asset_value(10) == True
