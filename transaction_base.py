@@ -6,6 +6,7 @@ from api.currency_quote import CurrencyClient
 import time
 import datetime
 from api.equity_quote import EquityClient
+from api.index_quote import IndexClient
 
 class TransactionBase:
     def __init__(self, test_mode=False):
@@ -20,6 +21,7 @@ class TransactionBase:
         self.cached_checks = 0
         self.cached_checks_limit = 9
         self.equity_client = EquityClient(os.getenv('EQUITY_TICKER', 'SCHB'))
+        self.index_client = IndexClient()
         self._boot_strap()
         self.bought_price = None
         self.today830am = datetime.datetime.now().replace(hour=8, minute=30, second=0, microsecond=0)
@@ -43,7 +45,7 @@ class TransactionBase:
             if self.test_mode:
                 self.history.append('0.0')
             else:
-                self.history.append(self.equity_client.get_equity_quote())
+                self.history.append(self.index_client.get_equity_quote())
                 time.sleep(.1)
         self.next_action = 'buy'
     

@@ -1,5 +1,5 @@
 import pytest
-from equity_quote import EquityClient
+from index_quote import IndexClient
 import os
 
 class MockClient(object):
@@ -16,30 +16,12 @@ class MockClient(object):
     
 class MockResponse(object):
     def __init__(self):
-        self.price = 46.75
+        self.value = 46.75
 
 class MockList(object):
     def __init__(self):
-        self.price = 46.75
+        self.value = 46.75
 
-def test_raise_error_on_missing_env_vars():
-    try:
-        EquityClient()
-    except:
-        assert True
-
-def test_initializes_when_env_vars_present(mocker):
-    os.environ["ACCOUNT_NUMBER"] = '123'
-    os.environ["APP_KEY"] = 'key'
-    os.environ["APP_SECRET"] = 'secret'
-    os.environ["TARGET_SYMBOL"] = 'IBIT'
-
-    mock_account_status = mocker.patch('equity_quote.EquityClient.__init__')
-    mock_account_status.return_value = None
-
-    EquityClient('IBIT')
-
-    assert True
 
 def test_quote(mocker):
     os.environ["ACCOUNT_NUMBER"] = '123'
@@ -49,16 +31,14 @@ def test_quote(mocker):
     os.environ["CASH_TO_SAVE"] = '100'
     os.environ["EQUITY_API_KEY"] = 'abc'
 
-    mock_account_status = mocker.patch('equity_quote.EquityClient.__init__')
+    mock_init = mocker.patch('index_quote.IndexClient.__init__')
+    mock_init.return_value = None
+    mock_account_status =  mock_ws_client = mocker.patch('index_quote.WebSocketClient')
     mock_account_status.return_value = None
 
-    mock_client = mocker.patch('equity_quote.RESTClient')
-    mock_ws_client = mocker.patch('equity_quote.WebSocketClient')
-
-    mock_client.return_value = MockClient()
     mock_ws_client.return_value = MockClient()
 
-    ec = EquityClient('IBIT')
+    ec = IndexClient()
     ec.update_price([MockList(),MockList(),MockList()])
     quote = ec.get_equity_quote()
 
