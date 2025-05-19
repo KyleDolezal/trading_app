@@ -9,9 +9,10 @@ import datetime
 
 class TransactionTrigger(TransactionBase):
     def __init__(self, test_mode=False):
+        self.bought_btc_price = 0
         super().__init__(test_mode)
     
-    def get_action(self, price):
+    def get_action(self, price, price_btc):
         self.history.append(price)
         if len(self.history) > self.history_length:
             self.history = self.history[1:]
@@ -22,7 +23,7 @@ class TransactionTrigger(TransactionBase):
             self.running_total = 0
             return 'hold'
         if datetime.datetime.now() > self.today230pm:
-            self.holds_per_override_cent = self.holds_per_override_cent * .99
+            self.holds_per_override_cent = self.holds_per_override_cent * .995
         if (self.next_action == 'buy') and \
                 (percent_difference > self.change_threshold) and \
                 (datetime.datetime.now() < self.today230pm or self.test_mode) and \
@@ -30,9 +31,10 @@ class TransactionTrigger(TransactionBase):
             self.next_action = 'sell'
             self.bought_price = price
             self.running_total -= price
+            self.bought_btc_price = price_btc
             self.number_of_holds = 0
             return 'buy'
-        elif (self.next_action == 'sell') and (self._preserve_asset_value(price) or self._override_sell_price(price)) \
+        elif (self.next_action == 'sell') and ((self._preserve_asset_value(price) and (price_btc >= self.bought_btc_price)) or self._override_sell_price(price)) \
                 and (percent_difference < self.change_threshold) \
                 and abs(percent_difference) > self.change_threshold:
             self.next_action = 'buy'
