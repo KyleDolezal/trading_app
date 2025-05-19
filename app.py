@@ -35,13 +35,13 @@ class App:
 
     def orchestrate(self):
         while True:
-            if self.orchestrator.orchestrate(self.index_client.get_equity_quote()) != 'hold':
+            if self.orchestrator.orchestrate(self.equity_client.get_equity_quote()) != 'hold':
                 self.inverse_orchestrator.account_status.update_positions()
                 self.inverse_orchestrator._prepare_next_transaction()
 
     def inverse_orchestrate(self):
         while True:
-            if self.inverse_orchestrator.orchestrate(self.index_client.get_equity_quote()) != 'hold':
+            if self.inverse_orchestrator.orchestrate(self.equity_client.get_equity_quote()) != 'hold':
                 self.orchestrator.account_status.update_positions()
                 self.orchestrator._prepare_next_transaction()
 

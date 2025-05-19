@@ -43,9 +43,9 @@ class TransactionBase:
     def _boot_strap(self):
         for i in range(self.history_length):
             if self.test_mode:
-                self.history.append('0.0')
+                self.history.append(0.0)
             else:
-                self.history.append(self.index_client.get_equity_quote())
+                self.history.append(self.equity_client.get_equity_quote())
                 time.sleep(.1)
         self.next_action = 'buy'
     
@@ -74,6 +74,7 @@ class TransactionBase:
         will_selloff = abs(percent_difference) > (self.change_threshold * self.quick_selloff_multiplier)
         
         if will_selloff:
+            print("quick selloff")
             logger.info("Selling off due to negative price action")
 
         return will_selloff
