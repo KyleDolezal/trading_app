@@ -78,36 +78,6 @@ class TransactClient(ApiBase):
                     }
                 ]
             }
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            {
-                "orderType": mode,
-                "session": "NORMAL",
-                "duration": "DAY",
-                "orderStrategyType": "SINGLE",
-                "price": bounds_value,
-                "orderLegCollection": [
-                    {"instruction": "SELL",
-                    "quantity": quantity,
-                    "instrument": {
-                        "symbol": self.target_symbol,
-                        "assetType": "EQUITY"
-                    }
-                    }
-                ]
-            }
         
         return self._transact(request_body_json)
         

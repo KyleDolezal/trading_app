@@ -20,7 +20,7 @@ class TransactionBase:
         self.is_down_market = None
         self.cached_checks = 0
         self.cached_checks_limit = 9
-        self.equity_client = EquityClient(os.getenv('EQUITY_TICKER', 'SCHB'))
+        self.equity_client = EquityClient(os.getenv('TARGET_SYMBOL', 'SCHB'))
         self.index_client = IndexClient()
         self._boot_strap()
         self.bought_price = None
@@ -45,7 +45,7 @@ class TransactionBase:
             if self.test_mode:
                 self.history.append(0.0)
             else:
-                self.history.append(self.equity_client.get_equity_quote())
+                self.history.append(self.currency_client.get_forex_quote())
                 time.sleep(.1)
         self.next_action = 'buy'
     
@@ -53,7 +53,7 @@ class TransactionBase:
         if self.test_mode:
             return False
         if self.is_down_market == None or self.cached_checks >= self.cached_checks_limit:
-            self.is_down_market = self.currency_client.get_snapshot() <= self.market_direction_threshold
+            self.is_down_market = self.equity_client.get_snapshot() <= self.market_direction_threshold
             self.cached_checks = 0
         else:
             self.cached_checks += 1
@@ -63,7 +63,7 @@ class TransactionBase:
         if self.test_mode:
             return False
         if self.is_up_market == None or self.cached_checks >= self.cached_checks_limit:
-            self.is_up_market = self.currency_client.get_snapshot() >= self.market_direction_threshold
+            self.is_up_market = self.equity_client.get_snapshot() >= self.market_direction_threshold
             self.cached_checks = 0
         else:
             self.cached_checks += 1

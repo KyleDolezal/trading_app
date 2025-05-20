@@ -10,6 +10,27 @@ fx_response = {"converted":0.63,"from":"AUD","initialAmount":1,"last":{"ask":0.6
                 "timestamp":1741384796000},"request_id":"9803987b84aad36f50fefb6391b4bf2c","status":"success",
                 "symbol":"AUD/USD","to":"USD"}
 
+class MockClient(object):
+    def get_forex_quote(params):
+        return MockResponse()
+    def quotes(params, kwargs):
+        return MockResponse()
+    def get_last_trade(self, params):
+        return MockResponse()
+    def subscribe(self, params):
+        pass
+    def run(self, params):
+        pass
+    
+class MockResponse(object):
+    def __init__(self):
+        self.price = 46.75
+
+class MockList(object):
+    def __init__(self):
+        self.price = 46.75
+        self.bid_price = 46.75
+
 class MockResponse(object):
     def json(param):
         return response
@@ -18,28 +39,24 @@ class MockFXResponse(object):
     def json(param):
         return fx_response
     
-def test_parse_crypto_quote():
-    assert CurrencyClient.parse_crypto_response(MockResponse()) == 83712.2
+def test_quote(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
 
-def test_get_crypto_quote(mocker):
-    mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
-    os.environ["CURRENCY_TICKER"] = '123'
-    os.environ["CURRENCY_API_KEY"] = 'key'
-    
-    assert CurrencyClient().get_crypto_quote() == 83712.2
+    mock_account_status = mocker.patch('currency_quote.CurrencyClient.__init__')
+    mock_account_status.return_value = None
 
-def test_get_crypto_quote_without_env_vars():
-    try:
-        CurrencyClient()
-    except:
-        assert True
-   
-def test_parse_crypto_quote():
-    assert CurrencyClient.parse_forex_response(MockFXResponse()) == 0.6309
+    mock_client = mocker.patch('currency_quote.RESTClient')
+    mock_ws_client = mocker.patch('currency_quote.WebSocketClient')
 
-def test_get_crypto_quote(mocker):
-    mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockFXResponse())
-    os.environ["CURRENCY_TICKER"] = '123'
-    os.environ["CURRENCY_API_KEY"] = 'key'
+    mock_client.return_value = MockClient()
+    mock_ws_client.return_value = MockClient()
 
-    assert CurrencyClient().get_forex_quote() == 0.6309
+    ec = CurrencyClient()
+    ec.update_price([MockList(),MockList(),MockList()])
+    quote = ec.get_forex_quote()
+
+    assert quote == 46.75

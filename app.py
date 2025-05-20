@@ -13,12 +13,12 @@ from polygon import WebSocketClient
 from polygon.websocket.models import WebSocketMessage, Feed, Market
 from typing import List
 from api.index_quote import IndexClient
+from api.currency_quote import CurrencyClient
 
 class App:
     def __init__(self):
         logging.basicConfig(filename='logs/app.log', level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
         print("Welcome to the trading app. Hit \'q\' to quit.")
-
         load_dotenv()
 
         symbols = [os.getenv('TARGET_SYMBOL'), os.getenv('INVERSE_TARGET_SYMBOL')]
@@ -27,21 +27,21 @@ class App:
         self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols)
 
         self.inverse_transaction_trigger = InverseTransactionTrigger()
+
         self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols)
 
-        self.equity_client = EquityClient(os.getenv('EQUITY_TICKER'))
-        self.index_client = IndexClient()
+        self.currency_client = CurrencyClient()
 
 
     def orchestrate(self):
         while True:
-            if self.orchestrator.orchestrate(self.equity_client.get_equity_quote()) != 'hold':
+            if self.orchestrator.orchestrate(self.currency_client.get_forex_quote()) != 'hold':
                 self.inverse_orchestrator.account_status.update_positions()
                 self.inverse_orchestrator._prepare_next_transaction()
 
     def inverse_orchestrate(self):
         while True:
-            if self.inverse_orchestrator.orchestrate(self.equity_client.get_equity_quote()) != 'hold':
+            if self.inverse_orchestrator.orchestrate(self.currency_client.get_forex_quote()) != 'hold':
                 self.orchestrator.account_status.update_positions()
                 self.orchestrator._prepare_next_transaction()
 

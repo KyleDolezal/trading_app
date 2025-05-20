@@ -1,48 +1,49 @@
+import os
 import logging
 logger = logging.getLogger(__name__)
-import os
-import requests
+from polygon import RESTClient
+from polygon import WebSocketClient
+from polygon.websocket.models import WebSocketMessage, Feed, Market
+from typing import List
 import time
+import requests
+import threading
 
 class CurrencyClient:
     def __init__(self):
         self.api_key = os.getenv('CURRENCY_API_KEY')
         self.currency_ticker = os.getenv('CURRENCY_TICKER')
-
         if self.api_key is None:
             raise ValueError("api key must be present")
+        self.price = 0
 
-    def get_crypto_quote(self):
-        response = None
-        for i in range(20):
-            try:
-                response = requests.get("https://api.polygon.io/v1/last/crypto/{}/USD?apiKey={}".format(self.currency_ticker, self.api_key))
-                break
-            except(Exception) as e:
-                logger.error("Problem requesting currency information: {}".format(e))
-                time.sleep(1)
-        
-        if response.json()['status'] != 'success':
-            logger.error('Problem getting currency information')
-            raise Exception('Problem with currency API')
-        
-        return CurrencyClient.parse_crypto_response(response)
+        self.streaming_client = WebSocketClient(
+        	api_key=self.api_key,
+        	feed=Feed.RealTime,
+        	market=Market.Forex
+	    )
+        self.streaming_client.subscribe("C.{}/USD".format(self.currency_ticker))
+
+        self.threading_update = threading.Thread(target=self.updates)
+        self.threading_update.start()
+
+
+    def updates(self):
+        self.streaming_client.run(self.update_price)
+
+    def update_price(self, msgs: List[WebSocketMessage]):
+        for m in msgs:
+            self.price = m.bid_price
+
+    def get_forex_quote(self):
+        while self.price == 0:
+            time.sleep(1)
+
+        return self.price
 
     def parse_crypto_response(response):
         return response.json()['last']['price']
-    
-    def get_forex_quote(self):
-        response = requests.get("https://api.polygon.io/v1/conversion/{}/USD?amount=1&precision=2&apiKey={}".format(self.currency_ticker, self.api_key))
-        
-        if response.json()['status'] != 'success':
-            logger.error('Problem getting currency information')
-            raise Exception('Problem with currency API')
-        
-        return CurrencyClient.parse_forex_response(response)
-
-    def parse_forex_response(response):
-        return response.json()['last']['ask']
-    
+  
     def get_snapshot(self):
         response = None
         for i in range(20):
@@ -55,3 +56,4 @@ class CurrencyClient:
     
     def parse_snapshot(self, resp):
         return float(resp['ticker']['todaysChangePerc'])
+    

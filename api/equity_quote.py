@@ -6,6 +6,7 @@ from polygon import WebSocketClient
 from polygon.websocket.models import WebSocketMessage, Feed, Market
 from typing import List
 import time
+import requests
 import threading
 
 class EquityClient:
@@ -42,3 +43,17 @@ class EquityClient:
             time.sleep(1)
 
         return self.price
+    
+    def get_snapshot(self):
+        response = None
+        for i in range(20):
+            try:
+                response = requests.get("https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/{}?apiKey={}".format(self.target_symbol, self.api_key))
+                return self.parse_snapshot(response.json())
+            except(Exception) as e:
+                logger.error("Problem requesting currency information: {}".format(e))
+                time.sleep(1)
+    
+    def parse_snapshot(self, resp):
+        return float(resp['ticker']['todaysChangePerc'])
+    
