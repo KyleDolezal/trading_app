@@ -29,6 +29,7 @@ class InverseTransactionTrigger(TransactionBase):
                 (self._preserve_asset_value(price) or self._override_sell_price(price)) and \
                 (percent_difference > self.change_threshold):
             self.next_action = 'buy'
+            self.number_of_holds = 0
             return 'sell'
         elif (self.next_action == 'buy') \
                 and (percent_difference < self.change_threshold) \
@@ -38,8 +39,10 @@ class InverseTransactionTrigger(TransactionBase):
             self.next_action = 'sell'
             self.running_total -= price
             self.bought_price = price
+            self.number_of_holds = 0
             return 'buy'
         else:
+            self.number_of_holds += 1
             return 'hold'
 
     def _override_sell_price(self, price):
