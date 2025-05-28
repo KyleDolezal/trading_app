@@ -16,11 +16,11 @@ class MockClient(object):
     
 class MockResponse(object):
     def __init__(self):
-        self.price = 46.75
+        self.bid_price = 46.75
 
 class MockList(object):
     def __init__(self):
-        self.price = 46.75
+        self.bid_price = 46.75
 
 def test_raise_error_on_missing_env_vars():
     try:

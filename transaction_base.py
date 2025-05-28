@@ -7,6 +7,7 @@ import time
 import datetime
 from api.equity_quote import EquityClient
 from api.index_quote import IndexClient
+import requests
 
 class TransactionBase:
     def __init__(self, test_mode=False):
@@ -19,7 +20,7 @@ class TransactionBase:
         self.is_up_market = None
         self.is_down_market = None
         self.cached_checks = 0
-        self.cached_checks_limit = 9
+        self.cached_checks_limit = 5000
         self.equity_client = EquityClient(os.getenv('TARGET_SYMBOL', 'SCHB'))
         self.index_client = IndexClient()
         self._boot_strap()

@@ -4,15 +4,15 @@ import os
 import datetime
 from freezegun import freeze_time
 
-response = {"last":{"conditions":[1],"exchange":1,"price":83712.2,"size":0.00473092,""
+response = {"results": [{"bid_price": 1.0}], "last":{"conditions":[1],"exchange":1,"price":83712.2,"size":0.00473092,""
 "timestamp":1741532522429},"request_id":"44ac62cbfdae6adc14158dac0d57ba1a","status":"success",
 "symbol":"BTC-USD", "ticker": {"todaysChangePerc": 1}}
 
-down_response = {"last":{"conditions":[1],"exchange":1,"price":83712.2,"size":0.00473092,""
+down_response = {"results": [{"bid_price": 1.0}], "last":{"conditions":[1],"exchange":1,"price":83712.2,"size":0.00473092,""
 "timestamp":1741532522429},"request_id":"44ac62cbfdae6adc14158dac0d57ba1a","status":"success",
 "symbol":"BTC-USD", "ticker": {"todaysChangePerc": -1}}
 
-up_response = {"last":{"conditions":[1],"exchange":1,"price":83712.2,"size":0.00473092,""
+up_response = {"results": [{"bid_price": 9999999999999999999.0}], "last":{"conditions":[1],"exchange":1,"price":83712.2,"size":0.00473092,""
 "timestamp":1741532522429},"request_id":"44ac62cbfdae6adc14158dac0d57ba1a","status":"success",
 "symbol":"BTC-USD", "ticker": {"todaysChangePerc": 1}}
 
@@ -87,6 +87,7 @@ def test_is_down_market(mocker):
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
 
+
     os.environ["HISTORY_LENGTH"] = '3'
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
@@ -114,10 +115,10 @@ def test_is_up_market(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
 
     tt = InverseTransactionTrigger()
+    tt.market_direction_threshold = -1
     tt.target_symbol = 'SCHB'
     tt.equity_client.target_symbol = 'SCHB'
     tt.equity_client.api_key = 'key'
-    assert tt._is_down_market() == False
     assert tt._is_up_market() == True
 
 

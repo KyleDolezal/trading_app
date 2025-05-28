@@ -8,6 +8,7 @@ from typing import List
 import time
 import requests
 import threading
+import datetime
 
 class EquityClient:
     def __init__(self, target_symbol):
@@ -26,7 +27,7 @@ class EquityClient:
             feed=Feed.RealTime,
             market=Market.Stocks
 	    )
-        self.streaming_client.subscribe("T.{}".format(self.target_symbol))
+        self.streaming_client.subscribe("Q.{}".format(self.target_symbol))
 
         self.threading_update = threading.Thread(target=self.updates)
         self.threading_update.start()
@@ -36,7 +37,7 @@ class EquityClient:
 
     def update_price(self, msgs: List[WebSocketMessage]):
         for m in msgs:
-            self.price = m.price
+            self.price = m.bid_price
 
     def get_equity_quote(self):
         while self.price == 0:
@@ -48,12 +49,23 @@ class EquityClient:
         response = None
         for i in range(20):
             try:
-                response = requests.get("https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/{}?apiKey={}".format(self.target_symbol, self.api_key))
-                return self.parse_snapshot(response.json())
+                now = int(datetime.datetime.now().timestamp())
+                now_response = requests.get("https://api.polygon.io/v3/quotes/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(self.target_symbol, now, self.api_key))
+                while len(now_response.json().get('results', [])) == 0:
+                    time.sleep(1)
+                    logger.info("Waiting for market snapshot: {}".format(self.target_symbol))
+                    now_response = requests.get("https://api.polygon.io/v3/quotes/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(self.target_symbol, now, self.api_key))
+                now_price = now_response.json()['results'][0]['bid_price']
+
+                five_minutes_ago = now - 300
+                past_response = requests.get("https://api.polygon.io/v3/quotes/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(self.target_symbol, five_minutes_ago, self.api_key))
+                while len(past_response.json().get('results', [])) == 0:
+                    time.sleep(1)
+                    logger.info("Waiting for market snapshot: {}".format(self.target_symbol))
+                    past_response = requests.get("https://api.polygon.io/v3/quotes/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(self.target_symbol, five_minutes_ago, self.api_key))
+                past_price = past_response.json()['results'][0]['bid_price']
+
+                return ((now_price - past_price) / now_price) * 100
             except(Exception) as e:
                 logger.error("Problem requesting currency information: {}".format(e))
                 time.sleep(1)
-    
-    def parse_snapshot(self, resp):
-        return float(resp['ticker']['todaysChangePerc'])
-    
