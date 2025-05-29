@@ -19,10 +19,9 @@ class CurrencyClient:
 
         self.streaming_client = WebSocketClient(
         	api_key=self.api_key,
-        	feed=Feed.RealTime,
-        	market=Market.Forex
+        	market=Market.Crypto
 	    )
-        self.streaming_client.subscribe("C.{}/USD".format(self.currency_ticker))
+        self.streaming_client.subscribe("XT.{}-USD".format(self.currency_ticker))
 
         self.threading_update = threading.Thread(target=self.updates)
         self.threading_update.start()
@@ -33,7 +32,7 @@ class CurrencyClient:
 
     def update_price(self, msgs: List[WebSocketMessage]):
         for m in msgs:
-            self.price = m.bid_price
+            self.price = m.price
 
     def get_forex_quote(self):
         while self.price == 0:
