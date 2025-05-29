@@ -22,7 +22,7 @@ class TransactionTrigger(TransactionBase):
             self.running_total = 0
             return 'hold'
         if datetime.datetime.now() > self.today230pm:
-            self.holds_per_override_cent = self.holds_per_override_cent * .99
+            self.holds_per_override_cent = self.holds_per_override_cent * .999
         if (self.next_action == 'buy') and \
                 (percent_difference > self.change_threshold) and \
                 (datetime.datetime.now() < self.today230pm or self.test_mode) and \

@@ -23,7 +23,7 @@ class InverseTransactionTrigger(TransactionBase):
             return 'hold'
         
         if datetime.datetime.now() > self.today230pm:
-            self.holds_per_override_cent = self.holds_per_override_cent * .99
+            self.holds_per_override_cent = self.holds_per_override_cent * .999
 
         if (self.next_action == 'sell') and \
                 (self._preserve_asset_value(price) or self._override_sell_price(price)) and \
