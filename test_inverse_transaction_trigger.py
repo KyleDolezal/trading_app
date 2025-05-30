@@ -146,7 +146,7 @@ def test_override_false(mocker):
     tt.bought_price=10
     tt.running_total = -100
     tt.history=[10, 10, 10, 10, 10, 10, 10]
-    assert tt._override_sell_price(10.1) == True
+    assert tt._override_sell_price(10.1) == False
     
 @freeze_time("2012-01-14 12:21:34")
 def test_override_true(mocker):

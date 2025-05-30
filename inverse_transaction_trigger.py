@@ -47,7 +47,7 @@ class InverseTransactionTrigger(TransactionBase):
 
     def _override_sell_price(self, price):
         override_amount = (.01 / self.holds_per_override_cent) * self.number_of_holds
-        spread = self.bought_price - price
+        spread = price - self.bought_price
         will_override = self._significant_negative_price_action(price) or \
             ((spread - override_amount <= 0) and (self.running_total + price <= 0))
 
