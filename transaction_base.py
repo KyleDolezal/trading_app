@@ -75,6 +75,8 @@ class TransactionBase:
         will_selloff = abs(percent_difference) > (self.change_threshold * self.quick_selloff_multiplier)
         
         if will_selloff:
+            self.is_down_market = True
+            self.is_up_market = True
             print("quick selloff")
             logger.info("Selling off due to negative price action")
 

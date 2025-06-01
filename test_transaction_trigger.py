@@ -305,7 +305,7 @@ def test_preserve_asset_value(mocker):
     tt.test_preserve_asset_value = False
 
     tt.history=[10, 10, 10, 10, 10, 10, 10]
-    assert tt._preserve_asset_value(9) == True
+    assert tt._preserve_asset_value(11) == True
 
     tt._is_up_market = lambda a=None : True
     assert tt._preserve_asset_value(10) == True

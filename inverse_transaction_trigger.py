@@ -26,8 +26,8 @@ class InverseTransactionTrigger(TransactionBase):
             self.holds_per_override_cent = self.holds_per_override_cent * .999
 
         if (self.next_action == 'sell') and \
-                (self._preserve_asset_value(price) or self._override_sell_price(price)) and \
-                (percent_difference > self.change_threshold):
+                (percent_difference > self.change_threshold) and \
+                (self._preserve_asset_value(price) or self._override_sell_price(price)):
             self.next_action = 'buy'
             self.number_of_holds = 0
             return 'sell'
