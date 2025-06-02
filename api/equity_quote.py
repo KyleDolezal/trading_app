@@ -49,23 +49,23 @@ class EquityClient:
         response = None
         for i in range(20):
             try:
-                now = int(datetime.datetime.now().timestamp())
+                seconds_to_allow_for_recent_trade = 3
+                now = int(datetime.datetime.now().timestamp() - seconds_to_allow_for_recent_trade)
                                             
                 now_response = requests.get("https://api.polygon.io/v3/trades/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(self.target_symbol, now, self.api_key))
-                while len(now_response.json().get('results', [])) == 0 or now_response.json()['results'][0]['price'] == 0:
-                    time.sleep(1)
-                    logger.info("Waiting for market snapshot: {}".format(self.target_symbol))
+                now_price = 0
+                if len(now_response.json().get('results', [])) == 0 or now_response.json()['results'][0]['price'] == 0:
+                    now_price = self.price
+                while now_price == 0:
+                    time.sleep(.2)
                     now_response = requests.get("https://api.polygon.io/v3/trades/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(self.target_symbol, now, self.api_key))
-                now_price = now_response.json()['results'][0]['price']
-
+                    now_price = now_response.json()['results'][0]['price']
                 five_minutes_ago = now - 300
                 past_response = requests.get("https://api.polygon.io/v3/trades/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(self.target_symbol, five_minutes_ago, self.api_key))
                 while len(past_response.json().get('results', [])) == 0:
-                    time.sleep(1)
-                    logger.info("Waiting for market snapshot: {}".format(self.target_symbol))
+                    time.sleep(.2)
                     past_response = requests.get("https://api.polygon.io/v3/trades/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(self.target_symbol, five_minutes_ago, self.api_key))
                 past_price = past_response.json()['results'][0]['price']
-
                 return ((now_price - past_price) / now_price) * 100
             except(Exception) as e:
                 logger.error("Problem requesting currency information: {}".format(e))

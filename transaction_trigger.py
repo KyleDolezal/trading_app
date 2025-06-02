@@ -8,8 +8,8 @@ from transaction_base import TransactionBase
 import datetime
 
 class TransactionTrigger(TransactionBase):
-    def __init__(self, test_mode=False):
-        super().__init__(test_mode)
+    def __init__(self, test_mode=False, history=[]):
+        super().__init__(test_mode, history)
     
     def get_action(self, price):
         self.history.append(price)
@@ -20,14 +20,18 @@ class TransactionTrigger(TransactionBase):
 
         if (datetime.datetime.now() < self.today830am or datetime.datetime.now() > self.today7pm) and not self.test_mode:
             self.running_total = 0
+            self.transactions = 0
             return 'hold'
         if datetime.datetime.now() > self.today445pm:
             self.holds_per_override_cent = self.holds_per_override_cent * .9999
         if (self.next_action == 'buy') and \
                 (percent_difference > self.change_threshold) and \
                 (datetime.datetime.now() < self.today230pm or self.test_mode) and \
+                self.running_total >= 0 and \
+                self.transactions <= self.max_transactions and \
                 not self._is_down_market():
             self.next_action = 'sell'
+            self.transactions += 1
             self.bought_price = price
             self.running_total -= price
             self.number_of_holds = 0
@@ -38,6 +42,7 @@ class TransactionTrigger(TransactionBase):
                 (self._preserve_asset_value(price) or self._override_sell_price(price)) :
             self.next_action = 'buy'
             self.running_total += price
+            self.transactions += 1
             self.number_of_holds = 0
             return 'sell'
         else:
@@ -45,10 +50,14 @@ class TransactionTrigger(TransactionBase):
             return 'hold'
     
     def _override_sell_price(self, price):
-        override_amount = float(.01 / self.holds_per_override_cent) * self.number_of_holds
+        if self.is_down_market:
+            status_multiplier = 1 / self.status_multiplier
+        else:
+            status_multiplier = self.status_multiplier
+        override_amount = float(.01 / self.holds_per_override_cent * status_multiplier) * self.number_of_holds
         spread = self.bought_price - price
         will_override = self._significant_negative_price_action(price) or \
-            ((spread - override_amount <= 0) and (self.running_total + price >= 0))
+            (spread - override_amount <= 0)
         if will_override:
             logger.info('Overriding sell behavior for transaction trigger')
         return will_override
