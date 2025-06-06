@@ -13,6 +13,7 @@ from polygon import WebSocketClient
 from polygon.websocket.models import WebSocketMessage, Feed, Market
 from typing import List
 from api.index_quote import IndexClient
+from pg_adapter import PG_Adapter
 from api.currency_quote import CurrencyClient
 
 class App:
@@ -23,12 +24,14 @@ class App:
 
         symbols = [os.getenv('TARGET_SYMBOL'), os.getenv('INVERSE_TARGET_SYMBOL')]
 
+        pg_adapter = PG_Adapter()
+
         self.transaction_trigger = TransactionTrigger()
-        self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols)
+        self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols, pg_adapter)
 
         self.inverse_transaction_trigger = InverseTransactionTrigger()
 
-        self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols)
+        self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols, pg_adapter)
 
         self.currency_client = CurrencyClient()
 

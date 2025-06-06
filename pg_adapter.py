@@ -1,5 +1,7 @@
 import psycopg2
 import os
+import logging
+logger = logging.getLogger(__name__)
 
 class PG_Adapter:
     def __init__(self):
@@ -13,6 +15,6 @@ class PG_Adapter:
         try:
             record = self.cursor.fetchall()
         except:
-            pass
+            logger.error('Problem with db connection')
 
         return record
