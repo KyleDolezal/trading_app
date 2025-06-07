@@ -1,6 +1,7 @@
 import pytest
 from transaction_trigger import TransactionTrigger
 import os
+import datetime
 from freezegun import freeze_time
 
 response = {"results": [{"price": .00001}], "last":{"conditions":[1],"exchange":1,"price":83712.2,"size":0.00473092,""
@@ -397,3 +398,34 @@ def test_max_txns(mocker):
     tt.transactions = 1
     assert tt.get_action(13) == 'hold'
 
+@freeze_time("2012-01-14 12:21:34")
+def test_override_countdown(mocker):
+    mocker.patch('currency_quote.requests.get', return_value=MockResponse())
+    mocker.patch('transaction_trigger.time.sleep')
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('transaction_base.TransactionBase._boot_strap')
+    mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
+    mocker.patch('api.currency_quote.CurrencyClient.__init__', return_value=None)
+
+    os.environ["HISTORY_LENGTH"] = '3'
+    os.environ["EQUITY_API_KEY"] = 'SCHB'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["EQUITY_API_KEY"] = 'key'
+    os.environ['HOLDS_PER_OVERRIDE_CENT'] = '1'
+    
+    tt = TransactionTrigger(history=[0])
+    tt.target_symbol = 'SCHB'
+    tt.number_of_holds=10
+    tt.currency_client.api_key = "key"
+
+    tt.next_action='sell'
+    tt.bought_price=10
+    tt.running_total = -1
+    tt.history=[10, 10, 10, 10, 10, 10, 10]
+    tt.override_countdown = datetime.timedelta(1)
+    assert tt._override_sell_price(9.9) == False
+
+    tt.override_countdown = datetime.timedelta(0)
+    assert tt._override_sell_price(9.9) == True

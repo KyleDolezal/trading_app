@@ -42,7 +42,9 @@ class TransactionBase:
         self.transactions = 0
 
         self.status_multiplier = int(os.getenv('STATUS_MULTIPLIER', 1))
-        
+        self.override_countdown = datetime.timedelta(int(os.getenv('OVERRIDE_COUNTDOWN', 0)))
+        self.bought_time = datetime.datetime.now()
+
     def _get_price_difference(self, price):
         average = statistics.mean(self.history)
         difference = price - average
@@ -88,3 +90,6 @@ class TransactionBase:
             logger.info("Selling off due to negative price action")
 
         return will_selloff
+    
+    def _time_elapsed(self):
+        return datetime.datetime.now() - self.bought_time
