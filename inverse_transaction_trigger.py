@@ -58,10 +58,12 @@ class InverseTransactionTrigger(TransactionBase):
             status_multiplier = self.status_multiplier
         override_amount = (.01 / self.holds_per_override_cent * status_multiplier) * self.number_of_holds
         spread = price - self.bought_price
-        will_override = self._significant_negative_price_action(price) or \
-            ((spread - override_amount <= 0) and self._time_elapsed() >= self.override_countdown)
 
-        if will_override:
+        spread_override = ((spread - override_amount <= 0) and self._time_elapsed() >= self.override_countdown)
+        will_override = self._significant_negative_price_action(price) or \
+            spread_override
+
+        if spread_override:
             logger.info('Overriding sell behavior for inverse transaction trigger')
         return will_override
 
