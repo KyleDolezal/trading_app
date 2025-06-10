@@ -65,4 +65,4 @@ class TransactionTrigger(TransactionBase):
         return will_override
     
     def _preserve_asset_value(self, price):
-        return self._is_down_market() or (datetime.datetime.now() > self.today230pm) or (price >= self.bought_price) or self.test_preserve_asset_value
+        return self._is_down_market() or (datetime.datetime.now() > self.today445pm) or (price >= self.bought_price) or self.test_preserve_asset_value
