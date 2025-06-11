@@ -12,7 +12,6 @@ from datetime import datetime
 from polygon import WebSocketClient
 from polygon.websocket.models import WebSocketMessage, Feed, Market
 from typing import List
-from api.index_quote import IndexClient
 from pg_adapter import PG_Adapter
 from api.currency_quote import CurrencyClient
 
