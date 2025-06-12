@@ -191,6 +191,7 @@ def test_is_down_market(mocker):
     mocker.patch('api.currency_quote.CurrencyClient.__init__', return_value=None)
     mocker.patch('transaction_base.TransactionBase._boot_strap')
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
     mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
     mocker.patch('api.currency_quote.CurrencyClient.__init__', return_value=None)
 
@@ -215,6 +216,7 @@ def test_is_up_market(mocker):
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
     mocker.patch('api.currency_quote.CurrencyClient.__init__', return_value=None)
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
 
     os.environ["EQUITY_API_KEY"] = 'key'
     os.environ["HISTORY_LENGTH"] = '3'

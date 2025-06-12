@@ -38,6 +38,7 @@ def test_get_crypto_quote_buy(mocker):
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
     mocker.patch('transaction_base.TransactionBase._boot_strap')
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
@@ -53,6 +54,7 @@ def test_get_crypto_quote_buy(mocker):
     tt.history=[]
     tt.equity_client.target_symbol = 'SCHB'
     tt.equity_client.api_key = 'key'
+    tt.equity_client.today831am = 123
 
     tt.next_action = 'buy'
     tt.get_action(11)
@@ -68,6 +70,7 @@ def test_max_txns(mocker):
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
     mocker.patch('transaction_base.TransactionBase._boot_strap')
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
 
@@ -97,6 +100,7 @@ def test_get_crypto_quote_sell(mocker):
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
     mocker.patch('transaction_base.TransactionBase._boot_strap')
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
@@ -145,6 +149,7 @@ def test_is_down_market(mocker):
     mocker.patch('transaction_base.TransactionBase._boot_strap')
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockDownResponse())
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
 
@@ -162,6 +167,7 @@ def test_is_down_market(mocker):
 
 def test_is_up_market(mocker):
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
     mocker.patch('transaction_base.TransactionBase._boot_strap')
     mock_account_status = mocker.patch('transaction_trigger.time.sleep')
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockUpResponse())

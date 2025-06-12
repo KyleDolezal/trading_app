@@ -36,16 +36,24 @@ class App:
 
 
     def orchestrate(self):
-        while True:
-            if self.orchestrator.orchestrate(self.currency_client.get_forex_quote()) != 'hold':
-                self.inverse_orchestrator.account_status.update_positions()
-                self.inverse_orchestrator._prepare_next_transaction()
+        try:
+            while True:
+                if self.orchestrator.orchestrate(self.currency_client.get_forex_quote()) != 'hold':
+                    self.inverse_orchestrator.account_status.update_positions()
+                    self.inverse_orchestrator._prepare_next_transaction()
+        except Exception as e:
+            logging.error(e)
+
 
     def inverse_orchestrate(self):
-        while True:
-            if self.inverse_orchestrator.orchestrate(self.currency_client.get_forex_quote()) != 'hold':
-                self.orchestrator.account_status.update_positions()
-                self.orchestrator._prepare_next_transaction()
+        try:
+            while True:
+                if self.inverse_orchestrator.orchestrate(self.currency_client.get_forex_quote()) != 'hold':
+                    self.orchestrator.account_status.update_positions()
+                    self.orchestrator._prepare_next_transaction()
+        except Exception as e:
+            logging.error(e)
+
 
 def main():
     app = App()

@@ -22,6 +22,8 @@ class EquityClient:
 
         self.client = RESTClient(self.api_key)
 
+        self.today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
+
         self.streaming_client = WebSocketClient(
 	        api_key=self.api_key,
             feed=Feed.RealTime,
@@ -46,27 +48,38 @@ class EquityClient:
         return self.price
     
     def get_snapshot(self):
-        response = None
         for i in range(20):
             try:
-                seconds_to_allow_for_recent_trade = 3
-                now = int(datetime.datetime.now().timestamp() - seconds_to_allow_for_recent_trade)
-                                            
-                now_response = requests.get("https://api.polygon.io/v3/trades/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(self.target_symbol, now, self.api_key))
-                now_price = 0
-                if len(now_response.json().get('results', [])) == 0 or now_response.json()['results'][0]['price'] == 0:
-                    now_price = self.price
-                while now_price == 0:
+                now = int(datetime.datetime.now().timestamp())
+                time_delta_to_831am = now - self.today831am
+                minutes_from_831am = round(time_delta_to_831am.seconds / 60)
+        
+                from_831_response = requests.get("https://api.polygon.io/v1/indicators/ema/{}?timestamp.gte={}&timespan=minute&adjusted=true&window={}&series_type=close&order=desc&limit=1&apiKey={}".format(self.target_symbol, now, minutes_from_831am, self.api_key))
+                while len(from_831_response.json()['results']['values']) == 0:
                     time.sleep(.2)
-                    now_response = requests.get("https://api.polygon.io/v3/trades/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(self.target_symbol, now, self.api_key))
-                    now_price = now_response.json()['results'][0]['price']
-                five_minutes_ago = now - 300
-                past_response = requests.get("https://api.polygon.io/v3/trades/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(self.target_symbol, five_minutes_ago, self.api_key))
-                while len(past_response.json().get('results', [])) == 0:
+                    from_831_response = requests.get("https://api.polygon.io/v1/indicators/ema/{}?timestamp.gte={}&timespan=minute&adjusted=true&window={}&series_type=close&order=desc&limit=1&apiKey={}".format(self.target_symbol, now, minutes_from_831am, self.api_key))
+                ema_since_831_price = float(self._parse_ema_price(from_831_response.json()))
+
+                from_5_mins_ago_resp = requests.get("https://api.polygon.io/v1/indicators/ema/{}?timestamp.gte={}&timespan=minute&adjusted=true&window={}&series_type=close&order=desc&limit=1&apiKey={}".format(self.target_symbol, now, 5, self.api_key))
+                while len(from_5_mins_ago_resp.json()['results']['values']) == 0:
                     time.sleep(.2)
-                    past_response = requests.get("https://api.polygon.io/v3/trades/{}?timestamp.gte={}&order=asc&limit=1&sort=timestamp&apiKey={}".format(self.target_symbol, five_minutes_ago, self.api_key))
-                past_price = past_response.json()['results'][0]['price']
-                return ((now_price - past_price) / now_price) * 100
+                    from_5_mins_ago_resp = requests.get("https://api.polygon.io/v1/indicators/ema/{}?timestamp.gte={}&timespan=minute&adjusted=true&window={}&series_type=close&order=desc&limit=1&apiKey={}".format(self.target_symbol, now, 5, self.api_key))
+                ema_since_5m_price = float(self._parse_ema_price(from_5_mins_ago_resp.json()))
+
+                return self._calculate_percent(ema_since_831_price, ema_since_5m_price)
             except(Exception) as e:
                 logger.error("Problem requesting currency information: {}".format(e))
                 time.sleep(1)
+
+    def _parse_trade_response(self, trade_response):
+        return trade_response['results'][0]['price']
+        
+    def _parse_ema_price(self, ema_response):
+        return ema_response['results']['values'][0]['value']
+    
+    def _calculate_percent(self, ema_since_831_price, ema_since_5m_price):
+        difference = (ema_since_5m_price * 1.01) - (ema_since_831_price * .99)
+
+        percent = (difference / ema_since_831_price) * 100
+
+        return percent

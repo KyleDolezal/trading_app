@@ -42,6 +42,7 @@ class TransactionTrigger(TransactionBase):
                 abs(percent_difference) > self.change_threshold and \
                 (self._preserve_asset_value(price) or self._override_sell_price(price)) :
             self.next_action = 'buy'
+            self.cached_checks = self.cached_checks_limit
             self.running_total += price
             self.transactions += 1
             self.number_of_holds = 0
