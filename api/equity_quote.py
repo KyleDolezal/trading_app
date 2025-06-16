@@ -50,9 +50,10 @@ class EquityClient:
     def get_snapshot(self):
         for i in range(20):
             try:
-                now = int(datetime.datetime.now().timestamp())
+                now = datetime.datetime.now()
                 time_delta_to_831am = now - self.today831am
                 minutes_from_831am = round(time_delta_to_831am.seconds / 60)
+                now = round(now.timestamp())
         
                 from_831_response = requests.get("https://api.polygon.io/v1/indicators/ema/{}?timestamp.gte={}&timespan=minute&adjusted=true&window={}&series_type=close&order=desc&limit=1&apiKey={}".format(self.target_symbol, now, minutes_from_831am, self.api_key))
                 while len(from_831_response.json()['results']['values']) == 0:
