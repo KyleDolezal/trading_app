@@ -41,6 +41,7 @@ class InverseTransactionTrigger(TransactionBase):
                 (datetime.datetime.now() < self.today230pm or self.test_mode) and \
                 not self._is_up_market() and \
                 self.transactions <= self.max_transactions and \
+                self.number_of_holds >= self.blackout_holds and \
                 self.running_total >= 0:
             self.next_action = 'sell'
             self.running_total -= price

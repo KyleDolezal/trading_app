@@ -28,6 +28,7 @@ class TransactionTrigger(TransactionBase):
                 (percent_difference > self.change_threshold) and \
                 (datetime.datetime.now() < self.today230pm or self.test_mode) and \
                 self.running_total >= 0 and \
+                self.number_of_holds >= self.blackout_holds and \
                 self.transactions <= self.max_transactions and \
                 not self._is_down_market():
             self.next_action = 'sell'

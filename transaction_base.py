@@ -45,6 +45,8 @@ class TransactionBase:
         self.override_countdown = datetime.timedelta(int(os.getenv('OVERRIDE_COUNTDOWN', 0)))
         self.bought_time = datetime.datetime.now()
 
+        self.blackout_holds = int(os.getenv('BLACKOUT_HOLDS', 0))
+
     def _get_price_difference(self, price):
         average = statistics.mean(self.history)
         difference = price - average

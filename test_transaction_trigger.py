@@ -431,3 +431,31 @@ def test_override_countdown(mocker):
 
     tt.override_countdown = datetime.timedelta(0)
     assert tt._override_sell_price(9.9) == True
+
+
+@freeze_time("2012-01-14 12:21:34")
+def test_get_crypto_quote_blackout(mocker):
+    mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
+    mock_account_status = mocker.patch('transaction_trigger.time.sleep')
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('transaction_base.TransactionBase._boot_strap')
+    mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
+    mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
+
+    os.environ["HISTORY_LENGTH"] = '3'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+    
+    tt = TransactionTrigger(history=[11, 11, 11])
+    tt.history=[]
+    tt.equity_client.target_symbol = 'SCHB'
+    tt.is_down_market = False
+    tt.equity_client.api_key = 'key'
+    tt.blackout_holds = 5
+
+    tt.next_action = 'buy'
+    tt.get_action(11)
+    assert tt.get_action(13) == 'hold'
