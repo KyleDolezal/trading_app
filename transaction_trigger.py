@@ -64,6 +64,8 @@ class TransactionTrigger(TransactionBase):
             spread_override
         if spread_override:
             logger.info('Overriding sell behavior for transaction trigger')
+        else:
+            logger.info("Not overriding transaction trigger.")
         return will_override
     
     def _preserve_asset_value(self, price):

@@ -91,6 +91,8 @@ class TransactionBase:
             self.is_up_market = True
             print("quick selloff")
             logger.info("Selling off due to negative price action")
+        else:
+            logger.info("No quick selloff")
 
         return will_selloff
     
