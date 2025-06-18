@@ -72,4 +72,4 @@ class InverseTransactionTrigger(TransactionBase):
 
 
     def _preserve_asset_value(self, price):
-        return self._is_up_market() or (datetime.datetime.now() > self.today445pm) or (price <= self.bought_price) or self.test_preserve_asset_value
+        return (datetime.datetime.now() > self.today445pm) or (price <= self.bought_price) or self.test_preserve_asset_value
