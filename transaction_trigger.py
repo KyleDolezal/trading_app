@@ -13,7 +13,7 @@ class TransactionTrigger(TransactionBase):
     
     def get_action(self, price):
         self.history.append(price)
-        if len(self.history) > self.history_length:
+        while len(self.history) > self.history_length:
             self.history = self.history[1:]
 
         percent_difference = self._get_price_difference(price)
