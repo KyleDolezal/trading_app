@@ -68,8 +68,6 @@ class InverseTransactionTrigger(TransactionBase):
 
         if spread_override:
             logger.info('Overriding sell behavior for inverse transaction trigger')
-        else:
-            logger.info("Not overriding inverse transaction trigger.")
         return will_override
 
 
