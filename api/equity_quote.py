@@ -11,12 +11,12 @@ import threading
 import datetime
 
 class EquityClient:
-    def __init__(self, target_symbol):
+    def __init__(self, target_symbol, logger = logger):
         self.price = 0
         self.api_key = os.getenv('EQUITY_API_KEY')
         self.target_symbol = target_symbol
         self.equity_ticker = os.getenv('EQUITY_TICKER', 'SCHB')
-
+        self.logger = logger
         if self.api_key is None:
             raise ValueError("api key must be present")
 
@@ -69,7 +69,7 @@ class EquityClient:
 
                 return self._calculate_percent(ema_since_831_price, ema_since_5m_price)
             except(Exception) as e:
-                logger.error("Problem requesting currency information: {}".format(e))
+                self.logger.error("Problem requesting currency information: {}".format(e))
                 time.sleep(1)
 
     def _parse_trade_response(self, trade_response):

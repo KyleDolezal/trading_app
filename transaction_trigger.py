@@ -8,10 +8,11 @@ from transaction_base import TransactionBase
 import datetime
 
 class TransactionTrigger(TransactionBase):
-    def __init__(self, test_mode=False, history=[]):
-        super().__init__(test_mode, history)
+    def __init__(self, test_mode=False, history=[], logger = logger):
+        super().__init__(test_mode, history, logger = logger)
     
     def get_action(self, price):
+        self.logger.info("Test log")
         self.history.append(price)
         while len(self.history) > self.history_length:
             self.history = self.history[1:]
@@ -63,7 +64,7 @@ class TransactionTrigger(TransactionBase):
         will_override = self._significant_negative_price_action(price) or \
             spread_override
         if spread_override:
-            logger.info('Overriding sell behavior for transaction trigger')
+            self.logger.info('Overriding sell behavior for transaction trigger')
         return will_override
     
     def _preserve_asset_value(self, price):

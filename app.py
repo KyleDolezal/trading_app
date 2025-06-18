@@ -30,14 +30,14 @@ class App:
 
         pg_adapter = PG_Adapter()
 
-        self.transaction_trigger = TransactionTrigger()
-        self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols, pg_adapter)
+        self.transaction_trigger = TransactionTrigger(logger = logger)
+        self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols, pg_adapter, logger = logger)
 
-        self.inverse_transaction_trigger = InverseTransactionTrigger()
+        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger)
 
-        self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols, pg_adapter)
+        self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols, pg_adapter, logger = logger)
 
-        self.currency_client = CurrencyClient()
+        self.currency_client = CurrencyClient(logger = logger)
 
 
     def orchestrate(self):

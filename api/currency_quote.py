@@ -10,12 +10,14 @@ import requests
 import threading
 
 class CurrencyClient:
-    def __init__(self):
+    def __init__(self, logger=logger):
         self.api_key = os.getenv('CURRENCY_API_KEY')
         self.currency_ticker = os.getenv('CURRENCY_TICKER')
         if self.api_key is None:
             raise ValueError("api key must be present")
         self.price = 0
+
+        self.logger = logger
 
         self.streaming_client = WebSocketClient(
         	api_key=self.api_key,
@@ -50,7 +52,7 @@ class CurrencyClient:
                 response = requests.get("https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/tickers/X:{}USD?apiKey={}".format(self.currency_ticker, self.api_key))
                 return self.parse_snapshot(response.json())
             except(Exception) as e:
-                logger.error("Problem requesting currency information: {}".format(e))
+                self.logger.error("Problem requesting currency information: {}".format(e))
                 time.sleep(1)
     
     def parse_snapshot(self, resp):

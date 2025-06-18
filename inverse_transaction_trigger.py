@@ -8,8 +8,8 @@ from transaction_base import TransactionBase
 import datetime
 
 class InverseTransactionTrigger(TransactionBase):
-    def __init__(self, test_mode=False, history=[]):
-        super().__init__(test_mode, history)
+    def __init__(self, test_mode=False, history=[], logger = logger):
+        super().__init__(test_mode, history, logger = logger)
     
     def get_action(self, price):
         self.history.append(price)
@@ -67,7 +67,7 @@ class InverseTransactionTrigger(TransactionBase):
             spread_override
 
         if spread_override:
-            logger.info('Overriding sell behavior for inverse transaction trigger')
+            self.logger.info('Overriding sell behavior for inverse transaction trigger')
         return will_override
 
 

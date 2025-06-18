@@ -14,14 +14,15 @@ import os
 
 
 class Orchestrator():
-    def __init__(self, target_symbol, transaction_trigger, symbols, pg_adapter):
+    def __init__(self, target_symbol, transaction_trigger, symbols, pg_adapter, logger = logger):
         self.target_symbol = target_symbol
         self.pg_adapter = pg_adapter
+        self.logger = logger
         self.account_status = AccountStatus(EquityClient(target_symbol), target_symbol, symbols, transaction_trigger)
         self.order_status = OrderStatus()
         self.transact_client = TransactClient(target_symbol)
-        self.equity_client = EquityClient(target_symbol)
-        self.currency_client = CurrencyClient()
+        self.equity_client = EquityClient(target_symbol, logger = self.logger)
+        self.currency_client = CurrencyClient(logger = self.logger)
         self.transaction_trigger = transaction_trigger
         self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
         time.sleep(1)
@@ -93,7 +94,7 @@ class Orchestrator():
                 self.pg_adapter.exec_query(sql_string)
                 return
             except(Exception) as e:
-                logger.error("Problem with db txn: {}".format(e))
+                self.logger.error("Problem with db txn: {}".format(e))
                 time.sleep(5)
         
 

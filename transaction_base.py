@@ -9,13 +9,14 @@ from api.equity_quote import EquityClient
 import requests
 
 class TransactionBase:
-    def __init__(self, test_mode=False, history=[]):
+    def __init__(self, test_mode=False, history=[], logger = logger):
         self.test_mode = test_mode
         self.history_length = int(os.getenv('HISTORY_LENGTH'))
         self.change_threshold = float(os.getenv('CHANGE_THRESHOLD'))
         self.history = history
         self.next_action = None
-        self.currency_client = CurrencyClient()
+        self.logger = logger
+        self.currency_client = CurrencyClient(logger = self.logger)
         self.is_up_market = None
         self.is_down_market = None
         self.cached_checks = 0
@@ -90,7 +91,7 @@ class TransactionBase:
             self.is_down_market = True
             self.is_up_market = True
             print("quick selloff")
-            logger.info("Selling off due to negative price action")
+            self.logger.info("Selling off due to negative price action")
 
         return will_selloff
     
