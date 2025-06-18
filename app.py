@@ -14,12 +14,17 @@ from polygon.websocket.models import WebSocketMessage, Feed, Market
 from typing import List
 from pg_adapter import PG_Adapter
 from api.currency_quote import CurrencyClient
+import datetime
 
 class App:
     def __init__(self):
         logging.basicConfig(filename='logs/app.log', level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
         print("Welcome to the trading app. Hit \'q\' to quit.")
         load_dotenv()
+
+        today841am = datetime.datetime.now().replace(hour=8, minute=41, second=0, microsecond=0)
+        while datetime.datetime.now() < today841am:
+            pass
 
         symbols = [os.getenv('TARGET_SYMBOL'), os.getenv('INVERSE_TARGET_SYMBOL')]
 
