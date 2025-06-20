@@ -12,7 +12,6 @@ class TransactionTrigger(TransactionBase):
         super().__init__(test_mode, history, logger = logger)
     
     def get_action(self, price):
-        self.logger.info("Test log")
         self.history.append(price)
         while len(self.history) > self.history_length:
             self.history = self.history[1:]
