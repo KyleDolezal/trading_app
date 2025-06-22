@@ -36,6 +36,7 @@ def test_override_false(mocker):
     mocker.patch('transaction_base.TransactionBase._boot_strap')
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mocker.patch('api.currency_quote.CurrencyClient.__init__', return_value=None)
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
 
 
     os.environ["HISTORY_LENGTH"] = '3'
@@ -60,11 +61,12 @@ def test_override_false(mocker):
 @freeze_time("2012-01-14 12:21:34")
 def test_override_true(mocker):
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
-    mock_account_status = mocker.patch('transaction_trigger.time.sleep')
+    mocker.patch('transaction_trigger.time.sleep')
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
     mocker.patch('transaction_base.TransactionBase._boot_strap')
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mocker.patch('api.currency_quote.CurrencyClient.__init__', return_value=None)
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
 
     os.environ["HISTORY_LENGTH"] = '3'
     os.environ["EQUITY_API_KEY"] = 'SCHB'
@@ -320,6 +322,7 @@ def test_status_multiplier(mocker):
     mocker.patch('transaction_base.TransactionBase._boot_strap')
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mocker.patch('api.currency_quote.CurrencyClient.__init__', return_value=None)
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
 
 
     os.environ["HISTORY_LENGTH"] = '3'
@@ -408,6 +411,7 @@ def test_override_countdown(mocker):
     mocker.patch('transaction_base.TransactionBase._boot_strap')
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mocker.patch('api.currency_quote.CurrencyClient.__init__', return_value=None)
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
 
     os.environ["HISTORY_LENGTH"] = '3'
     os.environ["EQUITY_API_KEY"] = 'SCHB'

@@ -19,6 +19,6 @@ class PG_Adapter:
         try:
             record = self.cursor.fetchall()
         except:
-            logger.error('Problem with db connection')
+            pass
 
         return record

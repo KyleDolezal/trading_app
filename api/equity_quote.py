@@ -79,8 +79,4 @@ class EquityClient:
         return ema_response['results']['values'][0]['value']
     
     def _calculate_percent(self, ema_since_831_price, ema_since_5m_price):
-        difference = (ema_since_5m_price * 1.01) - (ema_since_831_price * .99)
-
-        percent = (difference / ema_since_831_price) * 100
-
-        return percent
+        return ema_since_5m_price - ema_since_831_price

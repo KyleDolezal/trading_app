@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 import pytest
 from inverse_transaction_trigger import InverseTransactionTrigger
 import os
@@ -225,11 +227,13 @@ def test_is_up_market(mocker):
 @freeze_time("2012-01-14 12:21:34")
 def test_override_false(mocker):
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
     mocker.patch('transaction_base.TransactionBase._boot_strap')
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
-    mock_account_status = mocker.patch('inverse_transaction_trigger.time.sleep')
+    mocker.patch('inverse_transaction_trigger.time.sleep')
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mocker.patch('api.currency_quote.WebSocketClient')
+
 
     os.environ["HISTORY_LENGTH"] = '3'
     os.environ["CHANGE_THRESHOLD"] = '.1'
@@ -239,7 +243,12 @@ def test_override_false(mocker):
     os.environ['HOLDS_PER_OVERRIDE_CENT'] = '10'
     
     tt = InverseTransactionTrigger(history=[0])
+    tt.today841am = datetime.datetime.now().replace(hour=8, minute=41, second=0, microsecond=0)
+    tt.equity_client.logger = logger
+    tt.equity_client.today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
+    tt.equity_client.target_symbol = 'SCHB'
     tt.target_symbol = 'SCHB'
+    tt.equity_client.api_key = 'key'
     tt.number_of_holds=10
     tt.next_action='sell'
     tt.bought_price=10
@@ -301,7 +310,7 @@ def test_preserve_asset_value(mocker):
 @freeze_time("2012-01-14 12:21:34")
 def test_override_true(mocker):
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
-    mock_account_status = mocker.patch('transaction_trigger.time.sleep')
+    mocker.patch('transaction_trigger.time.sleep')
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
     mocker.patch('transaction_base.TransactionBase._boot_strap')
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
@@ -330,12 +339,11 @@ def test_override_true(mocker):
 @freeze_time("2012-01-14 12:21:34")
 def test_status_multiplier(mocker):
     mock_account_status = mocker.patch('currency_quote.requests.get', return_value=MockResponse())
-    mock_account_status = mocker.patch('transaction_trigger.time.sleep')
+    mocker.patch('transaction_trigger.time.sleep')
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
     mocker.patch('transaction_base.TransactionBase._boot_strap')
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mocker.patch('api.currency_quote.CurrencyClient.__init__', return_value=None)
-
 
     os.environ["HISTORY_LENGTH"] = '3'
     os.environ["EQUITY_API_KEY"] = 'SCHB'
@@ -343,22 +351,24 @@ def test_status_multiplier(mocker):
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["EQUITY_API_KEY"] = 'key'
-    os.environ['HOLDS_PER_OVERRIDE_CENT'] = '20'
+    os.environ['HOLDS_PER_OVERRIDE_CENT'] = '.00000000000001'
     
     tt = InverseTransactionTrigger(history=[0])
     tt.target_symbol = 'SCHB'
-    tt.number_of_holds=50
-    tt.running_total=2
+    tt.number_of_holds=10
     tt.currency_client.api_key = "key"
 
     tt.next_action='sell'
-    tt.bought_price=100
-    tt.history=[100,100,100]
-    tt.status_multiplier = 100
-    assert tt._override_sell_price(101) == True
+    tt.bought_price=10
+    tt.running_total = -11
+    tt.history=[10, 10, 10, 10, 10, 10, 10]
+    tt.is_up_market = True
 
-    tt.status_multiplier = 1
-    assert tt._override_sell_price(101) == False
+    tt.status_multiplier = 1000
+    assert tt._override_sell_price(10.01) == True
+    tt.status_multiplier = -1
+    tt.is_up_market = False
+    assert tt._override_sell_price(10.01) == False
 
 @freeze_time("2012-01-14 12:21:34")
 def test_override_countdown(mocker):
@@ -367,6 +377,7 @@ def test_override_countdown(mocker):
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
     mocker.patch('transaction_base.TransactionBase._boot_strap')
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
     mocker.patch('api.currency_quote.CurrencyClient.__init__', return_value=None)
 
     os.environ["HISTORY_LENGTH"] = '3'

@@ -55,11 +55,11 @@ class InverseTransactionTrigger(TransactionBase):
             return 'hold'
 
     def _override_sell_price(self, price):
-        if self.is_up_market:
-            status_multiplier = 1 / self.status_multiplier
-        else:
+        if self._is_up_market():
             status_multiplier = self.status_multiplier
-        override_amount = (.01 / self.holds_per_override_cent * status_multiplier) * self.number_of_holds
+        else:
+            status_multiplier = 1 / self.status_multiplier
+        override_amount = (.01 / self.holds_per_override_cent) * self.number_of_holds * status_multiplier
         spread = price - self.bought_price
 
         spread_override = ((spread - override_amount <= 0) and self._time_elapsed() >= self.override_countdown)
@@ -68,6 +68,7 @@ class InverseTransactionTrigger(TransactionBase):
 
         if spread_override:
             self.logger.info('Overriding sell behavior for inverse transaction trigger')
+        print('value', will_override)
         return will_override
 
 

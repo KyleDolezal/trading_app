@@ -43,7 +43,7 @@ class TransactionBase:
         self.transactions = 0
 
         self.status_multiplier = int(os.getenv('STATUS_MULTIPLIER', 1))
-        self.override_countdown = datetime.timedelta(int(os.getenv('OVERRIDE_COUNTDOWN', 0)))
+        self.override_countdown = datetime.timedelta(seconds = int(os.getenv('OVERRIDE_COUNTDOWN', 0)))
         self.bought_time = datetime.datetime.now()
 
         self.blackout_holds = int(os.getenv('BLACKOUT_HOLDS', 0))
