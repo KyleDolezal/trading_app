@@ -132,4 +132,4 @@ def test_calculate_percent(mocker):
 
     response = {'results': {'values': [{'value': 1.0}]}}
 
-    assert ec._calculate_percent(1, 1.01) == .010000000000000009
+    assert ec._calculate_percent(1, 1.01) == 0.5000000000000115
