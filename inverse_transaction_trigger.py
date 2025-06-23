@@ -68,7 +68,6 @@ class InverseTransactionTrigger(TransactionBase):
 
         if spread_override:
             self.logger.info('Overriding sell behavior for inverse transaction trigger')
-        print('value', will_override)
         return will_override
 
 
