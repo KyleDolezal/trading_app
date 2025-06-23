@@ -68,6 +68,8 @@ class InverseTransactionTrigger(TransactionBase):
 
         if spread_override:
             self.logger.info('Overriding sell behavior for inverse transaction trigger')
+            self.is_down_market = True
+            self.is_up_market = True
         return will_override
 
 
