@@ -54,6 +54,7 @@ def test_override_false(mocker):
     tt.currency_client.api_key = "key"
 
     tt.next_action='sell'
+    tt.quick_selloff_additional_threshold=5000
     tt.bought_price=100
     tt.history=[100,100,100]
     assert tt._override_sell_price(99) == False
@@ -343,6 +344,7 @@ def test_status_multiplier(mocker):
     tt.bought_price=100
     tt.history=[100,100,100]
     tt.status_multiplier = 100
+    tt.quick_selloff_additional_threshold=5000
     assert tt._override_sell_price(99) == True
 
     tt.status_multiplier = 1
@@ -431,6 +433,7 @@ def test_override_countdown(mocker):
     tt.running_total = -1
     tt.history=[10, 10, 10, 10, 10, 10, 10]
     tt.override_countdown = datetime.timedelta(1)
+    tt.quick_selloff_additional_threshold=5000
     assert tt._override_sell_price(9.9) == False
 
     tt.override_countdown = datetime.timedelta(0)

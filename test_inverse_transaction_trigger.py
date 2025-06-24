@@ -252,9 +252,10 @@ def test_override_false(mocker):
     tt.number_of_holds=10
     tt.next_action='sell'
     tt.bought_price=10
+    tt.quick_selloff_additional_threshold=50000
     tt.running_total = -100
     tt.history=[10, 10, 10, 10, 10, 10, 10]
-    assert tt._override_sell_price(10.1) == False
+    assert tt._override_sell_price(11) == False
 
 def test_negative_price_action(mocker):
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
@@ -396,6 +397,7 @@ def test_override_countdown(mocker):
     tt.next_action='sell'
     tt.bought_price=10
     tt.running_total = -1
+    tt.quick_selloff_additional_threshold=5000
     tt.history=[10, 10, 10, 10, 10, 10, 10]
     tt.override_countdown = datetime.timedelta(1)
     assert tt._override_sell_price(9.9) == False
