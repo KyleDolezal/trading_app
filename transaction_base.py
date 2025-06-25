@@ -99,3 +99,17 @@ class TransactionBase:
     
     def _time_elapsed(self):
         return datetime.datetime.now() - self.bought_time
+    
+    def _diagnosis(self, price):
+        if self.number_of_holds % 100000 == 0:
+            logger.info("------------------v")
+            logger.info("Hold for {}".format(self.equity_client.target_symbol))
+            logger.info("Price {}".format(price))
+            logger.info("Next action {}".format(self.next_action))
+            logger.info("Percent difference {}".format(self._get_price_difference(price)))
+            logger.info("Running total {}".format(self.running_total))
+            logger.info("Up market: {}".format(self._is_up_market()))
+            logger.info("Down market: {}".format(self._is_down_market()))
+            logger.info("Transactions: {}".format(self.transactions))
+            logger.info("Number of holds {}".format(self.number_of_holds))
+            logger.info("------------------^")

@@ -49,6 +49,7 @@ class InverseTransactionTrigger(TransactionBase):
             return 'buy'
         else:
             self.number_of_holds += 1
+            self._diagnosis(price)
             return 'hold'
 
     def _override_sell_price(self, price):
