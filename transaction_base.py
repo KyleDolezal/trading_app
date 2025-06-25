@@ -56,7 +56,7 @@ class TransactionBase:
         return ((difference/average) * 100)
         
     def _boot_strap(self):
-        initial_smoothing_multiplier = 3
+        initial_smoothing_multiplier = 10
         for i in range(self.history_length * initial_smoothing_multiplier):
             if self.test_mode:
                 self.history.append(0.0)
