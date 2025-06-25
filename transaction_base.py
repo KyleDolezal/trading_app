@@ -22,6 +22,8 @@ class TransactionBase:
         self.cached_checks = 0
         self.cached_checks_limit = 7500
         self.equity_client = EquityClient(os.getenv('TARGET_SYMBOL', 'SCHB'))
+        if test_mode:
+            self.equity_client.price = 1.0
         self._boot_strap()
         self.bought_price = None
         self.today841am = datetime.datetime.now().replace(hour=8, minute=41, second=0, microsecond=0)

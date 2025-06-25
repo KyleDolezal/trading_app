@@ -22,9 +22,6 @@ class InverseTransactionTrigger(TransactionBase):
             self.running_total = 0
             self.transactions = 0
             return 'hold'
-        
-        if datetime.datetime.now() > self.today445pm:
-            self.holds_per_override_cent = self.holds_per_override_cent * .9999
 
         if (self.next_action == 'sell') and \
                 (percent_difference > self.change_threshold) and \
@@ -65,7 +62,6 @@ class InverseTransactionTrigger(TransactionBase):
         spread_override = ((spread - override_amount <= 0) and self._time_elapsed() >= self.override_countdown)
         will_override = self._significant_negative_price_action(price) or \
             spread_override
-
         if spread_override:
             self.logger.info('Overriding sell behavior for inverse transaction trigger')
             self.is_down_market = True
