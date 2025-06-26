@@ -101,7 +101,7 @@ class TransactionBase:
         return datetime.datetime.now() - self.bought_time
     
     def _diagnosis(self, price):
-        if self.number_of_holds % 100000 == 0:
+        if self.number_of_holds % 10000000 == 0:
             logger.info("------------------v")
             logger.info("Hold for {}".format(self.equity_client.target_symbol))
             logger.info("Price {}".format(price))
