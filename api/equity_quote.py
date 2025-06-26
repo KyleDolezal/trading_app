@@ -39,7 +39,9 @@ class EquityClient:
 
     def update_price(self, msgs: List[WebSocketMessage]):
         for m in msgs:
-            self.price = m.bid_price
+            price = m.bid_price
+            while self.price != price:
+                self.price = m.bid_price
 
     def get_equity_quote(self):
         while self.price == 0:

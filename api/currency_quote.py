@@ -34,7 +34,9 @@ class CurrencyClient:
 
     def update_price(self, msgs: List[WebSocketMessage]):
         for m in msgs:
-            self.price = m.price
+            price = m.price
+            while price != self.price:
+                self.price = price
 
     def get_forex_quote(self):
         while self.price == 0:

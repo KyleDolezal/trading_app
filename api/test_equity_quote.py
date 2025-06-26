@@ -59,6 +59,7 @@ def test_quote(mocker):
     mock_ws_client.return_value = MockClient()
 
     ec = EquityClient('IBIT')
+    ec.price = 0
     ec.update_price([MockList(),MockList(),MockList()])
     quote = ec.get_equity_quote()
 
