@@ -307,6 +307,7 @@ def test_preserve_asset_value(mocker):
 
     tt._is_up_market = lambda a=None : True
     assert tt._preserve_asset_value(10) == True
+    assert tt.running_total == -100
 
 @freeze_time("2012-01-14 12:21:34")
 def test_status_multiplier(mocker):
