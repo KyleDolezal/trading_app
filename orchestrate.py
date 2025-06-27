@@ -1,7 +1,6 @@
 import logging
 
 from api.account_status import AccountStatus
-from api.currency_quote import CurrencyClient
 from api.order_status import OrderStatus
 from api.equity_quote import EquityClient
 from api.transact import TransactClient
@@ -22,7 +21,6 @@ class Orchestrator():
         self.order_status = OrderStatus()
         self.transact_client = TransactClient(target_symbol)
         self.equity_client = EquityClient(target_symbol, logger = self.logger)
-        self.currency_client = CurrencyClient(logger = self.logger)
         self.transaction_trigger = transaction_trigger
         self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
         time.sleep(1)
@@ -33,6 +31,8 @@ class Orchestrator():
 
     def orchestrate(self, source_price=None):
         action = self.transaction_trigger.get_action(source_price)
+        if source_price == None:
+            source_price = self.transaction_trigger.get_price()
 
         if action == 'buy' and self.buyable_shares > 0:
             order = None

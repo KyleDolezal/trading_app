@@ -54,6 +54,9 @@ class TransactionBase:
         average = statistics.mean(self.history)
         difference = price - average
         return ((difference/average) * 100)
+
+    def get_price(self):
+        return self.currency_client.get_forex_quote()
         
     def _boot_strap(self):
         initial_smoothing_multiplier = 10
