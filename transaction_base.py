@@ -20,7 +20,7 @@ class TransactionBase:
         self.is_up_market = None
         self.is_down_market = None
         self.cached_checks = 0
-        self.cached_checks_limit = 7500
+        self.cached_checks_limit = 100000
         self.equity_client = EquityClient(os.getenv('TARGET_SYMBOL', 'SCHB'))
         if test_mode:
             self.equity_client.price = 1.0
@@ -67,7 +67,11 @@ class TransactionBase:
                 self.history.append(self.currency_client.get_forex_quote())
                 time.sleep(.1)
         self.next_action = 'buy'
-    
+
+    def keep_market_direction_snapshots_updated(self):
+        self._is_down_market()
+        self._is_up_market()
+
     def _is_down_market(self):
         if self.test_mode:
             return False

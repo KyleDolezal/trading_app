@@ -54,6 +54,7 @@ class InverseTransactionTrigger(TransactionBase):
             return 'buy'
         else:
             self.number_of_holds += 1
+            self.keep_market_direction_snapshots_updated()
             self._diagnosis(price)
             return 'hold'
 

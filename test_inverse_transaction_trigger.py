@@ -172,7 +172,7 @@ def test_get_crypto_quote_hold(mocker):
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     os.environ["CURRENCY_API_KEY"] = 'key'
     
-    tt = InverseTransactionTrigger(history=[0])
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.target_symbol = 'SCHB'
     tt.get_action(10)
     tt.get_action(10)
