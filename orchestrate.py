@@ -31,7 +31,7 @@ class Orchestrator():
         self._bootstrap()
         self.today3pm = datetime.datetime.now().replace(hour=15, minute=00, second=0, microsecond=0)
 
-    def orchestrate(self, source_price):
+    def orchestrate(self, source_price=None):
         action = self.transaction_trigger.get_action(source_price)
 
         if action == 'buy' and self.buyable_shares > 0:

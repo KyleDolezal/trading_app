@@ -22,26 +22,25 @@ class App:
         print("Welcome to the trading app. Hit \'q\' to quit.")
         load_dotenv()
 
-        self.transaction_trigger = TransactionTrigger(logger=logger, test_mode=True)
+        self.currency_client = CurrencyClient(logger = logger)
+
+        self.transaction_trigger = TransactionTrigger(logger=logger, test_mode=True, currency_client = self.currency_client)
         self.transaction_trigger.blackout_holds=0
         self.transaction_trigger.today445pm = datetime.datetime.now().replace(hour=23, minute=45, second=0, microsecond=0)
         self.transaction_trigger.today7pm = datetime.datetime.now().replace(hour=23, minute=45, second=0, microsecond=0)
 
-        self.inverse_transaction_trigger = InverseTransactionTrigger(logger=logger, test_mode=True)
+        self.inverse_transaction_trigger = InverseTransactionTrigger(logger=logger, test_mode=True, currency_client = self.currency_client)
         self.inverse_transaction_trigger.blackout_holds=0
         self.inverse_transaction_trigger.today445pm = datetime.datetime.now().replace(hour=23, minute=45, second=0, microsecond=0)
         self.inverse_transaction_trigger.today7pm = datetime.datetime.now().replace(hour=23, minute=45, second=0, microsecond=0)
-
-        self.currency_client = CurrencyClient(logger = logger)
-
 
     def orchestrate(self):  
         try:
             while True:
                 if self.inverse_transaction_trigger.next_action == 'buy':
-                    action = self.transaction_trigger.get_action(self.currency_client.get_forex_quote())
+                    action = self.transaction_trigger.get_action()
                     if action != 'hold':
-                        logger.info('action in transaction trigger: {} value: {}'.format(action, self.currency_client.get_forex_quote()))
+                        logger.info('action in transaction trigger: {} value: {}'.format(action, self.transaction_trigger.currency_client.get_forex_quote()))
         except Exception as e:
             logging.error(e)
 
@@ -50,9 +49,9 @@ class App:
         try:
             while True:
                 if self.transaction_trigger.next_action == 'buy':
-                    action = self.inverse_transaction_trigger.get_action(self.currency_client.get_forex_quote())
+                    action = self.inverse_transaction_trigger.get_action()
                     if action != 'hold':
-                        logger.info('action in inverse transaction trigger: {} value: {}'.format(action, self.currency_client.get_forex_quote()))
+                        logger.info('action in inverse transaction trigger: {} value: {}'.format(action, self.inverse_transaction_trigger.currency_client.get_forex_quote()))
         except Exception as e:
             logging.error(e)
 

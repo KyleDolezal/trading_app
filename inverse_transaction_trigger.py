@@ -8,10 +8,12 @@ from transaction_base import TransactionBase
 import datetime
 
 class InverseTransactionTrigger(TransactionBase):
-    def __init__(self, test_mode=False, history=[], logger = logger):
-        super().__init__(test_mode, history, logger = logger)
+    def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None):
+        super().__init__(test_mode, history, logger = logger, currency_client=currency_client)
     
-    def get_action(self, price):
+    def get_action(self, price=None):
+        if price == None:
+            price = self.currency_client.get_forex_quote()
         self.history.append(price)
         while len(self.history) > self.history_length:
             self.history = self.history[1:]

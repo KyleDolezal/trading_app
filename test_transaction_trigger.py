@@ -51,7 +51,6 @@ def test_override_false(mocker):
     tt.target_symbol = 'SCHB'
     tt.number_of_holds=1
     tt.running_total=2
-    tt.currency_client.api_key = "key"
 
     tt.next_action='sell'
     tt.quick_selloff_additional_threshold=5000
@@ -80,7 +79,6 @@ def test_override_true(mocker):
     tt = TransactionTrigger(history=[0])
     tt.target_symbol = 'SCHB'
     tt.number_of_holds=10
-    tt.currency_client.api_key = "key"
 
     tt.next_action='sell'
     tt.bought_price=10
@@ -106,7 +104,6 @@ def test_get_crypto_quote_hold(mocker):
     tt = TransactionTrigger(history=[0])
     tt.equity_client.target_symbol = 'SCHB'
     tt.equity_client.api_key = "key"
-    tt.currency_client.api_key = "key"
 
     tt.get_action(10)
     tt.get_action(10)
@@ -130,7 +127,6 @@ def test_running_total(mocker):
     tt = TransactionTrigger(history=[0])
     tt.equity_client.target_symbol = 'SCHB'
     tt.equity_client.api_key = "key"
-    tt.currency_client.api_key = "key"
 
     tt.get_action(10)
     tt.get_action(10)
@@ -159,7 +155,6 @@ def test_get_crypto_quote_hold(mocker):
     tt = TransactionTrigger(history=[0])
     tt.equity_client.target_symbol = 'SCHB'
     tt.equity_client.api_key = "key"
-    tt.currency_client.api_key = "key"
     tt.get_action(10)
     tt.get_action(10)
     assert tt.get_action(10.01) == 'hold'
@@ -182,7 +177,6 @@ def test_number_of_holds(mocker):
     tt = TransactionTrigger(history=[0])
     tt.equity_client.target_symbol = 'SCHB'
     tt.equity_client.api_key = "key"
-    tt.currency_client.api_key = "key"
     tt.get_action(10)
     tt.get_action(10)
     assert tt.number_of_holds == 2
@@ -208,7 +202,6 @@ def test_is_down_market(mocker):
     tt = TransactionTrigger(history=[0])
     tt.equity_client.target_symbol = 'SCHB'
     tt.equity_client.api_key = "key"
-    tt.currency_client.api_key = "key"
     assert tt._is_down_market() == True
 
 def test_is_up_market(mocker):
@@ -338,7 +331,6 @@ def test_status_multiplier(mocker):
     tt.target_symbol = 'SCHB'
     tt.number_of_holds=50
     tt.running_total=2
-    tt.currency_client.api_key = "key"
 
     tt.next_action='sell'
     tt.bought_price=100
@@ -426,7 +418,6 @@ def test_override_countdown(mocker):
     tt = TransactionTrigger(history=[0])
     tt.target_symbol = 'SCHB'
     tt.number_of_holds=10
-    tt.currency_client.api_key = "key"
 
     tt.next_action='sell'
     tt.bought_price=10

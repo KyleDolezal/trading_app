@@ -11,7 +11,7 @@ import threading
 
 class CurrencyClient:
     def __init__(self, logger=logger):
-        self.api_key = os.getenv('CURRENCY_API_KEY')
+        self.api_key = os.getenv('CURRENCY_API_KEY', 'api_key')
         self.currency_ticker = os.getenv('CURRENCY_TICKER')
         if self.api_key is None:
             raise ValueError("api key must be present")

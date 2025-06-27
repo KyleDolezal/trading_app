@@ -9,14 +9,14 @@ from api.equity_quote import EquityClient
 import requests
 
 class TransactionBase:
-    def __init__(self, test_mode=False, history=[], logger = logger):
+    def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None):
         self.test_mode = test_mode
         self.history_length = int(os.getenv('HISTORY_LENGTH'))
         self.change_threshold = float(os.getenv('CHANGE_THRESHOLD'))
         self.history = history
         self.next_action = None
         self.logger = logger
-        self.currency_client = CurrencyClient(logger = self.logger)
+        self.currency_client = currency_client
         self.is_up_market = None
         self.is_down_market = None
         self.cached_checks = 0

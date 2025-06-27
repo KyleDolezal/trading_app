@@ -29,21 +29,22 @@ class App:
         symbols = [os.getenv('TARGET_SYMBOL'), os.getenv('INVERSE_TARGET_SYMBOL')]
 
         pg_adapter = PG_Adapter()
+        
+        self.currency_client = CurrencyClient(logger = logger)
 
-        self.transaction_trigger = TransactionTrigger(logger = logger)
+        self.transaction_trigger = TransactionTrigger(logger = logger, currency_client = self.currency_client)
         self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols, pg_adapter, logger = logger)
 
-        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger)
+        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger, currency_client = self.currency_client)
 
         self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols, pg_adapter, logger = logger)
 
-        self.currency_client = CurrencyClient(logger = logger)
 
 
     def orchestrate(self):
         try:
             while True:
-                if self.orchestrator.orchestrate(self.currency_client.get_forex_quote()) != 'hold':
+                if self.orchestrator.orchestrate() != 'hold':
                     self.inverse_orchestrator.account_status.update_positions()
                     self.inverse_orchestrator._prepare_next_transaction()
         except Exception as e:
@@ -53,7 +54,7 @@ class App:
     def inverse_orchestrate(self):
         try:
             while True:
-                if self.inverse_orchestrator.orchestrate(self.currency_client.get_forex_quote()) != 'hold':
+                if self.inverse_orchestrator.orchestrate() != 'hold':
                     self.orchestrator.account_status.update_positions()
                     self.orchestrator._prepare_next_transaction()
         except Exception as e:

@@ -328,7 +328,6 @@ def test_override_true(mocker):
     tt = InverseTransactionTrigger(history=[0])
     tt.target_symbol = 'SCHB'
     tt.number_of_holds=10
-    tt.currency_client.api_key = "key"
     tt.is_up_market=True
 
     tt.next_action='sell'
@@ -357,7 +356,6 @@ def test_status_multiplier(mocker):
     tt = InverseTransactionTrigger(history=[0])
     tt.target_symbol = 'SCHB'
     tt.number_of_holds=10
-    tt.currency_client.api_key = "key"
 
     tt.next_action='sell'
     tt.bought_price=10
@@ -392,7 +390,6 @@ def test_override_countdown(mocker):
     tt = InverseTransactionTrigger(history=[0])
     tt.target_symbol = 'SCHB'
     tt.number_of_holds=10
-    tt.currency_client.api_key = "key"
 
     tt.next_action='sell'
     tt.bought_price=10
