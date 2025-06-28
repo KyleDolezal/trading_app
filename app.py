@@ -46,6 +46,7 @@ class App:
             while True:
                 if self.orchestrator.orchestrate() != 'hold':
                     self.inverse_orchestrator.account_status.update_positions()
+                    self.inverse_orchestrator.transaction_trigger.invalidate_cache()
                     self.inverse_orchestrator._prepare_next_transaction()
         except Exception as e:
             logging.error(e)
@@ -56,6 +57,7 @@ class App:
             while True:
                 if self.inverse_orchestrator.orchestrate() != 'hold':
                     self.orchestrator.account_status.update_positions()
+                    self.orchestrator.transaction_trigger.invalidate_cache()
                     self.orchestrator._prepare_next_transaction()
         except Exception as e:
             logging.error(e)

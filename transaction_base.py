@@ -72,6 +72,10 @@ class TransactionBase:
         self._is_down_market()
         self._is_up_market()
 
+    def invalidate_cache(self):
+        self.cached_checks = self.cached_checks_limit
+        self.keep_market_direction_snapshots_updated
+
     def _is_down_market(self):
         if self.test_mode:
             return False
