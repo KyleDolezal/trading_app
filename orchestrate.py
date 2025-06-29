@@ -35,22 +35,7 @@ class Orchestrator():
             source_price = self.transaction_trigger.get_price()
 
         if action == 'buy' and self.buyable_shares > 0:
-            order = None
-            for i in range(20):
-                try:
-                    order = self.transact_client.buy(self.buyable_shares)
-                    break
-                except(Exception) as e:
-                    self.account_status.update_positions()
-                    self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
-                    time.sleep(5)
-            order_id = self.order_status.get_order_id(order)
-            self.order_status.await_order_filled(order_id)
-            quantity = self.buyable_shares
-            self.record_transaction(source_price, 'buy', quantity, order_id)
-            self.waiting_for_action = 'sell'
-            self.account_status.update_positions()
-            self.sellable_shares = self.account_status.calculate_sellable_shares()
+            self._buy_action(source_price)
         elif 'sell' in action and self.sellable_shares > 0:
             order = None
             for i in range(20):
@@ -109,3 +94,28 @@ class Orchestrator():
                 self.waiting_for_action = 'sell'
                 self.transaction_trigger.next_action = 'sell'
                 self.transaction_trigger.bought_price = float(price[1:])
+
+    def _buy_action(self, source_price=None):
+        if source_price == None:
+            source_price = self.transaction_trigger.get_price()
+            
+        order = None
+        for i in range(20):
+            quantity = self.buyable_shares
+            try:
+                order = self.transact_client.buy(self.buyable_shares)
+                break
+            except(Exception) as e:
+                time.sleep(.01)
+            if i % 5 == 0:
+                self.account_status.update_positions()
+                self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
+                time.sleep(5)
+        order_id = self.order_status.get_order_id(order)
+        self.order_status.await_order_filled(order_id)
+        self.record_transaction(source_price, 'buy', quantity, order_id)
+        self.waiting_for_action = 'sell'
+        self.transaction_trigger.next_action = 'sell'
+        self.transaction_trigger.number_of_holds = 0
+        self.account_status.update_positions()
+        self.sellable_shares = self.account_status.calculate_sellable_shares()

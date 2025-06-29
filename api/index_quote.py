@@ -6,7 +6,6 @@ from polygon.websocket.models import WebSocketMessage, Feed, Market
 from typing import List
 import time
 import threading
-import pdb
 
 class IndexClient:
     def __init__(self):

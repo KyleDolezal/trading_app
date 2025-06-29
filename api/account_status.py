@@ -75,3 +75,12 @@ class AccountStatus(ApiBase):
                 if action[0] == 'buy':
                     return True
         return False
+
+    def get_last_quantity(self):
+        sql_string = "with trades as ( select row_number() over (partition by ticker order by timestamp desc), * from trades where ticker = '{}') select quantity from trades where row_number = 1;".format(self.target_symbol)
+        resp = self.pg_adapter.exec_query(sql_string)
+        try:
+            if resp:
+                return int(round(resp[0][0]))
+        except:
+            return 0

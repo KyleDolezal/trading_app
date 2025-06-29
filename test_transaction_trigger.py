@@ -251,7 +251,7 @@ def test_negative_price_action(mocker):
     tt.running_total = -100
     tt.history=[10, 10, 10, 10, 10, 10, 10]
 
-    assert tt.get_action(1) == 'sell'
+    assert tt.get_action(1) == 'sell override'
 
 
 def test_sell(mocker):
@@ -276,7 +276,7 @@ def test_sell(mocker):
     tt.running_total = -100
     tt.history=[10, 10, 10, 10, 10, 10, 10]
 
-    assert tt.get_action(1) == 'sell'
+    assert tt.get_action(1) == 'sell override'
 
 
 def test_preserve_asset_value(mocker):
