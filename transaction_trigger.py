@@ -51,7 +51,10 @@ class TransactionTrigger(TransactionBase):
                 self.running_total += self.bought_price
             self.transactions += 1
             self.number_of_holds = 0
-            return 'sell'
+            if self._significant_negative_price_action(price):
+                return 'sell override'
+            else:
+                return 'sell'
         else:
             self.number_of_holds += 1
             self.keep_market_direction_snapshots_updated()

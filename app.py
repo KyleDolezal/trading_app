@@ -44,7 +44,11 @@ class App:
     def orchestrate(self):
         try:
             while True:
-                if self.orchestrator.orchestrate() != 'hold':
+                action = self.orchestrator.orchestrate() 
+                if action != 'hold':
+                    if action == 'sell override':
+                        self.inverse_orchestrator.buyable_shares = App.get_buyable_shares(self.inverse_orchestrator.account_status.get_last_quantity())
+                        self.inverse_orchestrator._buy_action()
                     self.inverse_orchestrator.account_status.update_positions()
                     self.inverse_orchestrator.transaction_trigger.invalidate_cache()
                     self.inverse_orchestrator._prepare_next_transaction()
@@ -55,12 +59,19 @@ class App:
     def inverse_orchestrate(self):
         try:
             while True:
-                if self.inverse_orchestrator.orchestrate() != 'hold':
+                action = self.inverse_orchestrator.orchestrate()
+                if action != 'hold':
+                    if action == 'sell override':
+                        self.orchestrator.buyable_shares = App.get_buyable_shares(self.Forchestrator.account_status.get_last_quantity())
+                        self.orchestrator._buy_action()
                     self.orchestrator.account_status.update_positions()
                     self.orchestrator.transaction_trigger.invalidate_cache()
                     self.orchestrator._prepare_next_transaction()
         except Exception as e:
             logging.error(e)
+
+    def get_buyable_shares(resp):
+        return round(resp * .75)
 
 
 def main():

@@ -36,7 +36,10 @@ class InverseTransactionTrigger(TransactionBase):
             self.transactions += 1
             self.cached_checks = self.cached_checks_limit
             self.number_of_holds = 0
-            return 'sell'
+            if self._significant_negative_price_action(price):
+                return 'sell override'
+            else:
+                return 'sell'
         elif (self.next_action == 'buy') \
                 and (percent_difference < self.change_threshold) \
                 and abs(percent_difference) > self.change_threshold and \
