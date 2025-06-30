@@ -20,7 +20,7 @@ class TransactionBase:
         self.is_up_market = None
         self.is_down_market = None
         self.cached_checks = 0
-        self.cached_checks_limit = 100000
+        self.cached_checks_limit = 10000
         self.equity_client = EquityClient(os.getenv('TARGET_SYMBOL', 'SCHB'))
         if test_mode:
             self.equity_client.price = 1.0
