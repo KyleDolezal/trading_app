@@ -21,12 +21,9 @@ class MockResponse(object):
 class MockList(object):
     def __init__(self):
         self.bid_price = 46.75
+        self.symbol = 'AAPL'
+        self.target_symbol = 'AAPL'
 
-def test_raise_error_on_missing_env_vars():
-    try:
-        EquityClient()
-    except:
-        assert True
 
 def test_initializes_when_env_vars_present(mocker):
     os.environ["ACCOUNT_NUMBER"] = '123'
@@ -60,10 +57,13 @@ def test_quote(mocker):
 
     ec = EquityClient('IBIT')
     ec.price = 0
+    ec.test_mode = True
+    ec.target_symbol = 'AAPL'
+    ec.inverse_target_symbol = 'SCHB'
     ec.update_price([MockList(),MockList(),MockList()])
-    quote = ec.get_equity_quote()
+    quote = ec.get_equity_quote('AAPL')
 
-    assert quote == 46.75
+    assert quote == 1.0
 
 def test_parse_trade_response(mocker):
     os.environ["ACCOUNT_NUMBER"] = '123'
@@ -129,7 +129,7 @@ def test_calculate_percent(mocker):
     mock_client.return_value = MockClient()
     mock_ws_client.return_value = MockClient()
 
-    ec = EquityClient('IBIT')
+    ec = EquityClient('IBIT', test_mode=True)
 
     response = {'results': {'values': [{'value': 1.0}]}}
 

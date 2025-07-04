@@ -19,7 +19,7 @@ class MockResponse(object):
         return account_info_json
     
 class MockEqClient(object):
-    def get_equity_quote(params):
+    def get_equity_quote(params, symbol):
         return 46.75
     def quotes(params, kwargs):
         return MockResponse()

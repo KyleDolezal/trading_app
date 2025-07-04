@@ -10,17 +10,18 @@ import datetime
 from pg_adapter import PG_Adapter
 logger = logging.getLogger(__name__)
 import os
-
+import uuid
 
 class Orchestrator():
-    def __init__(self, target_symbol, transaction_trigger, symbols, pg_adapter, logger = logger):
+    def __init__(self, target_symbol, transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = None, test_mode = False):
+        self.test_mode = test_mode
         self.target_symbol = target_symbol
         self.pg_adapter = pg_adapter
         self.logger = logger
-        self.account_status = AccountStatus(EquityClient(target_symbol), target_symbol, symbols, transaction_trigger)
+        self.account_status = AccountStatus(equity_client, target_symbol, symbols, transaction_trigger)
         self.order_status = OrderStatus()
         self.transact_client = TransactClient(target_symbol)
-        self.equity_client = EquityClient(target_symbol, logger = self.logger)
+        self.equity_client = equity_client
         self.transaction_trigger = transaction_trigger
         self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
         time.sleep(1)
@@ -36,28 +37,35 @@ class Orchestrator():
 
         if action == 'buy' and self.buyable_shares > 0:
             self._buy_action(source_price)
-        elif 'sell' in action and self.sellable_shares > 0:
-            order = None
-            for i in range(20):
-                try:
-                    if datetime.datetime.now() < self.today3pm:
-                        order = self.transact_client.sell(self.sellable_shares, 'MARKET')  
-                    else:
-                        order = self.transact_client.sell(self.sellable_shares, 'LIMIT', self.equity_client.get_equity_quote())
-                    break
-                except(Exception) as e:
-                    self.account_status.update_positions()
-                    self.sellable_shares = self.account_status.calculate_sellable_shares()
-                    time.sleep(5)
-            order_id = self.order_status.get_order_id(order)
-            self.order_status.await_order_filled(order_id)
-            quantity = self.sellable_shares
-            self.record_transaction(source_price, 'sell', quantity, order_id)
-            self.waiting_for_action = 'buy'
-            self.account_status.update_positions()
-            self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
+        elif 'sell' in action and (self.sellable_shares > 0  or self.test_mode):
+            if self.test_mode:
+                logger.info('Selling in test mode')
+                self.record_transaction(source_price, 'sell', 1, "'test_{}'".format(str(uuid.uuid4())))
+                self.waiting_for_action = 'buy'
+                self.buyable_shares = 1
+            else:
+                order = None
+                for i in range(20):
+                    try:
+                        if datetime.datetime.now() < self.today3pm:
+                            order = self.transact_client.sell(self.sellable_shares, 'MARKET')  
+                        else:
+                            order = self.transact_client.sell(self.sellable_shares, 'LIMIT', self.equity_client.get_equity_quote(self.target_symbol))
+                        break
+                    except(Exception) as e:
+                        self.account_status.update_positions()
+                        self.sellable_shares = self.account_status.calculate_sellable_shares()
+                        time.sleep(5)
+                order_id = self.order_status.get_order_id(order)
+                self.order_status.await_order_filled(order_id)
+                quantity = self.sellable_shares
+                self.record_transaction(source_price, 'sell', quantity, order_id)
+                self.waiting_for_action = 'buy'
+                self.account_status.update_positions()
+                self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
         else:
-            self._prepare_next_transaction()
+            if not self.test_mode:
+                self._prepare_next_transaction()
 
         return action
 
@@ -99,23 +107,33 @@ class Orchestrator():
         if source_price == None:
             source_price = self.transaction_trigger.get_price()
             
-        order = None
-        for i in range(20):
-            quantity = self.buyable_shares
-            try:
-                order = self.transact_client.buy(self.buyable_shares)
-                break
-            except(Exception) as e:
-                time.sleep(.01)
-            if i % 5 == 0:
-                self.account_status.update_positions()
-                self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
-                time.sleep(5)
-        order_id = self.order_status.get_order_id(order)
-        self.order_status.await_order_filled(order_id)
-        self.record_transaction(source_price, 'buy', quantity, order_id)
-        self.waiting_for_action = 'sell'
-        self.transaction_trigger.next_action = 'sell'
-        self.transaction_trigger.number_of_holds = 0
-        self.account_status.update_positions()
-        self.sellable_shares = self.account_status.calculate_sellable_shares()
+        if self.test_mode:
+            logger.info('Buying in test mode')
+            self.record_transaction(source_price, 'buy', 1, "'test_{}'".format(str(uuid.uuid4())))
+            self.waiting_for_action = 'sell'
+            self.transaction_trigger.next_action = 'sell'
+            self.transaction_trigger.number_of_holds = 0
+            self.transaction_trigger.bought_price = source_price
+            self.sellable_shares = 1
+        else:
+            order = None
+            for i in range(20):
+                quantity = self.buyable_shares
+                try:
+                    order = self.transact_client.buy(self.buyable_shares)
+                    break
+                except(Exception) as e:
+                    time.sleep(.01)
+                if i % 5 == 0:
+                    self.account_status.update_positions()
+                    self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
+                    time.sleep(5)
+            order_id = self.order_status.get_order_id(order)
+            self.order_status.await_order_filled(order_id)
+            self.record_transaction(source_price, 'buy', quantity, order_id)
+            self.waiting_for_action = 'sell'
+            self.transaction_trigger.next_action = 'sell'
+            self.transaction_trigger.number_of_holds = 0
+            self.transaction_trigger.bought_price = source_price
+            self.account_status.update_positions()
+            self.sellable_shares = self.account_status.calculate_sellable_shares()
