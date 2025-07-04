@@ -9,8 +9,10 @@ from api.equity_quote import EquityClient
 import requests
 
 class TransactionBase:
-    def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None):
+    def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None, target_symbol=None, equity_client = None):
+        self.equity_client = equity_client
         self.test_mode = test_mode
+        self.target_symbol= target_symbol
         self.history_length = int(os.getenv('HISTORY_LENGTH'))
         self.change_threshold = float(os.getenv('CHANGE_THRESHOLD'))
         self.history = history
@@ -21,7 +23,7 @@ class TransactionBase:
         self.is_down_market = None
         self.cached_checks = 0
         self.cached_checks_limit = 10000
-        self.equity_client = EquityClient(os.getenv('TARGET_SYMBOL', 'SCHB'))
+        self.equity_client = equity_client
         if test_mode:
             self.equity_client.price = 1.0
         self._boot_strap()
@@ -77,20 +79,16 @@ class TransactionBase:
         self.keep_market_direction_snapshots_updated
 
     def _is_down_market(self):
-        if self.test_mode:
-            return False
         if self.is_down_market == None or self.cached_checks >= self.cached_checks_limit:
-            self.is_down_market = self.equity_client.get_snapshot() <= self.market_direction_threshold
+            self.is_down_market = self.equity_client.get_snapshot(self.target_symbol) <= self.market_direction_threshold
             self.cached_checks = 0
         else:
             self.cached_checks += 1
         return self.is_down_market
         
     def _is_up_market(self):
-        if self.test_mode:
-            return False
         if self.is_up_market == None or self.cached_checks >= self.cached_checks_limit:
-            self.is_up_market = self.equity_client.get_snapshot() >= self.market_direction_threshold
+            self.is_up_market = self.equity_client.get_snapshot(self.target_symbol) >= self.market_direction_threshold
             self.cached_checks = 0
         else:
             self.cached_checks += 1

@@ -15,32 +15,43 @@ from typing import List
 from pg_adapter import PG_Adapter
 from api.currency_quote import CurrencyClient
 import datetime
+import time
 
-class App:
+class Analysis:
     def __init__(self):
         logging.basicConfig(filename='logs/app.log', level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
         print("Welcome to the trading app. Hit \'q\' to quit.")
         load_dotenv()
 
+        self.equity_client = EquityClient(logger = logger, test_mode = True)
+
+        symbols = [os.getenv('TARGET_SYMBOL'), os.getenv('INVERSE_TARGET_SYMBOL')]
+
+        pg_adapter = PG_Adapter()
+        
         self.currency_client = CurrencyClient(logger = logger)
 
-        self.transaction_trigger = TransactionTrigger(logger=logger, test_mode=True, currency_client = self.currency_client)
-        self.transaction_trigger.blackout_holds=0
-        self.transaction_trigger.today445pm = datetime.datetime.now().replace(hour=23, minute=45, second=0, microsecond=0)
-        self.transaction_trigger.today7pm = datetime.datetime.now().replace(hour=23, minute=45, second=0, microsecond=0)
+        self.transaction_trigger = TransactionTrigger(logger = logger, currency_client = self.currency_client, equity_client = self.equity_client, target_symbol = os.getenv('TARGET_SYMBOL'), test_mode = True)
+        self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client, test_mode = True)
 
-        self.inverse_transaction_trigger = InverseTransactionTrigger(logger=logger, test_mode=True, currency_client = self.currency_client)
-        self.inverse_transaction_trigger.blackout_holds=0
-        self.inverse_transaction_trigger.today445pm = datetime.datetime.now().replace(hour=23, minute=45, second=0, microsecond=0)
-        self.inverse_transaction_trigger.today7pm = datetime.datetime.now().replace(hour=23, minute=45, second=0, microsecond=0)
+        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger, currency_client = self.currency_client, equity_client = self.equity_client, target_symbol = os.getenv('INVERSE_TARGET_SYMBOL'), test_mode = True)
 
-    def orchestrate(self):  
+        self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client, test_mode = True)
+
+
+
+    def orchestrate(self):
         try:
             while True:
-                if self.inverse_transaction_trigger.next_action == 'buy':
-                    action = self.transaction_trigger.get_action()
-                    if action != 'hold':
-                        logger.info('action in transaction trigger: {} value: {}'.format(action, self.transaction_trigger.currency_client.get_forex_quote()))
+                action = self.orchestrator.orchestrate() 
+                if action != 'hold':
+                    if action == 'sell override':
+                        self.transaction_trigger.is_down_market = True
+                        self.inverse_orchestrator.buyable_shares = 1
+                        self.inverse_orchestrator._buy_action()
+                        time.sleep(2)
+
+                    self.inverse_orchestrator.transaction_trigger.invalidate_cache()
         except Exception as e:
             logging.error(e)
 
@@ -48,16 +59,24 @@ class App:
     def inverse_orchestrate(self):
         try:
             while True:
-                if self.transaction_trigger.next_action == 'buy':
-                    action = self.inverse_transaction_trigger.get_action()
-                    if action != 'hold':
-                        logger.info('action in inverse transaction trigger: {} value: {}'.format(action, self.inverse_transaction_trigger.currency_client.get_forex_quote()))
+                action = self.inverse_orchestrator.orchestrate()
+                if action != 'hold':
+                    if action == 'sell override':
+                        self.inverse_transaction_trigger.is_up_market = True
+                        self.orchestrator.buyable_shares = 1
+                        self.orchestrator._buy_action()
+                        time.sleep(2)
+
+                    self.orchestrator.transaction_trigger.invalidate_cache()
         except Exception as e:
             logging.error(e)
 
+    def get_buyable_shares(resp):
+        return round(resp * .75)
+
 
 def main():
-    app = App()
+    app = Analysis()
 
     thread_orch = threading.Thread(target=app.orchestrate)
     thread_inverse = threading.Thread(target=app.inverse_orchestrate)

@@ -142,6 +142,7 @@ def test_buy(mocker):
     orchestrator.target_symbol = 'AAPL'
     orchestrator.buyable_shares = 1
     orchestrator.account_status = MockAS()
+    orchestrator.test_mode = True
     orchestrator.transact_client = MockTTClient()
     orchestrator.currency_client = MockEquityClient
     orchestrator.pg_adapter = MockPGClient()
@@ -171,6 +172,7 @@ def test_sell(mocker):
 
     orchestrator = Orchestrator('AAPL', MockTT())
     orchestrator.target_symbol = 'AAPL'
+    orchestrator.test_mode = True
     orchestrator.sellable_shares = 1
     orchestrator.account_status = MockAS()
     orchestrator.transact_client = MockTTClient()
@@ -203,6 +205,7 @@ def test_sell_market(mocker):
     orchestrator.target_symbol = 'AAPL'
     orchestrator.sellable_shares = 1
     orchestrator.account_status = MockAS()
+    orchestrator.test_mode = True
     orchestrator.transact_client = MockTTClient()
     orchestrator.currency_client = MockEquityClient
     orchestrator.pg_adapter = MockPGClient()

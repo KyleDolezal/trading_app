@@ -11,10 +11,15 @@ import threading
 import datetime
 
 class EquityClient:
-    def __init__(self, target_symbol, logger = logger):
+    def __init__(self, logger = logger, test_mode = False, unit_test = False):
+        self.test_mode = test_mode
         self.price = 0
+        self.inverse_price = 0
+        self.unit_test = unit_test
         self.api_key = os.getenv('EQUITY_API_KEY')
-        self.target_symbol = target_symbol
+        self.currency_ticker = os.getenv('CURRENCY_TICKER')
+        self.target_symbol = os.getenv('TARGET_SYMBOL')
+        self.inverse_target_symbol = os.getenv('INVERSE_TARGET_SYMBOL')
         self.equity_ticker = os.getenv('EQUITY_TICKER', 'SCHB')
         self.logger = logger
         if self.api_key is None:
@@ -29,47 +34,76 @@ class EquityClient:
             feed=Feed.RealTime,
             market=Market.Stocks
 	    )
-        self.streaming_client.subscribe("Q.{}".format(self.target_symbol))
+        self.streaming_client.subscribe("Q.{},Q.{}".format(self.target_symbol, self.inverse_target_symbol))
 
         self.threading_update = threading.Thread(target=self.updates)
         self.threading_update.start()
 
     def updates(self):
-        self.streaming_client.run(self.update_price)
+        if self.test_mode:
+            self.price = 1.0
+            self.inverse_price = 1.0
+        else:
+            self.streaming_client.run(self.update_price)
 
     def update_price(self, msgs: List[WebSocketMessage]):
+        if self.test_mode:
+            return
         for m in msgs:
             price = m.bid_price
-            while self.price != price:
-                self.price = m.bid_price
+            if m.symbol == self.target_symbol:
+                while self.price != price:
+                    self.price = m.bid_price
+            if m.symbol == self.inverse_target_symbol:
+                while self.inverse_price != price:
+                    self.inverse_price = m.bid_price
 
-    def get_equity_quote(self):
+
+    def get_equity_quote(self, symbol):
+        if self.test_mode:
+            return 1.0
+        
         while self.price == 0:
             time.sleep(1)
 
-        return self.price
+        if symbol == self.target_symbol:
+            return self.price
+        elif symbol == self.inverse_target_symbol:
+            return self.inverse_price
+        else:
+            return 0.0
     
-    def get_snapshot(self):
+    def get_snapshot(self, symbol):
+        if self.unit_test:
+            return 0
         for i in range(20):
             try:
-                now = datetime.datetime.now()
-                time_delta_to_831am = now - self.today831am
-                minutes_from_831am = round(time_delta_to_831am.seconds / 60)
-                now = round(now.timestamp())
-        
-                from_831_response = requests.get("https://api.polygon.io/v1/indicators/ema/{}?timestamp.gte={}&timespan=minute&adjusted=true&window={}&series_type=close&order=desc&limit=1&apiKey={}".format(self.target_symbol, now, minutes_from_831am, self.api_key))
-                while len(from_831_response.json()['results']['values']) == 0:
-                    time.sleep(.2)
-                    from_831_response = requests.get("https://api.polygon.io/v1/indicators/ema/{}?timestamp.gte={}&timespan=minute&adjusted=true&window={}&series_type=close&order=desc&limit=1&apiKey={}".format(self.target_symbol, now, minutes_from_831am, self.api_key))
-                ema_since_831_price = float(self._parse_ema_price(from_831_response.json()))
+                if self.test_mode:
+                    resp = requests.get("https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/tickers/X:{}USD?apiKey={}".format(self.currency_ticker, self.api_key))
+                    raw_percent = resp.json()['ticker']['todaysChangePerc']
+                    if symbol == self.target_symbol:
+                        return raw_percent
+                    else:
+                        return raw_percent * -1
+                else:
+                    now = datetime.datetime.now()
+                    time_delta_to_831am = now - self.today831am
+                    minutes_from_831am = round(time_delta_to_831am.seconds / 60)
+                    now = round(now.timestamp())
+            
+                    from_831_response = requests.get("https://api.polygon.io/v1/indicators/ema/{}?timestamp.gte={}&timespan=minute&adjusted=true&window={}&series_type=close&order=desc&limit=1&apiKey={}".format(symbol, now, minutes_from_831am, self.api_key))
+                    while len(from_831_response.json()['results']['values']) == 0:
+                        time.sleep(.2)
+                        from_831_response = requests.get("https://api.polygon.io/v1/indicators/ema/{}?timestamp.gte={}&timespan=minute&adjusted=true&window={}&series_type=close&order=desc&limit=1&apiKey={}".format(symbol, now, minutes_from_831am, self.api_key))
+                    ema_since_831_price = float(self._parse_ema_price(from_831_response.json()))
 
-                from_5_mins_ago_resp = requests.get("https://api.polygon.io/v1/indicators/ema/{}?timestamp.gte={}&timespan=minute&adjusted=true&window={}&series_type=close&order=desc&limit=1&apiKey={}".format(self.target_symbol, now, 5, self.api_key))
-                while len(from_5_mins_ago_resp.json()['results']['values']) == 0:
-                    time.sleep(.2)
-                    from_5_mins_ago_resp = requests.get("https://api.polygon.io/v1/indicators/ema/{}?timestamp.gte={}&timespan=minute&adjusted=true&window={}&series_type=close&order=desc&limit=1&apiKey={}".format(self.target_symbol, now, 5, self.api_key))
-                ema_since_5m_price = float(self._parse_ema_price(from_5_mins_ago_resp.json()))
+                    from_5_mins_ago_resp = requests.get("https://api.polygon.io/v1/indicators/ema/{}?timestamp.gte={}&timespan=minute&adjusted=true&window={}&series_type=close&order=desc&limit=1&apiKey={}".format(symbol, now, 5, self.api_key))
+                    while len(from_5_mins_ago_resp.json()['results']['values']) == 0:
+                        time.sleep(.2)
+                        from_5_mins_ago_resp = requests.get("https://api.polygon.io/v1/indicators/ema/{}?timestamp.gte={}&timespan=minute&adjusted=true&window={}&series_type=close&order=desc&limit=1&apiKey={}".format(symbol, now, 5, self.api_key))
+                    ema_since_5m_price = float(self._parse_ema_price(from_5_mins_ago_resp.json()))
 
-                return self._calculate_percent(ema_since_831_price, ema_since_5m_price)
+                    return self._calculate_percent(ema_since_831_price, ema_since_5m_price)
             except(Exception) as e:
                 self.logger.error("Problem requesting currency information: {}".format(e))
                 time.sleep(1)

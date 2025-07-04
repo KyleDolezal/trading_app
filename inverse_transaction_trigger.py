@@ -8,8 +8,8 @@ from transaction_base import TransactionBase
 import datetime
 
 class InverseTransactionTrigger(TransactionBase):
-    def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None):
-        super().__init__(test_mode, history, logger = logger, currency_client=currency_client)
+    def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None, target_symbol=None, equity_client = None):
+        super().__init__(test_mode, history, logger = logger, currency_client=currency_client,  target_symbol= target_symbol, equity_client = equity_client)
     
     def get_action(self, price=None):
         if price == None:
@@ -19,12 +19,10 @@ class InverseTransactionTrigger(TransactionBase):
             self.history = self.history[1:]
 
         percent_difference = self._get_price_difference(price)
-        
         if (datetime.datetime.now() < self.today841am or datetime.datetime.now() > self.today7pm) and not self.test_mode:
             self.running_total = 0
             self.transactions = 0
             return 'hold'
-
         if (self.next_action == 'sell') and \
                 (percent_difference > self.change_threshold) and \
                 (self._preserve_asset_value(price) or self._override_sell_price(price)):
@@ -44,7 +42,7 @@ class InverseTransactionTrigger(TransactionBase):
                 and (percent_difference < self.change_threshold) \
                 and abs(percent_difference) > self.change_threshold and \
                 (datetime.datetime.now() < self.today230pm or self.test_mode) and \
-                not self._is_up_market() and \
+                not self._is_down_market() and \
                 self.transactions <= self.max_transactions and \
                 self.number_of_holds >= self.blackout_holds and \
                 self.running_total >= 0:
@@ -80,4 +78,4 @@ class InverseTransactionTrigger(TransactionBase):
 
 
     def _preserve_asset_value(self, price):
-        return (datetime.datetime.now() > self.today445pm) or (price <= self.bought_price) or self.test_preserve_asset_value
+        return (datetime.datetime.now() > self.today445pm and not self.test_mode) or (price <= self.bought_price) or self.test_preserve_asset_value

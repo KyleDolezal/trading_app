@@ -23,6 +23,8 @@ class App:
         print("Welcome to the trading app. Hit \'q\' to quit.")
         load_dotenv()
 
+        self.equity_client = EquityClient(logger = logger)
+
         today841am = datetime.datetime.now().replace(hour=8, minute=41, second=0, microsecond=0)
         while datetime.datetime.now() < today841am:
             pass
@@ -33,12 +35,12 @@ class App:
         
         self.currency_client = CurrencyClient(logger = logger)
 
-        self.transaction_trigger = TransactionTrigger(logger = logger, currency_client = self.currency_client)
-        self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols, pg_adapter, logger = logger)
+        self.transaction_trigger = TransactionTrigger(logger = logger, currency_client = self.currency_client, equity_client = self.equity_client, target_symbol = os.getenv('TARGET_SYMBOL'))
+        self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client)
 
-        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger, currency_client = self.currency_client)
+        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger, currency_client = self.currency_client, equity_client = self.equity_client, target_symbol = os.getenv('INVERSE_TARGET_SYMBOL'))
 
-        self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols, pg_adapter, logger = logger)
+        self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client)
 
 
 
