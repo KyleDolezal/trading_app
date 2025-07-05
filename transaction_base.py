@@ -112,8 +112,10 @@ class TransactionBase:
     def _diagnosis(self, price):
         if self.number_of_holds % 10000000 == 0:
             logger.info("------------------v")
-            logger.info("Hold for {}".format(self.equity_client.target_symbol))
+            logger.info("Hold for {}".format(self.target_symbol))
             logger.info("Price {}".format(price))
+            logger.info('Cached checked {}'.format(self.cached_checks))
+            logger.info('Cached check limit {}'.format(self.cached_checks_limit))
             logger.info("Next action {}".format(self.next_action))
             logger.info("Percent difference {}".format(self._get_price_difference(price)))
             logger.info("Running total {}".format(self.running_total))
