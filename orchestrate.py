@@ -34,6 +34,10 @@ class Orchestrator():
         action = self.transaction_trigger.get_action(source_price)
         if source_price == None:
             source_price = self.transaction_trigger.get_price()
+        
+        if 'sell' in action and not self.test_mode and self.sellable_shares == 0:
+            self.account_status.update_positions()
+            self.sellable_shares = self.account_status.calculate_sellable_shares()
 
         if action == 'buy' and self.buyable_shares > 0:
             self._buy_action(source_price)
@@ -103,7 +107,7 @@ class Orchestrator():
                 self.transaction_trigger.next_action = 'sell'
                 self.transaction_trigger.bought_price = float(price[1:])
 
-    def _buy_action(self, source_price=None):
+    def _buy_action(self, source_price=None, race_condition=False):
         if source_price == None:
             source_price = self.transaction_trigger.get_price()
             
@@ -137,3 +141,7 @@ class Orchestrator():
             self.transaction_trigger.bought_price = source_price
             self.account_status.update_positions()
             self.sellable_shares = self.account_status.calculate_sellable_shares()
+            if race_condition:
+                time.sleep(5)
+                self.transaction_trigger._boot_strap()
+                self.transaction_trigger.next_action = 'sell'

@@ -52,7 +52,7 @@ class App:
                     if action == 'sell override':
                         self.transaction_trigger.is_down_market = True
                         self.inverse_orchestrator.buyable_shares = App.get_buyable_shares(self.inverse_orchestrator.account_status.get_last_quantity())
-                        self.inverse_orchestrator._buy_action()
+                        self.inverse_orchestrator._buy_action(race_condition=True)
                         time.sleep(2)
                         self.orchestrator.account_status.update_positions()
 
@@ -71,7 +71,7 @@ class App:
                     if action == 'sell override':
                         self.inverse_transaction_trigger.is_up_market = True
                         self.orchestrator.buyable_shares = App.get_buyable_shares(self.orchestrator.account_status.get_last_quantity())
-                        self.orchestrator._buy_action()
+                        self.orchestrator._buy_action(race_condition=True)
                         time.sleep(2)
                         self.inverse_orchestrator.account_status.update_positions()
 
