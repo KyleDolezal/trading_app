@@ -19,7 +19,7 @@ class InverseTransactionTrigger(TransactionBase):
             self.history = self.history[1:]
 
         percent_difference = self._get_price_difference(price)
-        if (datetime.datetime.now() < self.today841am or datetime.datetime.now() > self.today7pm) and not self.test_mode:
+        if ((datetime.datetime.now() < self.today841am or datetime.datetime.now() > self.today7pm)) and not self.test_mode:
             self.running_total = 0
             self.transactions = 0
             return 'hold'
@@ -33,7 +33,6 @@ class InverseTransactionTrigger(TransactionBase):
                 self.running_total += self.bought_price
             self.transactions += 1
             self.cached_checks = self.cached_checks_limit
-            self.number_of_holds = 0
             if self._significant_negative_price_action(price):
                 return 'sell override'
             else:

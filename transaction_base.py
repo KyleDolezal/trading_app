@@ -22,14 +22,14 @@ class TransactionBase:
         self.is_up_market = None
         self.is_down_market = None
         self.cached_checks = 0
-        self.cached_checks_limit = 10000
+        self.cached_checks_limit = 7500
         self.equity_client = equity_client
         if test_mode:
             self.equity_client.price = 1.0
         self._boot_strap()
         self.bought_price = None
         self.today841am = datetime.datetime.now().replace(hour=8, minute=41, second=0, microsecond=0)
-        self.today230pm = datetime.datetime.now().replace(hour=14, minute=30, second=0, microsecond=0)
+        self.today230pm = datetime.datetime.now().replace(hour=15, minute=30, second=0, microsecond=0)
         self.today445pm = datetime.datetime.now().replace(hour=16, minute=45, second=0, microsecond=0)
         self.today7pm = datetime.datetime.now().replace(hour=19, minute=00, second=0, microsecond=0)
 
@@ -61,13 +61,10 @@ class TransactionBase:
         return self.currency_client.get_forex_quote()
         
     def _boot_strap(self):
-        initial_smoothing_multiplier = 10
+        initial_smoothing_multiplier = 15
         for i in range(self.history_length * initial_smoothing_multiplier):
-            if self.test_mode:
-                self.history.append(0.0)
-            else:
-                self.history.append(self.currency_client.get_forex_quote())
-                time.sleep(.1)
+            self.history.append(self.currency_client.get_forex_quote())
+            time.sleep(.1)
         self.next_action = 'buy'
 
     def keep_market_direction_snapshots_updated(self):
@@ -99,9 +96,6 @@ class TransactionBase:
         will_selloff = abs(percent_difference) > (self.change_threshold + self.quick_selloff_additional_threshold)
         
         if will_selloff:
-            self.is_down_market = True
-            self.is_up_market = True
-            print("quick selloff")
             self.logger.info("Selling off due to negative price action")
 
         return will_selloff

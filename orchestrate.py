@@ -64,9 +64,10 @@ class Orchestrator():
                 self.order_status.await_order_filled(order_id)
                 quantity = self.sellable_shares
                 self.record_transaction(source_price, 'sell', quantity, order_id)
-                self.waiting_for_action = 'buy'
                 self.account_status.update_positions()
                 self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
+            self.waiting_for_action = 'buy'
+            self.transaction_trigger.number_of_holds = 0
         else:
             if not self.test_mode:
                 self._prepare_next_transaction()
@@ -108,16 +109,15 @@ class Orchestrator():
                 self.transaction_trigger.bought_price = float(price[1:])
 
     def _buy_action(self, source_price=None, race_condition=False):
+        self.transaction_trigger.next_action = 'hold'
+
         if source_price == None:
             source_price = self.transaction_trigger.get_price()
             
         if self.test_mode:
             logger.info('Buying in test mode')
             self.record_transaction(source_price, 'buy', 1, "'test_{}'".format(str(uuid.uuid4())))
-            self.waiting_for_action = 'sell'
-            self.transaction_trigger.next_action = 'sell'
-            self.transaction_trigger.number_of_holds = 0
-            self.transaction_trigger.bought_price = source_price
+          
             self.sellable_shares = 1
         else:
             order = None
@@ -135,13 +135,14 @@ class Orchestrator():
             order_id = self.order_status.get_order_id(order)
             self.order_status.await_order_filled(order_id)
             self.record_transaction(source_price, 'buy', quantity, order_id)
-            self.waiting_for_action = 'sell'
-            self.transaction_trigger.next_action = 'sell'
-            self.transaction_trigger.number_of_holds = 0
-            self.transaction_trigger.bought_price = source_price
             self.account_status.update_positions()
             self.sellable_shares = self.account_status.calculate_sellable_shares()
-            if race_condition:
-                time.sleep(5)
-                self.transaction_trigger._boot_strap()
-                self.transaction_trigger.next_action = 'sell'
+        
+        if race_condition:
+            time.sleep(10)
+            self.transaction_trigger._boot_strap()
+        
+        self.waiting_for_action = 'sell'
+        self.transaction_trigger.next_action = 'sell'
+        self.transaction_trigger.number_of_holds = 0
+        self.transaction_trigger.bought_price = source_price
