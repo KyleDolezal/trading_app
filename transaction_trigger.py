@@ -37,6 +37,8 @@ class TransactionTrigger(TransactionBase):
             self.running_total -= price
             self.number_of_holds = 0
             self.bought_time = datetime.datetime.now()
+            if self.test_mode:
+                self.profit -= price
             return 'buy'
         elif (self.next_action == 'sell') and \
                 (percent_difference < self.change_threshold) and \
@@ -49,6 +51,9 @@ class TransactionTrigger(TransactionBase):
             else:
                 self.running_total += self.bought_price
             self.transactions += 1
+            if self.test_mode:
+                self.profit += price
+                logger.info('profit for asset: {}'.format(self.profit))
             if self._significant_negative_price_action(price):
                 return 'sell override'
             else:

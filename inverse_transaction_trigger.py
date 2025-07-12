@@ -35,6 +35,9 @@ class InverseTransactionTrigger(TransactionBase):
                 self.running_total += self.bought_price
             self.transactions += 1
             self.cached_checks = self.cached_checks_limit
+            if self.test_mode:
+                self.profit += price
+                logger.info('profit for inverse asset: {}'.format(self.profit * -1))
             if self._significant_negative_price_action(price):
                 return 'sell override'
             else:
@@ -53,6 +56,8 @@ class InverseTransactionTrigger(TransactionBase):
             self.bought_price = price
             self.number_of_holds = 0
             self.bought_time = datetime.datetime.now()
+            if self.test_mode:
+                self.profit -= price
             return 'buy'
         else:
             self.number_of_holds += 1

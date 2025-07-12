@@ -18,6 +18,7 @@ class TransactionBase:
         self.next_action = None
         self.logger = logger
         self.currency_client = currency_client
+        self.profit = 0
         self.is_up_market = None
         self.is_down_market = None
         self.cached_checks = 0
