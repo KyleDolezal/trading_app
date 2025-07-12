@@ -54,6 +54,8 @@ def test_get_crypto_quote_buy_sell(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
     tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt.running_total = 1
+    tt.bought_price = 2
     tt.is_up_market = False
     tt.is_down_market = False
     tt.history=[12, 12, 12]
@@ -66,6 +68,7 @@ def test_get_crypto_quote_buy_sell(mocker):
     tt.get_action(10)
 
     assert tt.get_action(10.016) == 'sell'
+    assert tt.running_total == 1.0
 
 
 @freeze_time("2012-01-14 12:21:34")
@@ -355,6 +358,7 @@ def test_override_true(mocker):
     tt.running_total = -11
     tt.history=[10, 10, 10, 10, 10, 10, 10]
     assert tt._override_sell_price(1000.1) == True
+    assert tt.running_total == -11
 
 @freeze_time("2012-01-14 12:21:34")
 def test_status_multiplier(mocker):
