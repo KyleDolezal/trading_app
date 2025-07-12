@@ -35,10 +35,10 @@ class Analysis:
         
         self.currency_client = CurrencyClient(logger = logger)
 
-        self.transaction_trigger = TransactionTrigger(logger = logger, currency_client = self.currency_client, equity_client = self.equity_client, target_symbol = os.getenv('TARGET_SYMBOL'), test_mode = True)
+        self.transaction_trigger = TransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('TARGET_SYMBOL'), test_mode = True)
         self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client, test_mode = True)
 
-        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger, currency_client = self.currency_client, equity_client = self.equity_client, target_symbol = os.getenv('INVERSE_TARGET_SYMBOL'), test_mode = True)
+        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('INVERSE_TARGET_SYMBOL'), test_mode = True)
 
         self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client, test_mode = True)
 

@@ -8,8 +8,8 @@ from transaction_base import TransactionBase
 import datetime
 
 class InverseTransactionTrigger(TransactionBase):
-    def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None, target_symbol=None, equity_client = None):
-        super().__init__(test_mode, history, logger = logger, currency_client=currency_client,  target_symbol= target_symbol, equity_client = equity_client)
+    def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None, target_symbol=None):
+        super().__init__(test_mode, history, logger = logger, currency_client=currency_client,  target_symbol= target_symbol)
     
     def get_action(self, price=None):
         if price == None:
@@ -74,9 +74,24 @@ class InverseTransactionTrigger(TransactionBase):
         if spread_override:
             self.logger.info('Overriding sell behavior for inverse transaction trigger')
             self.is_down_market = True
-            self.is_up_market = True
         return will_override
 
 
     def _preserve_asset_value(self, price):
         return (datetime.datetime.now() > self.today445pm and not self.test_mode) or (price <= self.bought_price) or self.test_preserve_asset_value
+    
+    def _is_down_market(self):
+        if self.is_down_market == None or self.cached_checks >= self.cached_checks_limit:
+            self.is_down_market = self.currency_client.snapshot >= self.market_direction_threshold
+            self.cached_checks = 0
+        else:
+            self.cached_checks += 1
+        return self.is_down_market
+        
+    def _is_up_market(self):
+        if self.is_up_market == None or self.cached_checks >= self.cached_checks_limit:
+            self.is_up_market = self.currency_client.snapshot <= 0 and abs(self.currency_client.snapshot) >= self.market_direction_threshold
+            self.cached_checks = 0
+        else:
+            self.cached_checks += 1
+        return self.is_up_market

@@ -61,3 +61,22 @@ def test_quote(mocker):
     quote = ec.get_forex_quote()
 
     assert quote == 46.75
+
+def test_parse_snapshot(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
+
+    mock_account_status = mocker.patch('currency_quote.CurrencyClient.__init__')
+    mock_account_status.return_value = None
+
+    mock_client = mocker.patch('currency_quote.RESTClient')
+    mock_ws_client = mocker.patch('currency_quote.WebSocketClient')
+
+    mock_client.return_value = MockClient()
+    mock_ws_client.return_value = MockClient()
+
+    ec = CurrencyClient()
+    assert ec.parse_snapshot({'results': {'values': [{'value': 51}]}}) == 1.0

@@ -34,7 +34,10 @@ class MockDownResponse(object):
 class MockMarketDown(object):
     def _is_up_market():
         return False
-    
+
+class MockClient(object):
+    def __init__(self):
+        self.snapshot = 1.0
 
 @freeze_time("2012-01-14 12:21:34")
 def test_get_crypto_quote_buy_sell(mocker):
@@ -53,15 +56,12 @@ def test_get_crypto_quote_buy_sell(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
-    tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.running_total = 1
     tt.bought_price = 2
     tt.is_up_market = False
     tt.is_down_market = False
     tt.history=[12, 12, 12]
-    tt.equity_client.target_symbol = 'SCHB'
-    tt.equity_client.api_key = 'key'
-    tt.equity_client.today831am = 123
     tt.next_action = 'buy'
     tt.get_action(11)
     tt.get_action(10)
@@ -88,13 +88,10 @@ def test_get_crypto_quote_blackout(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
-    tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.is_up_market = False
     tt.is_down_market = False
     tt.history=[]
-    tt.equity_client.target_symbol = 'SCHB'
-    tt.equity_client.api_key = 'key'
-    tt.equity_client.today831am = 123
     tt.blackout_holds = 5
 
     tt.next_action = 'buy'
@@ -122,12 +119,10 @@ def test_max_txns(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
-    tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.is_up_market = False
     tt.is_down_market = False
     tt.history=[]
-    tt.equity_client.target_symbol = 'SCHB'
-    tt.equity_client.api_key = 'key'
 
     tt.next_action = 'buy'
     tt.get_action(11)
@@ -155,12 +150,10 @@ def test_get_crypto_quote_sell(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
-    tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.is_up_market = False
     tt.is_down_market = False
     tt.history=[]
-    tt.equity_client.target_symbol = 'SCHB'
-    tt.equity_client.api_key = 'key'
 
     tt.next_action = 'sell'
     tt.bought_price = 13
@@ -183,7 +176,7 @@ def test_get_crypto_quote_hold(mocker):
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     os.environ["CURRENCY_API_KEY"] = 'key'
     
-    tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.is_up_market = False
     tt.is_down_market = False
     tt.target_symbol = 'SCHB'
@@ -207,10 +200,9 @@ def test_is_down_market(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
 
-    tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
     tt.is_up_market = False
-    tt.equity_client.target_symbol = 'SCHB'
-    tt.equity_client.api_key = 'key'
     assert tt._is_down_market() == True
 
 def test_is_up_market(mocker):
@@ -229,12 +221,12 @@ def test_is_up_market(mocker):
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     os.environ["CURRENCY_API_KEY"] = 'key'
 
-    tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.currency_client.snapshot = -1.0
     tt.is_down_market = False
     tt.market_direction_threshold = -1
     tt.target_symbol = 'SCHB'
-    tt.equity_client.target_symbol = 'SCHB'
-    tt.equity_client.api_key = 'key'
     assert tt._is_up_market() == True
 
 
@@ -257,15 +249,11 @@ def test_override_false(mocker):
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     os.environ['HOLDS_PER_OVERRIDE_CENT'] = '10'
     
-    tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.is_up_market = False
     tt.is_down_market = False
     tt.today841am = datetime.datetime.now().replace(hour=8, minute=41, second=0, microsecond=0)
-    tt.equity_client.logger = logger
-    tt.equity_client.today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
-    tt.equity_client.target_symbol = 'SCHB'
     tt.target_symbol = 'SCHB'
-    tt.equity_client.api_key = 'key'
     tt.number_of_holds=10
     tt.next_action='sell'
     tt.bought_price=10
@@ -288,7 +276,7 @@ def test_negative_price_action(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
 
-    tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.is_up_market = False
     tt.is_down_market = False
     tt.target_symbol = 'SCHB'
@@ -314,7 +302,7 @@ def test_preserve_asset_value(mocker):
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     os.environ["EQUITY_API_KEY"] = 'key'
 
-    tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.is_up_market = False
     tt.is_down_market = False
     tt.target_symbol = 'SCHB'
@@ -346,7 +334,7 @@ def test_override_true(mocker):
     os.environ["EQUITY_API_KEY"] = 'key'
     os.environ['HOLDS_PER_OVERRIDE_CENT'] = '1'
     
-    tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.is_up_market = False
     tt.is_down_market = False
     tt.target_symbol = 'SCHB'
@@ -377,7 +365,7 @@ def test_status_multiplier(mocker):
     os.environ["EQUITY_API_KEY"] = 'key'
     os.environ['HOLDS_PER_OVERRIDE_CENT'] = '.00000000000001'
     
-    tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.is_up_market = False
     tt.is_down_market = False
     tt.target_symbol = 'SCHB'
@@ -413,7 +401,7 @@ def test_override_countdown(mocker):
     os.environ["EQUITY_API_KEY"] = 'key'
     os.environ['HOLDS_PER_OVERRIDE_CENT'] = '1'
     
-    tt = InverseTransactionTrigger(history=[0], test_mode=True, equity_client=EquityClient())
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.is_up_market = False
     tt.is_down_market = False
     tt.target_symbol = 'SCHB'
