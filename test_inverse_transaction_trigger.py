@@ -252,7 +252,7 @@ def test_override_false(mocker):
     tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.is_up_market = False
     tt.is_down_market = False
-    tt.today841am = datetime.datetime.now().replace(hour=8, minute=41, second=0, microsecond=0)
+    tt.today831am = datetime.datetime.now().replace(hour=8, minute=41, second=0, microsecond=0)
     tt.target_symbol = 'SCHB'
     tt.number_of_holds=10
     tt.next_action='sell'

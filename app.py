@@ -25,8 +25,8 @@ class App:
 
         self.equity_client = EquityClient(logger = logger)
 
-        today841am = datetime.datetime.now().replace(hour=8, minute=41, second=0, microsecond=0)
-        while datetime.datetime.now() < today841am:
+        today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
+        while datetime.datetime.now() < today831am:
             pass
 
         symbols = [os.getenv('TARGET_SYMBOL'), os.getenv('INVERSE_TARGET_SYMBOL')]

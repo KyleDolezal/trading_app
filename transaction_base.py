@@ -25,7 +25,7 @@ class TransactionBase:
         self.cached_checks_limit = 3500
         self._boot_strap()
         self.bought_price = None
-        self.today841am = datetime.datetime.now().replace(hour=8, minute=41, second=0, microsecond=0)
+        self.today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
         self.today230pm = datetime.datetime.now().replace(hour=15, minute=30, second=0, microsecond=0)
         self.today445pm = datetime.datetime.now().replace(hour=16, minute=45, second=0, microsecond=0)
         self.today7pm = datetime.datetime.now().replace(hour=19, minute=00, second=0, microsecond=0)
