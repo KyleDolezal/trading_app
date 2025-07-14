@@ -46,7 +46,7 @@ class InverseTransactionTrigger(TransactionBase):
                 and (percent_difference < self.change_threshold) \
                 and abs(percent_difference) > self.change_threshold and \
                 (datetime.datetime.now() < self.today230pm or self.test_mode) and \
-                not self._is_down_market() and \
+                self._is_up_market() and \
                 self.transactions <= self.max_transactions and \
                 self.number_of_holds >= self.blackout_holds and \
                 self.running_total >= 0:
@@ -87,7 +87,7 @@ class InverseTransactionTrigger(TransactionBase):
     
     def _is_down_market(self):
         if self.is_down_market == None or self.cached_checks >= self.cached_checks_limit:
-            self.is_down_market = self.currency_client.snapshot >= self.market_direction_threshold
+            self.is_down_market = self.currency_client.snapshot >= 0
             self.cached_checks = 0
         else:
             self.cached_checks += 1
@@ -95,7 +95,7 @@ class InverseTransactionTrigger(TransactionBase):
         
     def _is_up_market(self):
         if self.is_up_market == None or self.cached_checks >= self.cached_checks_limit:
-            self.is_up_market = self.currency_client.snapshot <= 0 and abs(self.currency_client.snapshot) >= self.market_direction_threshold
+            self.is_up_market = self.currency_client.snapshot <= (self.market_direction_threshold * -1)
             self.cached_checks = 0
         else:
             self.cached_checks += 1

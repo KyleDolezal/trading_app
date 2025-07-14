@@ -30,7 +30,7 @@ class TransactionTrigger(TransactionBase):
                 self.running_total >= 0 and \
                 self.number_of_holds >= self.blackout_holds and \
                 self.transactions <= self.max_transactions and \
-                not self._is_down_market():
+                self._is_up_market():
             self.next_action = 'sell'
             self.transactions += 1
             self.bought_price = price
@@ -84,7 +84,7 @@ class TransactionTrigger(TransactionBase):
     
     def _is_down_market(self):
         if self.is_down_market == None or self.cached_checks >= self.cached_checks_limit:
-            self.is_down_market = self.currency_client.snapshot <= 0 and abs(self.currency_client.snapshot) >= self.market_direction_threshold
+            self.is_down_market = self.currency_client.snapshot <= 0
             self.cached_checks = 0
         else:
             self.cached_checks += 1

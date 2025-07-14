@@ -59,7 +59,7 @@ def test_get_crypto_quote_buy_sell(mocker):
     tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.running_total = 1
     tt.bought_price = 2
-    tt.is_up_market = False
+    tt.is_up_market = True
     tt.is_down_market = False
     tt.history=[12, 12, 12]
     tt.next_action = 'buy'

@@ -374,15 +374,14 @@ def test_get_crypto_quote_buy(mocker):
     mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
 
     os.environ["HISTORY_LENGTH"] = '3'
-    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.25'
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
-    tt.is_up_market = False
-    tt.is_down_market = False
+    tt.is_up_market = True
     tt.history=[]
     tt.is_down_market = False
 
