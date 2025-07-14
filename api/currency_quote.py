@@ -59,7 +59,7 @@ class CurrencyClient:
     def get_snapshot(self):
         response = None
         try:
-            response = requests.get("https://api.polygon.io/v1/indicators/rsi/X:{}USD?timespan=minute&window=5&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))                       
+            response = requests.get("https://api.polygon.io/v1/indicators/rsi/X:{}USD?timespan=minute&window=20&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))                       
         except(Exception) as e:
             self.logger.error("Problem requesting rsi information: {}".format(e))
         return self.parse_snapshot(response.json())

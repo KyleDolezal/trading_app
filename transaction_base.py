@@ -22,7 +22,7 @@ class TransactionBase:
         self.is_up_market = None
         self.is_down_market = None
         self.cached_checks = 0
-        self.cached_checks_limit = 7500
+        self.cached_checks_limit = 3500
         self._boot_strap()
         self.bought_price = None
         self.today841am = datetime.datetime.now().replace(hour=8, minute=41, second=0, microsecond=0)
