@@ -21,6 +21,8 @@ class CurrencyClient:
         self.snapshot = 0.0
         self.timestamp = datetime.datetime.now()
 
+        self.macd_diff = 0.0
+
         self.logger = logger
 
         self.streaming_client = WebSocketClient(
@@ -35,6 +37,9 @@ class CurrencyClient:
         thread_snap = threading.Thread(target=self.update_snapshot)
         thread_snap.start()
 
+        thread_macd = threading.Thread(target=self.update_macd)
+        thread_macd.start()
+
     def updates(self):
         self.streaming_client.run(self.update_price)
 
@@ -43,6 +48,11 @@ class CurrencyClient:
             resp = self.get_snapshot()
             self.snapshot = resp['value']
             self.timestamp = (int(resp['timestamp']) / 1000)
+            time.sleep(1)
+    
+    def update_macd(self):
+        while True:
+            self.macd_diff = self.get_macd()
             time.sleep(1)
 
     def update_price(self, msgs: List[WebSocketMessage]):
@@ -71,3 +81,14 @@ class CurrencyClient:
     def parse_snapshot(self, resp):
         return {'value': (float(resp['results']['values'][0]['value']) - 50.0), 'timestamp': resp['results']['values'][0]['timestamp']}
     
+
+    def get_macd(self):
+        response = None
+        try:
+            response = requests.get("https://api.polygon.io/v1/indicators/macd/X:{}USD?timespan=minute&short_window=10&long_window=30&signal_window=7&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))        
+        except(Exception) as e:
+            self.logger.error("Problem requesting macd information: {}".format(e))
+        return self.parse_macd(response.json())
+
+    def parse_macd(self, resp):
+        return (float(resp['results']['values'][0]['value']) - float(resp['results']['values'][0]['signal']))

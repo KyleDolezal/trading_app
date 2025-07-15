@@ -80,3 +80,23 @@ def test_parse_snapshot(mocker):
 
     ec = CurrencyClient()
     assert ec.parse_snapshot({'results': {'values': [{'value': 51, 'timestamp': '123'}]}}) == {'value': 1.0, 'timestamp': '123'}
+
+
+def test_parse_macd(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
+
+    mock_account_status = mocker.patch('currency_quote.CurrencyClient.__init__')
+    mock_account_status.return_value = None
+
+    mock_client = mocker.patch('currency_quote.RESTClient')
+    mock_ws_client = mocker.patch('currency_quote.WebSocketClient')
+
+    mock_client.return_value = MockClient()
+    mock_ws_client.return_value = MockClient()
+
+    ec = CurrencyClient()
+    assert ec.parse_macd({'results': {'values': [{'value': 51, 'signal': 50}]}}) == 1
