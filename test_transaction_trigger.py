@@ -56,6 +56,8 @@ def test_override_false(mocker):
     os.environ['HOLDS_PER_OVERRIDE_CENT'] = '20'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.is_up_market = False
     tt.is_down_market = False
     tt.target_symbol = 'SCHB'
@@ -87,6 +89,8 @@ def test_override_true(mocker):
     os.environ['HOLDS_PER_OVERRIDE_CENT'] = '1'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.is_up_market = False
     tt.is_down_market = False
     tt.target_symbol = 'SCHB'
@@ -114,6 +118,8 @@ def test_get_crypto_quote_hold(mocker):
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.is_up_market = False
     tt.is_down_market = False
 
@@ -137,6 +143,8 @@ def test_running_total(mocker):
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.is_up_market = False
     tt.is_down_market = False
 
@@ -165,6 +173,8 @@ def test_get_crypto_quote_hold(mocker):
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.is_up_market = False
     tt.is_down_market = False
     tt.get_action(10)
@@ -187,6 +197,8 @@ def test_number_of_holds(mocker):
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.is_up_market = False
     tt.is_down_market = False
     tt.get_action(10)
@@ -213,6 +225,8 @@ def test_is_down_market(mocker):
 
     tt = TransactionTrigger(history=[0], test_mode=True)
     tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
+    tt.currency_client = MockClient()
     tt.currency_client.snapshot = -1
     tt.is_up_market = False
     assert tt._is_down_market() == True
@@ -236,6 +250,8 @@ def test_is_up_market(mocker):
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
 
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.currency_client = MockClient()
     tt.is_down_market = False
     tt.market_direction_threshold = -1
@@ -287,6 +303,7 @@ def test_sell(mocker):
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
 
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.cached_checks_limit = 1
     tt.currency_client = MockClient()
     tt.is_up_market = False
     tt.is_down_market = False
@@ -313,6 +330,8 @@ def test_preserve_asset_value(mocker):
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
 
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.is_up_market = False
     tt.is_down_market = False
     tt.next_action='sell'
@@ -348,6 +367,8 @@ def test_status_multiplier(mocker):
     os.environ['HOLDS_PER_OVERRIDE_CENT'] = '20'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.is_up_market = True
     tt.is_down_market = True
     tt.target_symbol = 'SCHB'
@@ -381,6 +402,8 @@ def test_get_crypto_quote_buy(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.is_up_market = True
     tt.history=[]
     tt.is_down_market = False
@@ -407,6 +430,8 @@ def test_max_txns(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.is_up_market = False
     tt.is_down_market = False
     tt.history=[]
@@ -437,6 +462,8 @@ def test_override_countdown(mocker):
     os.environ['HOLDS_PER_OVERRIDE_CENT'] = '1'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.is_up_market = False
     tt.is_down_market = False
     tt.target_symbol = 'SCHB'
@@ -471,6 +498,8 @@ def test_get_crypto_quote_blackout(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.is_up_market = False
     tt.is_down_market = False
     tt.history=[]
@@ -502,6 +531,8 @@ def test_invalidate_cache(mocker):
     os.environ['HOLDS_PER_OVERRIDE_CENT'] = '20'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
     tt.is_up_market = False
     tt.is_down_market = False
     tt.target_symbol = 'SCHB'

@@ -79,4 +79,4 @@ def test_parse_snapshot(mocker):
     mock_ws_client.return_value = MockClient()
 
     ec = CurrencyClient()
-    assert ec.parse_snapshot({'results': {'values': [{'value': 51}]}}) == 1.0
+    assert ec.parse_snapshot({'results': {'values': [{'value': 51, 'timestamp': '123'}]}}) == {'value': 1.0, 'timestamp': '123'}

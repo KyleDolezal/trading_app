@@ -7,6 +7,7 @@ import time
 import datetime
 from api.equity_quote import EquityClient
 import requests
+import time
 
 class TransactionBase:
     def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None, target_symbol=None):
@@ -22,7 +23,7 @@ class TransactionBase:
         self.is_up_market = None
         self.is_down_market = None
         self.cached_checks = 0
-        self.cached_checks_limit = 3500
+        self.cached_checks_limit = 0
         self._boot_strap()
         self.bought_price = None
         self.today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
@@ -83,6 +84,11 @@ class TransactionBase:
     
     def _time_elapsed(self):
         return datetime.datetime.now() - self.bought_time
+    
+    def _time_since_snapshot(self):
+        if self.test_mode:
+            return 1
+        return time.time() - self.currency_client.timestamp
     
     def _diagnosis(self, price):
         if self.number_of_holds % 10000000 == 0:

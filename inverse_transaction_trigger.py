@@ -49,7 +49,8 @@ class InverseTransactionTrigger(TransactionBase):
                 self._is_up_market() and \
                 self.transactions <= self.max_transactions and \
                 self.number_of_holds >= self.blackout_holds and \
-                self.running_total >= 0:
+                self.running_total >= 0  and \
+                self._time_since_snapshot() < 80:
             self.next_action = 'sell'
             self.running_total -= price
             self.transactions += 1

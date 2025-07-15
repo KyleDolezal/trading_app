@@ -8,6 +8,7 @@ from typing import List
 import time
 import requests
 import threading
+import datetime
 
 class CurrencyClient:
     def __init__(self, logger=logger):
@@ -18,6 +19,7 @@ class CurrencyClient:
         self.price = 0
 
         self.snapshot = 0.0
+        self.timestamp = datetime.datetime.now()
 
         self.logger = logger
 
@@ -38,7 +40,9 @@ class CurrencyClient:
 
     def update_snapshot(self):
         while True:
-            self.snapshot = self.get_snapshot()
+            resp = self.get_snapshot()
+            self.snapshot = resp['value']
+            self.timestamp = (int(resp['timestamp']) / 1000)
             time.sleep(1)
 
     def update_price(self, msgs: List[WebSocketMessage]):
@@ -59,11 +63,11 @@ class CurrencyClient:
     def get_snapshot(self):
         response = None
         try:
-            response = requests.get("https://api.polygon.io/v1/indicators/rsi/X:{}USD?timespan=minute&window=20&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))                       
+            response = requests.get("https://api.polygon.io/v1/indicators/rsi/X:{}USD?timespan=minute&window=3&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))                       
         except(Exception) as e:
             self.logger.error("Problem requesting rsi information: {}".format(e))
         return self.parse_snapshot(response.json())
 
     def parse_snapshot(self, resp):
-        return (float(resp['results']['values'][0]['value']) - 50.0)
+        return {'value': (float(resp['results']['values'][0]['value']) - 50.0), 'timestamp': resp['results']['values'][0]['timestamp']}
     
