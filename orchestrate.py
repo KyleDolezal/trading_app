@@ -113,6 +113,9 @@ class Orchestrator():
 
         if source_price == None:
             source_price = self.transaction_trigger.get_price()
+        
+        if self.buyable_shares < 1:
+            return
             
         if self.test_mode:
             logger.info('Buying in test mode')
