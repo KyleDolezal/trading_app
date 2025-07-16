@@ -26,10 +26,12 @@ class TransactionBase:
         self.cached_checks_limit = 0
         self._boot_strap()
         self.bought_price = None
+        self.sales = []
         self.today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
-        self.today230pm = datetime.datetime.now().replace(hour=15, minute=00, second=0, microsecond=0)
+        self.today230pm = datetime.datetime.now().replace(hour=14, minute=30, second=0, microsecond=0)
         self.today445pm = datetime.datetime.now().replace(hour=16, minute=45, second=0, microsecond=0)
         self.today7pm = datetime.datetime.now().replace(hour=19, minute=00, second=0, microsecond=0)
+        self.min_sales = float(os.getenv('MIN_SALES', 5))
 
         self.number_of_holds = 0
         self.holds_per_override_cent = float(os.getenv('HOLDS_PER_OVERRIDE_CENT', 100000000000))
@@ -57,6 +59,11 @@ class TransactionBase:
 
     def get_price(self):
         return self.currency_client.get_forex_quote()
+    
+    def get_avg_sale(self):
+        if len(self.sales) < 1:
+            return 0
+        return sum(self.sales) / len(self.sales)
         
     def _boot_strap(self):
         initial_smoothing_multiplier = 15
@@ -74,8 +81,11 @@ class TransactionBase:
         self.keep_market_direction_snapshots_updated
     
     def _significant_negative_price_action(self, price):
+        if len(self.sales) < self.min_sales:
+            return False
+        
         percent_difference = self._get_price_difference(price)
-        will_selloff = abs(percent_difference) > (self.change_threshold + self.quick_selloff_additional_threshold)
+        will_selloff = abs(percent_difference) > (self.get_avg_sale() * self.quick_selloff_additional_threshold)
         
         if will_selloff:
             self.logger.info("Selling off due to negative price action")

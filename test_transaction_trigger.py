@@ -285,6 +285,7 @@ def test_negative_price_action(mocker):
     tt.bought_price=10
     tt.running_total = -100
     tt.history=[10, 10, 10, 10, 10, 10, 10]
+    tt.sales = [10, 10, 10, 10, 10]
 
     assert tt.get_action(1) == 'sell override'
 
@@ -311,6 +312,7 @@ def test_sell(mocker):
     tt.next_action='sell'
     tt.bought_price=10
     tt.running_total = -100
+    tt.sales = [10, 10, 10, 10, 10]
     tt.history=[10, 10, 10, 10, 10, 10, 10]
 
     assert tt.get_action(1) == 'sell override'

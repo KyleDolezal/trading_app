@@ -41,6 +41,7 @@ class InverseTransactionTrigger(TransactionBase):
             if self._significant_negative_price_action(price):
                 return 'sell override'
             else:
+                self.sales.append(price)
                 return 'sell'
         elif (self.next_action == 'buy') \
                 and (percent_difference < self.change_threshold) \

@@ -58,6 +58,7 @@ class TransactionTrigger(TransactionBase):
             if self._significant_negative_price_action(price):
                 return 'sell override'
             else:
+                self.sales.append(price)
                 return 'sell'
         else:
             self.number_of_holds += 1
