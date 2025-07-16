@@ -40,6 +40,8 @@ class InverseTransactionTrigger(TransactionBase):
                 logger.info('profit for inverse asset: {}'.format(self.profit * -1))
             if self._significant_negative_price_action(price):
                 return 'sell override'
+            elif self._override_sell_price(price):
+                return 'sell spread'
             else:
                 self.sales.append(percent_difference)
                 return 'sell'

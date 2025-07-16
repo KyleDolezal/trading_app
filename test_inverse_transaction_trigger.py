@@ -72,7 +72,7 @@ def test_get_crypto_quote_buy_sell(mocker):
     tt.get_action(10)
     tt.get_action(10)
 
-    assert tt.get_action(10.016) == 'sell'
+    assert tt.get_action(10.016) == 'sell spread'
     assert tt.running_total == 1.0
 
 

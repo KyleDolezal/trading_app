@@ -46,4 +46,4 @@ class OrderStatus(ApiBase):
                 order_filled = True
                 return order_info['price']
 
-            time.sleep(1)
+            time.sleep(2)

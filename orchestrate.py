@@ -29,6 +29,7 @@ class Orchestrator():
         self.waiting_for_action = 'buy'
         self._bootstrap()
         self.today3pm = datetime.datetime.now().replace(hour=15, minute=00, second=0, microsecond=0)
+        self.equity_bought_price = 0
 
     def orchestrate(self, source_price=None):
         action = self.transaction_trigger.get_action(source_price)
@@ -51,10 +52,13 @@ class Orchestrator():
                 order = None
                 for i in range(20):
                     try:
-                        if datetime.datetime.now() < self.today3pm:
+                        if datetime.datetime.now() < self.today3pm and (action == 'sell override' or action == 'sell spread'):
                             order = self.transact_client.sell(self.sellable_shares, 'MARKET')  
                         else:
-                            order = self.transact_client.sell(self.sellable_shares, 'LIMIT', self.equity_client.get_equity_quote(self.target_symbol))
+                            sell_price = self.equity_client.get_equity_quote(self.target_symbol)
+                            if self.equity_bought_price != None and self.equity_bought_price > 0:
+                                sell_price = self.equity_bought_price
+                            order = self.transact_client.sell(self.sellable_shares, 'LIMIT', sell_price)
                         break
                     except(Exception) as e:
                         self.account_status.update_positions()
@@ -136,7 +140,7 @@ class Orchestrator():
                     self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
                     time.sleep(5)
             order_id = self.order_status.get_order_id(order)
-            self.order_status.await_order_filled(order_id)
+            self.equity_bought_price = self.order_status.await_order_filled(order_id)
             self.record_transaction(source_price, 'buy', quantity, order_id)
             self.account_status.update_positions()
             self.sellable_shares = self.account_status.calculate_sellable_shares()
