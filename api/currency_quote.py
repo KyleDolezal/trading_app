@@ -23,6 +23,8 @@ class CurrencyClient:
 
         self.macd_diff = 0.0
 
+        self.ema_diff = 0.0
+
         self.logger = logger
 
         self.streaming_client = WebSocketClient(
@@ -40,19 +42,37 @@ class CurrencyClient:
         thread_macd = threading.Thread(target=self.update_macd)
         thread_macd.start()
 
+        thread_ema_diff = threading.Thread(target=self.update_ema_diff)
+        thread_ema_diff.start()
+
     def updates(self):
         self.streaming_client.run(self.update_price)
 
+    def update_ema_diff(self):
+        while True:
+            try:
+                resp = self.get_ema_diff()
+                self.ema_diff = resp
+            except:
+                pass
+            time.sleep(1)
+
     def update_snapshot(self):
         while True:
-            resp = self.get_snapshot()
-            self.snapshot = resp['value']
-            self.timestamp = (int(resp['timestamp']) / 1000)
+            try:
+                resp = self.get_snapshot()
+                self.snapshot = resp['value']
+                self.timestamp = (int(resp['timestamp']) / 1000)
+            except:
+                pass
             time.sleep(1)
     
     def update_macd(self):
         while True:
-            self.macd_diff = self.get_macd()
+            try:
+                self.macd_diff = self.get_macd()
+            except:
+                pass
             time.sleep(1)
 
     def update_price(self, msgs: List[WebSocketMessage]):
@@ -90,5 +110,20 @@ class CurrencyClient:
             self.logger.error("Problem requesting macd information: {}".format(e))
         return self.parse_macd(response.json())
 
+
+    def get_ema_diff(self):
+        response = None
+        try:
+            ema_response = requests.get("https://api.polygon.io/v1/indicators/ema/X:{}USD?timespan=minute&window=10&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
+            sma_response = requests.get("https://api.polygon.io/v1/indicators/sma/X:{}USD?timespan=minute&window=10&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
+            ema_val = self.parse_snapshot(ema_response.json())['value']
+            sma_val = self.parse_snapshot(sma_response.json())['value']
+
+            return float(ema_val) - float(sma_val)
+        except(Exception) as e:
+            self.logger.error("Problem requesting macd information: {}".format(e))
+        return self.parse_macd(response.json())
+    
     def parse_macd(self, resp):
         return (float(resp['results']['values'][0]['value']) - float(resp['results']['values'][0]['signal']))
+            

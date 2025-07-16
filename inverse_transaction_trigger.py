@@ -41,7 +41,7 @@ class InverseTransactionTrigger(TransactionBase):
             if self._significant_negative_price_action(price):
                 return 'sell override'
             else:
-                self.sales.append(price)
+                self.sales.append(percent_difference)
                 return 'sell'
         elif (self.next_action == 'buy') \
                 and (percent_difference < self.change_threshold) \
@@ -97,7 +97,7 @@ class InverseTransactionTrigger(TransactionBase):
         
     def _is_up_market(self):
         if self.is_up_market == None or self.cached_checks >= self.cached_checks_limit:
-            self.is_up_market = (self.currency_client.snapshot <= (self.market_direction_threshold * -1)) and (self.currency_client.macd_diff < 0)
+            self.is_up_market = ((self.currency_client.snapshot <= (self.market_direction_threshold * -1)) and (self.currency_client.macd_diff < 0) and (self.currency_client.ema_diff < 0))
             self.cached_checks = 0
         else:
             self.cached_checks += 1
