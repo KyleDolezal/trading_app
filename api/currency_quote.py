@@ -25,6 +25,8 @@ class CurrencyClient:
 
         self.ema_diff = 0.0
 
+        self.longterm = 0.0
+
         self.logger = logger
 
         self.streaming_client = WebSocketClient(
@@ -44,6 +46,9 @@ class CurrencyClient:
 
         thread_ema_diff = threading.Thread(target=self.update_ema_diff)
         thread_ema_diff.start()
+    
+        thread_longterm = threading.Thread(target=self.update_longterm)
+        thread_longterm.start()
 
     def updates(self):
         self.streaming_client.run(self.update_price)
@@ -63,6 +68,16 @@ class CurrencyClient:
                 resp = self.get_snapshot()
                 self.snapshot = resp['value']
                 self.timestamp = (int(resp['timestamp']) / 1000)
+            except:
+                pass
+            time.sleep(1)
+    
+
+    def update_longterm(self):
+        while True:
+            try:
+                resp = self.get_longterm()
+                self.longterm = resp['value']
             except:
                 pass
             time.sleep(1)
@@ -96,6 +111,14 @@ class CurrencyClient:
             response = requests.get("https://api.polygon.io/v1/indicators/rsi/X:{}USD?timespan=minute&window=3&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))                       
         except(Exception) as e:
             self.logger.error("Problem requesting rsi information: {}".format(e))
+        return self.parse_snapshot(response.json())
+    
+    def get_longterm(self):
+        response = None
+        try:
+            response = requests.get("https://api.polygon.io/v1/indicators/rsi/X:{}USD?timespan=minute&window=90&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))                       
+        except(Exception) as e:
+            self.logger.error("Problem requesting longterm rsi information: {}".format(e))
         return self.parse_snapshot(response.json())
 
     def parse_snapshot(self, resp):
