@@ -153,3 +153,4 @@ class Orchestrator():
         self.transaction_trigger.next_action = 'sell'
         self.transaction_trigger.number_of_holds = 0
         self.transaction_trigger.bought_price = source_price
+        self.transaction_trigger.bought_time = datetime.datetime.now()
