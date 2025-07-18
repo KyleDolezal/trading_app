@@ -50,7 +50,7 @@ class Analysis:
                 action = self.orchestrator.orchestrate() 
                 if action != 'hold':
                     self.quick_selloff_countdown += 1
-                    if action == 'sell override' and self.quick_selloff_countdown >= self.quick_selloff_block:
+                    if action == 'sell override' and self.quick_selloff_countdown >= self.quick_selloff_block and self.orchestrator.sellable_shares > 0:
                         self.quick_selloff_countdown = 0
                         self.transaction_trigger.is_down_market = True
                         self.inverse_orchestrator.buyable_shares = 1
@@ -70,7 +70,7 @@ class Analysis:
                 action = self.inverse_orchestrator.orchestrate()
                 self.quick_selloff_countdown += 1
                 if action != 'hold':
-                    if action == 'sell override' and self.quick_selloff_countdown >= self.quick_selloff_block:
+                    if action == 'sell override' and self.quick_selloff_countdown >= self.quick_selloff_block and self.inverse_orchestrator.sellable_shares > 0:
                         self.quick_selloff_countdown = 0
                         self.inverse_transaction_trigger.is_up_market = True
                         self.orchestrator.buyable_shares = 1

@@ -53,7 +53,7 @@ class App:
                 action = self.orchestrator.orchestrate() 
                 self.quick_selloff_countdown += 1
                 if action != 'hold':
-                    if App.will_override(action, self.quick_selloff_countdown, self.quick_selloff_block):
+                    if App.will_override(action, self.quick_selloff_countdown, self.quick_selloff_block, self.orchestrator.sellable_shares):
                         self.quick_selloff_countdown = 0
                         self.transaction_trigger.is_down_market = True
                         self.inverse_orchestrator.buyable_shares = App.get_buyable_shares(self.inverse_orchestrator.account_status.get_last_quantity())
@@ -76,7 +76,7 @@ class App:
                 action = self.inverse_orchestrator.orchestrate()
                 self.quick_selloff_countdown += 1
                 if action != 'hold':
-                    if App.will_override(action, self.quick_selloff_countdown, self.quick_selloff_block):
+                    if App.will_override(action, self.quick_selloff_countdown, self.quick_selloff_block, self.inverse_orchestrator.sellable_shares):
                         self.quick_selloff_countdown = 0
                         self.inverse_transaction_trigger.is_up_market = True
                         self.orchestrator.buyable_shares = App.get_buyable_shares(self.orchestrator.account_status.get_last_quantity())
@@ -95,8 +95,8 @@ class App:
     def get_buyable_shares(resp):
         return round(resp * .75)
     
-    def will_override(action, countdown, selloff_block):
-        return action == 'sell override' and countdown >= selloff_block
+    def will_override(action, countdown, selloff_block, sellable_shares):
+        return action == 'sell override' and countdown >= selloff_block and sellable_shares > 0
 
 
 def main():
