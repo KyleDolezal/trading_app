@@ -85,10 +85,12 @@ class TransactionBase:
             return False
         
         percent_difference = self._get_price_difference(price)
-        will_selloff = abs(percent_difference) > (self.get_avg_sale() * self.quick_selloff_additional_threshold)
+        will_selloff = abs(percent_difference) > abs((self.get_avg_sale() * self.quick_selloff_additional_threshold))
         
         if will_selloff:
             self.logger.info("Selling off due to negative price action")
+            self.logger.info("percent diff: {}".format(percent_difference))
+            self.logger.info("average {}".format(self.get_avg_sale()))
 
         return will_selloff
     
