@@ -94,6 +94,9 @@ class TransactionBase:
 
         return will_selloff
     
+    def check_equity_price(self, equity_bought_price, equity_price):
+         return (equity_price != None and equity_bought_price != None and equity_bought_price != 0 and equity_price > equity_bought_price)
+    
     def _time_elapsed(self):
         return datetime.datetime.now() - self.bought_time
     

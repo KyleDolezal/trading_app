@@ -11,7 +11,7 @@ class InverseTransactionTrigger(TransactionBase):
     def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None, target_symbol=None):
         super().__init__(test_mode, history, logger = logger, currency_client=currency_client,  target_symbol= target_symbol)
     
-    def get_action(self, price=None):
+    def get_action(self, price=None, equity_price = None, equity_bought_price = None):
         if price == None:
             price = self.currency_client.get_forex_quote()
         self.history.append(price)
@@ -25,7 +25,7 @@ class InverseTransactionTrigger(TransactionBase):
             return 'hold'
         if (self.next_action == 'sell') and \
                 (percent_difference > self.change_threshold) and \
-                (self._preserve_asset_value(price) or self._override_sell_price(price)):
+                (self._preserve_asset_value(price) or self._override_sell_price(price) or self.check_equity_price(equity_bought_price, equity_price)):
             self.next_action = 'buy'
             if self._override_sell_price(price):
                 difference = price - self.bought_price

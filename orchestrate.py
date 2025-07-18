@@ -32,7 +32,7 @@ class Orchestrator():
         self.equity_bought_price = 0
 
     def orchestrate(self, source_price=None):
-        action = self.transaction_trigger.get_action(source_price)
+        action = self.transaction_trigger.get_action(source_price, equity_price=self.equity_client.price, equity_bought_price=self.equity_bought_price)
         if source_price == None:
             source_price = self.transaction_trigger.get_price()
         

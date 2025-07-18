@@ -12,7 +12,15 @@ class MockClientBuy(object):
     def order_place(params, arg, order_info):
         assert order_info['orderLegCollection'][0]['instruction'] == 'BUY'
         return MockResponse()
-    
+
+class MockClient(object):
+    def __init__(self):
+        self.snapshot = 1.0
+        self.macd_diff = 1
+        self.ema_diff = 1
+        self.longterm = 1
+        self.price = 1
+
 class MockAS(object):
     def update_positions(self):
         pass
@@ -30,7 +38,7 @@ class MockEquityClient(object):
         return 123
     
 class MockTTClient(object):
-    def get_action():
+    def get_action(equity_price=None):
         return 'buy'
     def buy(self, quantity):
         pass
@@ -66,14 +74,14 @@ class MockClientMarket(object):
         return MockResponse()
     
 class MockTT(object):
-    def get_action(param, kwargs):
+    def get_action(*kwargs, equity_price=None, equity_bought_price=None):
         return 'buy'
     
 class MockTTSell(object):
-    def get_action(param, kwargs):
+    def get_action(*kwargs, equity_price=None, equity_bought_price=None):
         return 'sell'
 class MockTTSellMarket(object):
-    def get_action(param, kwargs):
+    def get_action(*kwargs, equity_price=None, equity_bought_price=None):
         return 'sell_market'
 
 class MockOS(object):
@@ -148,6 +156,9 @@ def test_buy(mocker):
     orchestrator.pg_adapter = MockPGClient()
     orchestrator.transaction_trigger = MockTT()
     orchestrator.order_status = MockOS()
+    orchestrator.equity_client = MockClient()
+    orchestrator.equity_bought_price = 1
+    orchestrator.equity_price = 1
 
     orchestrator.orchestrate(100)
 
@@ -180,6 +191,9 @@ def test_sell(mocker):
     orchestrator.pg_adapter = MockPGClient()
     orchestrator.transaction_trigger = MockTTSell()
     orchestrator.order_status = MockOS()
+    orchestrator.equity_client = MockClient()
+    orchestrator.equity_bought_price = 1
+    orchestrator.equity_price = 1
     orchestrator.orchestrate(100)
 
 def test_sell_market(mocker):
@@ -211,4 +225,7 @@ def test_sell_market(mocker):
     orchestrator.pg_adapter = MockPGClient()
     orchestrator.transaction_trigger = MockTTSellMarket()
     orchestrator.order_status = MockOS()
+    orchestrator.equity_client = MockClient()
+    orchestrator.equity_bought_price = 1
+    orchestrator.equity_price = 1
     orchestrator.orchestrate(100)
