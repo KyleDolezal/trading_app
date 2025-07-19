@@ -2,10 +2,12 @@ import logging
 logger = logging.getLogger(__name__)
 from api.api_base import ApiBase
 import time
+import datetime
 
 class OrderStatus(ApiBase):
     def __init__(self):
         super().__init__()
+        self.today655pm = datetime.datetime.now().replace(hour=17, minute=42, second=0, microsecond=0)
 
     def get_order_id(self, order_resp):
         try:
@@ -45,5 +47,38 @@ class OrderStatus(ApiBase):
             if status.upper() == 'FILLED':
                 order_filled = True
                 return order_info['price']
+            
+            if datetime.datetime.now() > self.today655pm:
+                symbol = self.client.order_details(self.account_number, order_number).json()['orderLegCollection'][0]['instrument']['symbol']
+                quantity = self.client.order_details(self.account_number, order_number).json()['orderLegCollection'][0]['quantity']
+
+                price = self.client.quotes(symbol).json()[symbol]['regular']['regularMarketLastPrice']
+
+                request_body_json = {
+                    "orderType": "LIMIT",
+                    "session": "SEAMLESS",
+                    "duration": "GOOD_TILL_CANCEL",
+                    "orderStrategyType": "SINGLE",
+                    "price": price,
+                    "orderLegCollection": [
+                        {
+                        "instruction": 'SELL',
+                        "quantity": quantity,
+                        "instrument": {
+                            "symbol": symbol,
+                            "assetType": "EQUITY"
+                        }
+                            }
+                        ]
+                }
+
+                print("request body")
+                print(request_body_json)
+            
+                self.client.order_replace(self.account_number, order_number, request_body_json)
+
+                order_filled = True
+                return order_info['price']
+
 
             time.sleep(2)
