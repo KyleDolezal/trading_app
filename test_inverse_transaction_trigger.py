@@ -42,6 +42,7 @@ class MockClient(object):
         self.macd_diff = -1
         self.ema_diff = -1
         self.longterm = -1
+        self.low = -502
 
 @freeze_time("2012-01-14 12:21:34")
 def test_get_crypto_quote_buy_sell(mocker):

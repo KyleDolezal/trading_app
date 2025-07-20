@@ -26,6 +26,7 @@ class MockClient(object):
         self.macd_diff = 1
         self.ema_diff = 1
         self.longterm = 1
+        self.high = 1000000
 
 class MockResponse(object):
     def json(param):

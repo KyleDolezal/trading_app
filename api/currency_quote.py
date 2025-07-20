@@ -29,6 +29,9 @@ class CurrencyClient:
 
         self.logger = logger
 
+        self.low = 0.0
+        self.high = 0.0
+
         self.streaming_client = WebSocketClient(
         	api_key=self.api_key,
         	market=Market.Crypto
@@ -49,6 +52,9 @@ class CurrencyClient:
     
         thread_longterm = threading.Thread(target=self.update_longterm)
         thread_longterm.start()
+
+        thread_bounds = threading.Thread(target=self.update_bounds)
+        thread_bounds.start()
 
     def updates(self):
         self.streaming_client.run(self.update_price)
@@ -86,6 +92,16 @@ class CurrencyClient:
         while True:
             try:
                 self.macd_diff = self.get_macd()
+            except:
+                pass
+            time.sleep(1)
+
+    def update_bounds(self):
+        while True:
+            try:
+                resp = self.get_bounds()
+                self.low = resp['low']
+                self.high = resp['high']
             except:
                 pass
             time.sleep(1)
@@ -132,7 +148,14 @@ class CurrencyClient:
         except(Exception) as e:
             self.logger.error("Problem requesting macd information: {}".format(e))
         return self.parse_macd(response.json())
-
+    
+    def get_bounds(self):
+        response = None
+        try:
+            response = requests.get("https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/tickers/X:{}USD?apiKey={}".format(self.currency_ticker, self.api_key))        
+        except(Exception) as e:
+            self.logger.error("Problem requesting bounds information: {}".format(e))
+        return self.parse_bounds(response.json())
 
     def get_ema_diff(self):
         response = None
@@ -150,3 +173,7 @@ class CurrencyClient:
     def parse_macd(self, resp):
         return (float(resp['results']['values'][0]['value']) - float(resp['results']['values'][0]['signal']))
             
+    def parse_bounds(self, resp):
+        high = float(resp['ticker']['day']['h'])
+        low = float(resp['ticker']['day']['l'])
+        return {'low': low, 'high': high}

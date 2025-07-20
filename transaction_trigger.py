@@ -31,7 +31,8 @@ class TransactionTrigger(TransactionBase):
                 self.number_of_holds >= self.blackout_holds and \
                 self.transactions <= self.max_transactions and \
                 self._is_up_market() and \
-                self._time_since_snapshot() < 80:
+                self._time_since_snapshot() < 80 and \
+                price < (self.currency_client.high - 500):
             self.next_action = 'sell'
             self.transactions += 1
             self.bought_price = price
