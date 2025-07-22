@@ -141,6 +141,8 @@ class Orchestrator():
                     time.sleep(5)
             order_id = self.order_status.get_order_id(order)
             self.equity_bought_price = self.order_status.await_order_filled(order_id)
+            if self.equity_bought_price == 0:
+                self.equity_bought_price = self.equity_client.price
             self.record_transaction(source_price, 'buy', quantity, order_id)
             self.account_status.update_positions()
             self.sellable_shares = self.account_status.calculate_sellable_shares()

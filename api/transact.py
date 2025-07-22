@@ -61,23 +61,47 @@ class TransactClient(ApiBase):
                 ]
             }
         else:
+            stop_price = round(bounds_value - .125, 2)
+
             request_body_json = {
-                "orderType": "LIMIT",
-                "session": "SEAMLESS",
-                "duration": "GOOD_TILL_CANCEL",
-                "orderStrategyType": "SINGLE",
-                "price": bounds_value,
-                "orderLegCollection": [
+                "orderStrategyType": "OCO",
+                "childOrderStrategies": [
                     {
-                    "instruction": 'SELL',
-                    "quantity": quantity,
-                    "instrument": {
-                        "symbol": self.target_symbol,
-                        "assetType": "EQUITY"
-                    }
+                        "orderType": "LIMIT",
+                        "session": "NORMAL",
+                        "price": bounds_value,
+                        "duration": "DAY",
+                        "orderStrategyType": "SINGLE",
+                        "orderLegCollection": [
+                            {
+                                "instruction": "SELL",
+                                "quantity": quantity,
+                                "instrument": {
+                                    "symbol": self.target_symbol,
+                                    "assetType": "EQUITY"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "orderType": "STOP",
+                        "session": "NORMAL",
+                        "stopPrice": stop_price,
+                        "duration": "DAY",
+                        "orderStrategyType": "SINGLE",
+                        "orderLegCollection": [
+                            {
+                                "instruction": "SELL",
+                                "quantity": quantity,
+                                "instrument": {
+                                    "symbol": self.target_symbol,
+                                    "assetType": "EQUITY"
+                                }
+                            }
+                        ]
                     }
                 ]
             }
-        
+
         return self._transact(request_body_json)
         
