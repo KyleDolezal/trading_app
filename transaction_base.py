@@ -25,6 +25,7 @@ class TransactionBase:
         self.cached_checks = 0
         self.cached_checks_limit = 0
         self._boot_strap()
+        self.limit_value = float(os.getenv('LIMIT_VALUE', 500))
         self.bought_price = None
         self.sales = []
         self.today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)

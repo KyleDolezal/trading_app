@@ -54,7 +54,7 @@ class InverseTransactionTrigger(TransactionBase):
                 self.number_of_holds >= self.blackout_holds and \
                 self.running_total >= 0  and \
                 self._time_since_snapshot() < 80 and \
-                price > (self.currency_client.low + 500):
+                price > (self.currency_client.low + self.limit_value):
             self.next_action = 'sell'
             self.running_total -= price
             self.transactions += 1
