@@ -35,6 +35,7 @@ def test_buy(mocker):
     mocker.patch('transact.time.sleep')
     transact_client = TransactClient()
     transact_client.client = MockClient()
+    transact_client.stop_value = -.125
     transact_client.target_symbol = "SCHB"
     transact_client.account_number = "1234"
 
@@ -46,6 +47,7 @@ def test_sell(mocker):
     transact_client = TransactClient()
     transact_client.client = MockClient()
     transact_client.target_symbol = "SCHB"
+    transact_client.stop_value = -.125
     transact_client.account_number = "1234"
 
     assert transact_client.sell(1, 'LIMIT', 10.0) == transact_client.client.response
@@ -65,6 +67,7 @@ def test_sell_market(mocker):
     mocker.patch('transact.time.sleep')
     transact_client = TransactClient()
     transact_client.client = MockClient()
+    transact_client.stop_value = -.125
     transact_client.target_symbol = "SCHB"
     transact_client.account_number = "1234"
 
