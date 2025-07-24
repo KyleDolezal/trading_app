@@ -30,6 +30,8 @@ class Orchestrator():
         self._bootstrap()
         self.today3pm = datetime.datetime.now().replace(hour=15, minute=00, second=0, microsecond=0)
         self.equity_bought_price = 0
+        self.limit_id = ''
+        self.stop_id = ''
 
     def orchestrate(self, source_price=None):
         action = self.transaction_trigger.get_action(source_price, equity_price=self.equity_client.price, equity_bought_price=self.equity_bought_price)
@@ -49,25 +51,25 @@ class Orchestrator():
                 self.waiting_for_action = 'buy'
                 self.buyable_shares = 1
             else:
-                order = None
-                for i in range(20):
-                    try:
-                        if datetime.datetime.now() < self.today3pm and (action == 'sell override' or action == 'sell spread'):
-                            order = self.transact_client.sell(self.sellable_shares, 'MARKET')  
-                        else:
-                            sell_price = self.equity_client.get_equity_quote(self.target_symbol)
-                            if self.equity_bought_price != None and self.equity_bought_price > 0:
-                                sell_price = self.equity_bought_price
-                            order = self.transact_client.sell(self.sellable_shares, 'LIMIT', sell_price)
-                        break
-                    except(Exception) as e:
-                        self.account_status.update_positions()
-                        self.sellable_shares = self.account_status.calculate_sellable_shares()
-                        time.sleep(5)
-                order_id = self.order_status.get_order_id(order)
-                self.order_status.await_order_filled([order_id])
+                # order = None
+                # for i in range(20):
+                #     try:
+                #         if datetime.datetime.now() < self.today3pm and (action == 'sell override' or action == 'sell spread'):
+                #             order = self.transact_client.sell(self.sellable_shares, 'MARKET')  
+                #         else:
+                #             sell_price = self.equity_client.get_equity_quote(self.target_symbol)
+                #             if self.equity_bought_price != None and self.equity_bought_price > 0:
+                #                 sell_price = self.equity_bought_price
+                #             order = self.transact_client.sell(self.sellable_shares, 'LIMIT', sell_price)
+                #         break
+                #     except(Exception) as e:
+                #         self.account_status.update_positions()
+                #         self.sellable_shares = self.account_status.calculate_sellable_shares()
+                #         time.sleep(5)
+                # order_id = self.order_status.get_order_id(order)
+                self.order_status.await_order_filled([str(self.limit_id), str(self.stop_id)])
                 quantity = self.sellable_shares
-                self.record_transaction(source_price, 'sell', quantity, order_id)
+                self.record_transaction(source_price, 'sell', quantity, self.limit_id)
                 self.account_status.update_positions()
                 self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
             self.waiting_for_action = 'buy'
@@ -131,7 +133,7 @@ class Orchestrator():
             for i in range(20):
                 quantity = self.buyable_shares
                 try:
-                    order = self.transact_client.buy(self.buyable_shares)
+                    order = self.transact_client.buy(self.buyable_shares, self.equity_client.price)
                     break
                 except(Exception) as e:
                     time.sleep(.01)
@@ -140,6 +142,9 @@ class Orchestrator():
                     self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
                     time.sleep(5)
             order_id = self.order_status.get_order_id(order)
+            order_id_int_ref = int(order_id)
+            self.limit_id = order_id_int_ref + 1
+            self.stop_id = self.limit_id + 1
             self.equity_bought_price = self.order_status.await_order_filled([order_id])
             if self.equity_bought_price == 0:
                 self.equity_bought_price = self.equity_client.price

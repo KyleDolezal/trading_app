@@ -23,21 +23,66 @@ class TransactClient(ApiBase):
             raise Exception('Order error')
         return order
     
-    def buy(self, quantity):
+    def buy(self, quantity, bounds_value):
+        buy_price = round(bounds_value, 2)
+        sell_price = round(buy_price + .01, 2)
+        stop_price = round(sell_price - .13, 2)
+
         request_body_json = {
-            "orderType": "MARKET",
+            "orderStrategyType": "TRIGGER",
             "session": "NORMAL",
             "duration": "DAY",
-            "orderStrategyType": "SINGLE",
+            "orderType": "LIMIT",
+            "price": buy_price,
             "orderLegCollection": [
-                {"instruction": "BUY",
-                "quantity": quantity,
-                "instrument": {
-                    "symbol": self.target_symbol,
-                    "assetType": "EQUITY"
+                {
+                    "instruction": "BUY",
+                    "instrument": {
+                        "assetType": "EQUITY",
+                        "symbol": self.target_symbol
+                    },
+                    "quantity": quantity
                 }
-                }
-            ]
+            ],
+            "childOrderStrategies": [
+            {
+                "orderStrategyType": "OCO",
+                "childOrderStrategies": [
+                {
+                    "orderType": "LIMIT",
+                    "session": "NORMAL",
+                    "price": sell_price,
+                    "duration": "DAY",
+                    "orderStrategyType": 'SINGLE',
+                    "orderLegCollection": [
+                        {
+                            "instruction": "SELL",
+                            "quantity": quantity,
+                            "instrument": {
+                                "symbol": self.target_symbol,
+                                "assetType": "EQUITY"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "orderType": "STOP",
+                    "session": "NORMAL",
+                    "stopPrice": stop_price,
+                    "duration": "DAY",
+                    "orderStrategyType": 'SINGLE',
+                    "orderLegCollection": [
+                        {
+                            "instruction": "SELL",
+                            "quantity": quantity,
+                            "instrument": {
+                                "symbol": self.target_symbol,
+                                "assetType": "EQUITY"
+                            }
+                        }
+                    ]
+                }]
+            }]  
         }
 
         return self._transact(request_body_json)

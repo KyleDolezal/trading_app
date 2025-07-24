@@ -42,10 +42,7 @@ class TransactionTrigger(TransactionBase):
             if self.test_mode:
                 self.profit -= price
             return 'buy'
-        elif (self.next_action == 'sell') and \
-                (percent_difference < self.change_threshold) and \
-                abs(percent_difference) > self.change_threshold and \
-                (self._preserve_asset_value(price) or self._override_sell_price(price) or self.check_equity_price(equity_bought_price, equity_price)):
+        elif (self.next_action == 'sell'):
             self.next_action = 'buy'
             self.cached_checks = self.cached_checks_limit
             if self._override_sell_price(price):
@@ -56,10 +53,10 @@ class TransactionTrigger(TransactionBase):
             if self.test_mode:
                 self.profit += price
                 logger.info('profit for asset: {}'.format(self.profit))
-            if self._significant_negative_price_action(price):
-                return 'sell override'
-            elif self._override_sell_price(price):
-                return 'sell spread'
+            # if self._significant_negative_price_action(price):
+            #     return 'sell override'
+            # elif self._override_sell_price(price):
+            #     return 'sell spread'
             else:
                 self.sales.append(percent_difference)
                 return 'sell'
