@@ -146,6 +146,13 @@ class Orchestrator():
             self.limit_id = order_id_int_ref + 1
             self.stop_id = self.limit_id + 1
             self.equity_bought_price = self.order_status.await_order_filled([order_id])
+
+            if self.equity_bought_price == -1:
+                self.waiting_for_action = 'buy'
+                self.transaction_trigger.next_action = 'buy'
+                self.equity_bought_price = self.equity_client.price
+                return
+
             if self.equity_bought_price == 0:
                 self.equity_bought_price = self.equity_client.price
             self.record_transaction(source_price, 'buy', quantity, order_id)
