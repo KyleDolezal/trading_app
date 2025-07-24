@@ -38,47 +38,15 @@ class OrderStatus(ApiBase):
                 time.sleep(5)
         raise Exception('Problem with getting order status')
 
-    def await_order_filled(self, order_number):
+    def await_order_filled(self, order_numbers):
         order_filled = False
         while order_filled != True:
-            order_info = self.get_order_status(order_number)
-            status = order_info['status']
-           
-            if status.upper() == 'FILLED':
-                order_filled = True
-                return order_info['price']
+            for order in order_numbers:
+                order_info = self.get_order_status(order)
+                status = order_info['status']
             
-            if datetime.datetime.now() > self.today655pm:
-                symbol = self.client.order_details(self.account_number, order_number).json()['orderLegCollection'][0]['instrument']['symbol']
-                quantity = self.client.order_details(self.account_number, order_number).json()['orderLegCollection'][0]['quantity']
+                if status.upper() == 'FILLED':
+                    order_filled = True
+                    return order_info['price']
 
-                price = self.client.quotes(symbol).json()[symbol]['regular']['regularMarketLastPrice']
-
-                request_body_json = {
-                    "orderType": "LIMIT",
-                    "session": "SEAMLESS",
-                    "duration": "GOOD_TILL_CANCEL",
-                    "orderStrategyType": "SINGLE",
-                    "price": price,
-                    "orderLegCollection": [
-                        {
-                        "instruction": 'SELL',
-                        "quantity": quantity,
-                        "instrument": {
-                            "symbol": symbol,
-                            "assetType": "EQUITY"
-                        }
-                            }
-                        ]
-                }
-
-                print("request body")
-                print(request_body_json)
-            
-                self.client.order_replace(self.account_number, order_number, request_body_json)
-
-                order_filled = True
-                return order_info['price']
-
-
-            time.sleep(2)
+                time.sleep(2)
