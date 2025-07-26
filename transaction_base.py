@@ -13,8 +13,10 @@ class TransactionBase:
         self.history_length = int(os.getenv('HISTORY_LENGTH'))
         self.change_threshold = float(os.getenv('CHANGE_THRESHOLD'))
         self.history = history
-        self.logger = logger
         self.currency_client = currency_client
+        if len(self.history) == 0:
+            self._populate_price()
+        self.logger = logger
 
         self.limit_value = float(os.getenv('LIMIT_VALUE', 500))
         self.sales = []
@@ -32,4 +34,8 @@ class TransactionBase:
         if self.test_mode:
             return 1
         return time.time() - self.currency_client.timestamp
-  
+
+    def _populate_price(self):
+        while len(self.history) < self.history_length:
+            price = self.currency_client.get_forex_quote()
+            self.history.append(price)
