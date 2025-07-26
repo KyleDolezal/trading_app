@@ -133,7 +133,7 @@ class Orchestrator():
             for i in range(20):
                 quantity = self.buyable_shares
                 try:
-                    order = self.transact_client.buy(self.buyable_shares, self.equity_client.price)
+                    order = self.transact_client.buy(self.buyable_shares, self.equity_client.get_equity_quote(self.target_symbol))
                     break
                 except(Exception) as e:
                     time.sleep(.01)
@@ -163,8 +163,9 @@ class Orchestrator():
             time.sleep(10)
             self.transaction_trigger._boot_strap()
         
-        self.waiting_for_action = 'sell'
-        self.transaction_trigger.next_action = 'sell'
-        self.transaction_trigger.number_of_holds = 0
-        self.transaction_trigger.bought_price = source_price
-        self.transaction_trigger.bought_time = datetime.datetime.now()
+        if self.equity_bought_price > -1:
+            self.waiting_for_action = 'sell'
+            self.transaction_trigger.next_action = 'sell'
+            self.transaction_trigger.number_of_holds = 0
+            self.transaction_trigger.bought_price = source_price
+            self.transaction_trigger.bought_time = datetime.datetime.now()
