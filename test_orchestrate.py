@@ -141,9 +141,7 @@ def test_buy(mocker):
     os.environ["CASH_TO_SAVE"] = '100'
     mocker.patch('orchestrate.Orchestrator.__init__', return_value=None)
     mocker.patch('orchestrate.time.sleep')
-    mocker.patch('currency_quote.requests.get', return_value=MockFXResponse())
     mock_client = mocker.patch('api.equity_quote.RESTClient')
-    mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClientBuy()
 
     orchestrator = Orchestrator('AAPL', MockTT())
@@ -175,10 +173,8 @@ def test_sell(mocker):
     os.environ["CURRENCY_API_KEY"] = 'key'
     mocker.patch('orchestrate.time.sleep')
     mocker.patch('orchestrate.Orchestrator.__init__', return_value=None)
-    mocker.patch('currency_quote.requests.get', return_value=MockFXResponse())
     mock_client = mocker.patch('api.equity_quote.RESTClient')
 
-    mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClientSell()
 
     orchestrator = Orchestrator('AAPL', MockTT())
@@ -208,11 +204,9 @@ def test_sell_market(mocker):
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["CURRENCY_API_KEY"] = 'key'
     mocker.patch('orchestrate.time.sleep')
-    mocker.patch('currency_quote.requests.get', return_value=MockFXResponse())
     mocker.patch('orchestrate.Orchestrator.__init__', return_value=None)
     mock_client = mocker.patch('api.equity_quote.RESTClient')
 
-    mock_client = mocker.patch('account_status.schwabdev.Client')
     mock_client.return_value = MockClientMarket()
 
     orchestrator = Orchestrator('AAPL', MockTT())
