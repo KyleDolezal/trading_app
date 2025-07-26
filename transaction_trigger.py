@@ -94,7 +94,7 @@ class TransactionTrigger(TransactionBase):
         
     def _is_up_market(self):
         if self.is_up_market == None or self.cached_checks >= self.cached_checks_limit:
-            self.is_up_market = ((self.currency_client.snapshot >= self.market_direction_threshold) and (self.currency_client.macd_diff > 0) and (self.currency_client.ema_diff > 0) and (self.currency_client.longterm > 0))
+            self.is_up_market = ((self.currency_client.snapshot >= 5) and (self.currency_client.snapshot <= 25) and (self.currency_client.macd_diff > 0) and (self.currency_client.ema_diff > 0) and (self.currency_client.longterm > 0))
             self.cached_checks = 0
         else:
             self.cached_checks += 1
