@@ -19,13 +19,11 @@ class TransactionTrigger(TransactionBase):
         if ((datetime.datetime.now() < self.today831am or datetime.datetime.now() > self.today7pm)) and not self.test_mode:
             return 'hold'
 
-        if (self.next_action == 'buy') and \
-                (percent_difference > self.change_threshold) and \
+        if (percent_difference > self.change_threshold) and \
                 (datetime.datetime.now() < self.today230pm or self.test_mode) and \
                 self._is_up_market() and \
                 self._time_since_snapshot() < 80 and \
                 price < (self.currency_client.high - self.limit_value):
-            self.transactions += 1
             return 'buy'
         else:
             return 'hold'

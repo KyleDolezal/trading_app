@@ -11,6 +11,7 @@ class TransactionBase:
         self.test_mode = test_mode
         self.target_symbol= target_symbol
         self.history_length = int(os.getenv('HISTORY_LENGTH'))
+        self.change_threshold = float(os.getenv('CHANGE_THRESHOLD'))
         self.history = history
         self.logger = logger
         self.currency_client = currency_client

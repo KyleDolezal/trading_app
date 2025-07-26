@@ -18,8 +18,7 @@ class InverseTransactionTrigger(TransactionBase):
         percent_difference = self._get_price_difference(price)
         if ((datetime.datetime.now() < self.today831am or datetime.datetime.now() > self.today7pm)) and not self.test_mode:
             return 'hold'
-        elif (self.next_action == 'buy') \
-                and (percent_difference < self.change_threshold) \
+        elif (percent_difference < self.change_threshold) \
                 and abs(percent_difference) > self.change_threshold and \
                 (datetime.datetime.now() < self.today230pm or self.test_mode) and \
                 self._is_up_market() and \
