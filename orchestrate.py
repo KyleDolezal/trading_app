@@ -118,19 +118,13 @@ class Orchestrator():
             self.waiting_for_action = 'buy'
             self.equity_bought_price = self.equity_client.price
             return
-
-        if self.equity_bought_price == 0:
-            self.equity_bought_price = self.equity_client.price
-        self.record_transaction(source_price, 'buy', quantity, order_id)
-        self.account_status.update_positions()
-        self.sellable_shares = self.account_status.calculate_sellable_shares()
-        
-        if self.equity_bought_price > -1:
+        else:
+            if self.equity_bought_price == 0:
+                self.equity_bought_price = self.equity_client.price
+            self.record_transaction(source_price, 'buy', quantity, order_id)
+            self.account_status.update_positions()
+            self.sellable_shares = self.account_status.calculate_sellable_shares()
             self.waiting_for_action = 'sell'
-            self.transaction_trigger.next_action = 'sell'
-            self.transaction_trigger.number_of_holds = 0
-            self.transaction_trigger.bought_price = source_price
-            self.transaction_trigger.bought_time = datetime.datetime.now()
     
     def _populate_order_sell_ids(self, buy_id):
         order_id_int_ref = int(buy_id)
