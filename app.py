@@ -15,7 +15,6 @@ from typing import List
 from pg_adapter import PG_Adapter
 from api.currency_quote import CurrencyClient
 import datetime
-import time
 
 class App:
     def __init__(self):
@@ -30,9 +29,6 @@ class App:
             pass
 
         symbols = [os.getenv('TARGET_SYMBOL'), os.getenv('INVERSE_TARGET_SYMBOL')]
-
-        self.quick_selloff_block = int(os.getenv('QUICK_SELLOFF_BLOCK', 10000))
-        self.quick_selloff_countdown = 0
 
         pg_adapter = PG_Adapter()
         
@@ -53,18 +49,7 @@ class App:
                 action = self.orchestrator.orchestrate() 
                 self.quick_selloff_countdown += 1
                 if action != 'hold':
-                    if App.will_override(action, self.quick_selloff_countdown, self.quick_selloff_block, self.orchestrator.sellable_shares):
-                        self.quick_selloff_countdown = 0
-                        self.transaction_trigger.is_down_market = True
-                        self.inverse_orchestrator.buyable_shares = App.get_buyable_shares(self.inverse_orchestrator.account_status.get_last_quantity())
-                        self.inverse_orchestrator._buy_action(race_condition=True)
-                        time.sleep(2)
-                        self.orchestrator.account_status.update_positions()
-
                     self.inverse_orchestrator.account_status.update_positions()
-                    self.inverse_orchestrator.transaction_trigger.invalidate_cache()
-                    self.inverse_orchestrator.transaction_trigger.is_down_market = True
-
                     self.inverse_orchestrator._prepare_next_transaction()
         except Exception as e:
             logging.error(e)
@@ -74,30 +59,11 @@ class App:
         try:
             while True:
                 action = self.inverse_orchestrator.orchestrate()
-                self.quick_selloff_countdown += 1
                 if action != 'hold':
-                    if App.will_override(action, self.quick_selloff_countdown, self.quick_selloff_block, self.inverse_orchestrator.sellable_shares):
-                        self.quick_selloff_countdown = 0
-                        self.inverse_transaction_trigger.is_up_market = True
-                        self.orchestrator.buyable_shares = App.get_buyable_shares(self.orchestrator.account_status.get_last_quantity())
-                        self.orchestrator._buy_action(race_condition=True)
-                        time.sleep(2)
-                        self.inverse_orchestrator.account_status.update_positions()
-
                     self.orchestrator.account_status.update_positions()
-                    self.orchestrator.transaction_trigger.invalidate_cache()
-                    self.orchestrator.transaction_trigger.is_down_market = True
-
                     self.orchestrator._prepare_next_transaction()
         except Exception as e:
             logging.error(e)
-
-    def get_buyable_shares(resp):
-        return round(resp * .75)
-    
-    def will_override(action, countdown, selloff_block, sellable_shares):
-        return action == 'sell override' and countdown >= selloff_block and sellable_shares > 0
-
 
 def main():
     app = App()
