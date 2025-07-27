@@ -47,7 +47,6 @@ class App:
         try:
             while True:
                 action = self.orchestrator.orchestrate() 
-                self.quick_selloff_countdown += 1
                 if action != 'hold':
                     self.inverse_orchestrator.account_status.update_positions()
                     self.inverse_orchestrator._prepare_next_transaction()
