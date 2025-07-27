@@ -15,7 +15,6 @@ from typing import List
 from pg_adapter import PG_Adapter
 from api.currency_quote import CurrencyClient
 import datetime
-import time
 
 class Analysis:
     def __init__(self):
@@ -23,24 +22,24 @@ class Analysis:
         print("Welcome to the trading app. Hit \'q\' to quit.")
         load_dotenv()
 
-        self.equity_client = EquityClient(logger = logger, test_mode = True)
+        self.equity_client = EquityClient(logger = logger, test_mode=True)
+
+        today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
+        while datetime.datetime.now() < today831am:
+            pass
 
         symbols = [os.getenv('TARGET_SYMBOL'), os.getenv('INVERSE_TARGET_SYMBOL')]
-
-        self.quick_selloff_block = int(os.getenv('QUICK_SELLOFF_BLOCK', 10000))
-        self.quick_selloff_countdown = 0
-
 
         pg_adapter = PG_Adapter()
         
         self.currency_client = CurrencyClient(logger = logger)
 
-        self.transaction_trigger = TransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('TARGET_SYMBOL'), test_mode = True)
-        self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client, test_mode = True)
+        self.transaction_trigger = TransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('TARGET_SYMBOL'), test_mode=True)
+        self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client, test_mode=True)
 
-        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('INVERSE_TARGET_SYMBOL'), test_mode = True)
+        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('INVERSE_TARGET_SYMBOL'), test_mode=True)
 
-        self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client, test_mode = True)
+        self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client, test_mode=True)
 
 
 
@@ -48,18 +47,10 @@ class Analysis:
         try:
             while True:
                 action = self.orchestrator.orchestrate() 
+                self.quick_selloff_countdown += 1
                 if action != 'hold':
-                    self.quick_selloff_countdown += 1
-                    if action == 'sell override' and self.quick_selloff_countdown >= self.quick_selloff_block and self.orchestrator.sellable_shares > 0:
-                        self.quick_selloff_countdown = 0
-                        self.transaction_trigger.is_down_market = True
-                        self.inverse_orchestrator.buyable_shares = 1
-                        self.inverse_orchestrator._buy_action(race_condition=True)
-                        time.sleep(2)
-
-                    self.inverse_orchestrator.transaction_trigger.invalidate_cache()
-                    self.inverse_orchestrator.transaction_trigger.is_down_market = True
-
+                    self.inverse_orchestrator.account_status.update_positions()
+                    self.inverse_orchestrator._prepare_next_transaction()
         except Exception as e:
             logging.error(e)
 
@@ -68,23 +59,11 @@ class Analysis:
         try:
             while True:
                 action = self.inverse_orchestrator.orchestrate()
-                self.quick_selloff_countdown += 1
                 if action != 'hold':
-                    if action == 'sell override' and self.quick_selloff_countdown >= self.quick_selloff_block and self.inverse_orchestrator.sellable_shares > 0:
-                        self.quick_selloff_countdown = 0
-                        self.inverse_transaction_trigger.is_up_market = True
-                        self.orchestrator.buyable_shares = 1
-                        self.orchestrator._buy_action(race_condition=True)
-                        time.sleep(2)
-
-                    self.orchestrator.transaction_trigger.invalidate_cache()
-                    self.orchestrator.transaction_trigger.is_down_market = True
+                    self.orchestrator.account_status.update_positions()
+                    self.orchestrator._prepare_next_transaction()
         except Exception as e:
             logging.error(e)
-
-    def get_buyable_shares(resp):
-        return round(resp * .75)
-
 
 def main():
     app = Analysis()
