@@ -38,15 +38,15 @@ class Orchestrator():
         action = self.transaction_trigger.get_action(source_price)
         if source_price == None:
             source_price = self.transaction_trigger.get_price()
-
-        if action == 'buy' and self.buyable_shares > 0:
-            self._buy_action(source_price)
-        elif action == 'sell':
+        
+        if self.waiting_for_action == 'sell':
             self._sell_action(source_price)
         else:
-            if not self.test_mode:
-                self._prepare_next_transaction()
-
+            if self.waiting_for_action == 'buy' and action == 'buy' and self.buyable_shares > 0:
+                self._buy_action(source_price)
+            else:
+                if not self.test_mode:
+                    self._prepare_next_transaction()
         return action
 
     def _prepare_next_transaction(self):

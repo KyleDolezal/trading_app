@@ -145,6 +145,7 @@ def test_buy(mocker):
     mock_client.return_value = MockClientBuy()
 
     orchestrator = Orchestrator('AAPL', MockTT())
+    orchestrator.waiting_for_action = 'buy'
     orchestrator.target_symbol = 'AAPL'
     orchestrator.buyable_shares = 1
     orchestrator.account_status = MockAS()
@@ -178,6 +179,7 @@ def test_sell(mocker):
     mock_client.return_value = MockClientSell()
 
     orchestrator = Orchestrator('AAPL', MockTT())
+    orchestrator.waiting_for_action = 'sell'
     orchestrator.target_symbol = 'AAPL'
     orchestrator.test_mode = True
     orchestrator.sellable_shares = 1
@@ -210,6 +212,7 @@ def test_sell_market(mocker):
     mock_client.return_value = MockClientMarket()
 
     orchestrator = Orchestrator('AAPL', MockTT())
+    orchestrator.waiting_for_action = 'sell'
     orchestrator.target_symbol = 'AAPL'
     orchestrator.sellable_shares = 1
     orchestrator.account_status = MockAS()
