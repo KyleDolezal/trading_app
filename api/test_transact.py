@@ -39,7 +39,7 @@ def test_buy(mocker):
     transact_client.target_symbol = "SCHB"
     transact_client.account_number = "1234"
 
-    assert transact_client.buy(1) == transact_client.client.response
+    assert transact_client.buy(1, 2.0) == transact_client.client.response
 
 def test_sell(mocker):
     mocker.patch('transact.TransactClient.__init__', return_value=None)
