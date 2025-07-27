@@ -39,8 +39,6 @@ class AccountStatus(ApiBase):
     def calculate_buyable_shares(self):
         price = self.equity_client.get_equity_quote(self.target_symbol)
         shares = int(round(self.funds / price, 0))
-        if not self.securities_bought() and not self.transaction_trigger._is_down_market() and not self.transaction_trigger._is_up_market():
-            shares = round(shares / self.num_clients)
             
         return {"price": price, "shares": shares}
     
