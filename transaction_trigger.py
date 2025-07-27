@@ -30,4 +30,4 @@ class TransactionTrigger(TransactionBase):
     
 
     def _is_up_market(self):
-        return ((self.currency_client.snapshot >= 5) and (self.currency_client.snapshot <= 25) and (self.currency_client.macd_diff > 0) and (self.currency_client.ema_diff > 0) and (self.currency_client.longterm > 0))
+        return ((self.currency_client.snapshot >= self.lower_bound) and (self.currency_client.snapshot <= self.upper_bound) and (self.currency_client.macd_diff > 0) and (self.currency_client.ema_diff > 0) and (self.currency_client.longterm > 0))

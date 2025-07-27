@@ -12,6 +12,8 @@ class TransactionBase:
         self.target_symbol= target_symbol
         self.history_length = int(os.getenv('HISTORY_LENGTH'))
         self.change_threshold = float(os.getenv('CHANGE_THRESHOLD'))
+        self.lower_bound = float(os.getenv('LOWER_BOUND', 5))
+        self.upper_bound = float(os.getenv('UPPER_BOUND', 22))
         self.history = history
         self.currency_client = currency_client
         if len(self.history) == 0:
