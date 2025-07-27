@@ -23,9 +23,7 @@ class TransactionBase:
         self.limit_value = float(os.getenv('LIMIT_VALUE', 500))
         self.sales = []
         self.today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
-        self.today230pm = datetime.datetime.now().replace(hour=14, minute=30, second=0, microsecond=0)
-        self.today445pm = datetime.datetime.now().replace(hour=16, minute=45, second=0, microsecond=0)
-        self.today7pm = datetime.datetime.now().replace(hour=19, minute=00, second=0, microsecond=0)
+        self.today245pm = datetime.datetime.now().replace(hour=14, minute=45, second=0, microsecond=0)
 
     def _get_price_difference(self, price):
         average = statistics.mean(self.history)
