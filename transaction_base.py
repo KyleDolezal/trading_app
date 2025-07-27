@@ -39,3 +39,6 @@ class TransactionBase:
         while len(self.history) < self.history_length:
             price = self.currency_client.get_forex_quote()
             self.history.append(price)
+
+    def get_price(self):
+        return self.currency_client.price
