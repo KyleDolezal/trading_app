@@ -223,3 +223,25 @@ def test_sell_market(mocker):
     orchestrator.equity_bought_price = 1
     orchestrator.equity_price = 1
     orchestrator.orchestrate(100)
+
+def test_populate_ids(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+    os.environ["HISTORY_LENGTH"] = '3'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    mocker.patch('orchestrate.time.sleep')
+    mocker.patch('orchestrate.Orchestrator.__init__', return_value=None)
+    mock_client = mocker.patch('api.equity_quote.RESTClient')
+
+    mock_client.return_value = MockClientMarket()
+
+    orchestrator = Orchestrator('AAPL', MockTT())
+    orchestrator._populate_order_sell_ids(1)
+    assert orchestrator.limit_id == 2
+    assert orchestrator.stop_id == 3
