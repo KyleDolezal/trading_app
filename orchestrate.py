@@ -20,9 +20,14 @@ class Orchestrator():
         self.transact_client = TransactClient(target_symbol)
         self.equity_client = equity_client
         self.transaction_trigger = transaction_trigger
-        self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
-        time.sleep(1)
-        self.sellable_shares = self.account_status.calculate_sellable_shares()
+        if test_mode:
+            self.buyable_shares = 1
+        else:
+            self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
+        if test_mode:
+            self.sellable_shares = 1
+        else:
+            self.sellable_shares = self.account_status.calculate_sellable_shares()
         self.waiting_for_action = 'buy'
         self.today3pm = datetime.datetime.now().replace(hour=15, minute=00, second=0, microsecond=0)
         self.equity_bought_price = 0
@@ -96,6 +101,7 @@ class Orchestrator():
             self.record_transaction(source_price, 'buy', 1, "'test_{}'".format(str(uuid.uuid4())))
           
             self.sellable_shares = 1
+            self.waiting_for_action = 'sell'
             return            
             
         order = None

@@ -42,10 +42,7 @@ class Analysis:
     def orchestrate(self):
         try:
             while True:
-                action = self.orchestrator.orchestrate() 
-                if action != 'hold':
-                    self.inverse_orchestrator.account_status.update_positions()
-                    self.inverse_orchestrator._prepare_next_transaction()
+                self.orchestrator.orchestrate() 
         except Exception as e:
             logging.error(e)
 
@@ -53,10 +50,7 @@ class Analysis:
     def inverse_orchestrate(self):
         try:
             while True:
-                action = self.inverse_orchestrator.orchestrate()
-                if action != 'hold':
-                    self.orchestrator.account_status.update_positions()
-                    self.orchestrator._prepare_next_transaction()
+                self.inverse_orchestrator.orchestrate()
         except Exception as e:
             logging.error(e)
 

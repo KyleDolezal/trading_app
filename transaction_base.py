@@ -31,6 +31,7 @@ class TransactionBase:
         average = statistics.mean(self.history)
         difference = price - average
         return ((difference/average) * 100)
+    
 
     def _time_since_snapshot(self):
         if self.test_mode:
