@@ -30,6 +30,7 @@ class MockList(object):
     def __init__(self):
         self.price = 46.75
         self.bid_price = 46.75
+        self.size=[]
 
 class MockResponse(object):
     def json(param):
@@ -57,6 +58,7 @@ def test_quote(mocker):
 
     ec = CurrencyClient()
     ec.price = 0
+    ec.size = []
     ec.update_price([MockList(),MockList(),MockList()])
     quote = ec.get_forex_quote()
 
@@ -119,3 +121,26 @@ def parse_bounds(mocker):
 
     ec = CurrencyClient()
     assert ec.parse_bounds({'ticker': {'day': [{'h': 51, 'l': 50}]}}) == {'high': 51, 'low': 50}
+
+def test_update_size(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
+
+    mock_account_status = mocker.patch('currency_quote.CurrencyClient.__init__')
+    mock_account_status.return_value = None
+
+    mock_client = mocker.patch('currency_quote.RESTClient')
+    mock_ws_client = mocker.patch('currency_quote.WebSocketClient')
+
+    mock_client.return_value = MockClient()
+    mock_ws_client.return_value = MockClient()
+
+    ec = CurrencyClient()
+    ec.size = [1, 2, 3, 4, 5, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
+    ec.size_diff = 0
+    ec.previous_avg = 0
+    ec.update_size(1)
+    assert ec.size_diff == 5.92

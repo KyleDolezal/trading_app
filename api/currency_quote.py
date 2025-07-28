@@ -9,6 +9,7 @@ import time
 import requests
 import threading
 import datetime
+import statistics
 
 class CurrencyClient:
     def __init__(self, logger=logger):
@@ -31,6 +32,10 @@ class CurrencyClient:
 
         self.low = 0.0
         self.high = 0.0
+
+        self.size = []
+        self.previous_avg = 0
+        self.size_diff = 0
 
         self.streaming_client = WebSocketClient(
         	api_key=self.api_key,
@@ -58,6 +63,16 @@ class CurrencyClient:
 
     def updates(self):
         self.streaming_client.run(self.update_price)
+
+    def update_size(self, val):
+        self.size.append(val)
+
+        if len(self.size) == 25:
+            avg = statistics.mean(self.size)
+            self.size_diff = avg - self.previous_avg
+            self.previous_avg = avg
+            self.size = []
+
 
     def update_ema_diff(self):
         while True:
@@ -109,6 +124,9 @@ class CurrencyClient:
     def update_price(self, msgs: List[WebSocketMessage]):
         for m in msgs:
             price = m.price
+
+            self.update_size(m.size)
+
             while price != self.price:
                 self.price = price
 
