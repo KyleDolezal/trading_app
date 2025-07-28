@@ -46,10 +46,11 @@ class TransactionBase:
         return self.currency_client.price
     
     def _diagnostic(self):
-        logger.info("Buy action")
-        logger.info(self.currency_client.size_diff)
-        logger.info(self._time_since_snapshot())
-        logger.info(self.currency_client.snapshot)
-        logger.info(self.currency_client.macd_diff)
-        logger.info(self.currency_client.ema_diff)
-        logger.info(self.currency_client.longterm)
+        logger.info("Buy action ----------------")
+        logger.info("Size diff: {}".format(self.currency_client.size_diff))
+        logger.info("Time since snapshot: {}".format(self._time_since_snapshot()))
+        logger.info("Snapshot value: {}".format(self.currency_client.snapshot))
+        logger.info("MACD diff: {}".format(self.currency_client.macd_diff))
+        logger.info("EMA diff: {}".format(self.currency_client.ema_diff))
+        logger.info("Longterm value: {}".format(self.currency_client.longterm))
+        logger.info("---------------------")

@@ -98,7 +98,7 @@ class Orchestrator():
         if self.test_mode:
             logger.info('Buying in test mode')
             self.record_transaction(source_price, 'buy', 1, "'test_{}'".format(str(uuid.uuid4())))
-          
+            self.transaction_trigger._diagnostic()
             self.sellable_shares = 1
             self.waiting_for_action = 'sell'
             return            
