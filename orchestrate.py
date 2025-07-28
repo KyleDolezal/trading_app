@@ -79,8 +79,7 @@ class Orchestrator():
         
         else:
             if self.sellable_shares == 0:
-                self.account_status.update_positions()
-                self.sellable_shares = self.account_status.calculate_sellable_shares()
+                self.sellable_shares = self.buyable_shares
     
             self.order_status.await_order_filled([str(self.limit_id), str(self.stop_id)])
             self.record_transaction(source_price, 'sell', self.sellable_shares, self.limit_id)
