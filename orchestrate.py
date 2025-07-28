@@ -108,6 +108,7 @@ class Orchestrator():
             quantity = self.buyable_shares
             try:
                 order = self.transact_client.buy(self.buyable_shares, self.equity_client.get_equity_quote(self.target_symbol))
+                self.transaction_trigger._diagnostic()
                 break
             except(Exception) as e:
                 time.sleep(.01)

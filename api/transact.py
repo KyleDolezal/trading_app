@@ -26,7 +26,7 @@ class TransactClient(ApiBase):
     def buy(self, quantity, bounds_value):
         buy_price = round(bounds_value, 2)
         sell_price = round(buy_price + .01, 2)
-        stop_price = round(sell_price - .20, 2)
+        stop_price = round(sell_price - self.stop_value, 2)
 
         request_body_json = {
             "orderStrategyType": "TRIGGER",

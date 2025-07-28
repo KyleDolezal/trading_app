@@ -44,3 +44,12 @@ class TransactionBase:
 
     def get_price(self):
         return self.currency_client.price
+    
+    def _diagnostic(self):
+        logger.info("Buy action")
+        logger.info(self.currency_client.size_diff)
+        logger.info(self._time_since_snapshot())
+        logger.info(self.currency_client.snapshot)
+        logger.info(self.currency_client.macd_diff)
+        logger.info(self.currency_client.ema_diff)
+        logger.info(self.currency_client.longterm)
