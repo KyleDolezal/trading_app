@@ -37,6 +37,8 @@ class CurrencyClient:
         self.previous_avg = 0
         self.size_diff = 0
 
+        self.bid_spread = 0
+
         self.streaming_client = WebSocketClient(
         	api_key=self.api_key,
         	market=Market.Crypto
@@ -124,11 +126,14 @@ class CurrencyClient:
     def update_price(self, msgs: List[WebSocketMessage]):
         for m in msgs:
             price = m.bid_price
-
             self.update_size(m.ask_size)
+            self.update_bid_spread(m.bid_price, m.ask_price)
 
             while price != self.price:
                 self.price = price
+
+    def update_bid_spread(self, bid, ask):
+        self.bid_spread = bid - ask
 
     def get_forex_quote(self):
         while self.price == 0:
