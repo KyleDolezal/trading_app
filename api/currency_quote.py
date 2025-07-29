@@ -41,7 +41,7 @@ class CurrencyClient:
         	api_key=self.api_key,
         	market=Market.Crypto
 	    )
-        self.streaming_client.subscribe("XT.{}-USD".format(self.currency_ticker))
+        self.streaming_client.subscribe("XQ.{}-USD".format(self.currency_ticker))
 
         self.threading_update = threading.Thread(target=self.updates)
         self.threading_update.start()
@@ -123,9 +123,9 @@ class CurrencyClient:
 
     def update_price(self, msgs: List[WebSocketMessage]):
         for m in msgs:
-            price = m.price
+            price = m.bid_price
 
-            self.update_size(m.size)
+            self.update_size(m.ask_size)
 
             while price != self.price:
                 self.price = price

@@ -30,7 +30,7 @@ class MockList(object):
     def __init__(self):
         self.price = 46.75
         self.bid_price = 46.75
-        self.size=[]
+        self.ask_size=0
 
 class MockResponse(object):
     def json(param):
