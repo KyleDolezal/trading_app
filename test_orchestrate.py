@@ -76,6 +76,8 @@ class MockClientMarket(object):
 class MockTT(object):
     def get_action(*kwargs, equity_price=None, equity_bought_price=None):
         return 'buy'
+    def _diagnostic(args):
+        pass
     
 class MockTTSell(object):
     def get_action(*kwargs, equity_price=None, equity_bought_price=None):

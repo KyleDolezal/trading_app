@@ -22,8 +22,9 @@ class TransactionTrigger(TransactionBase):
         if (percent_difference > self.change_threshold) and \
                 (datetime.datetime.now() < self.today245pm or self.test_mode) and \
                 self._is_up_market() and \
-                self._time_since_snapshot() < 75 and \
+                self._time_since_snapshot() < 80 and \
                 self.size_diff > abs(self.currency_client.size_diff) and \
+                self.get_short_term_diff(price) >= 0 and \
                 price < (self.currency_client.high - self.limit_value):
             return 'buy'
         else:

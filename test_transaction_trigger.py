@@ -46,7 +46,7 @@ def test_get_crypto_quote_hold(mocker):
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
 
-    os.environ["HISTORY_LENGTH"] = '3'
+    os.environ["HISTORY_LENGTH"] = '13'
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
     os.environ["EQUITY_API_KEY"] = 'key'
@@ -54,7 +54,7 @@ def test_get_crypto_quote_hold(mocker):
     
     tt = TransactionTrigger(history=[0], test_mode=True)
     tt.currency_client = MockClient()
-
+    tt.history = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
     tt.get_action(10)
     tt.get_action(10)
     assert tt.get_action(10) == 'hold'
@@ -90,7 +90,7 @@ def test_get_crypto_quote_buy(mocker):
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
 
-    os.environ["HISTORY_LENGTH"] = '3'
+    os.environ["HISTORY_LENGTH"] = '13'
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.25'
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
@@ -101,8 +101,7 @@ def test_get_crypto_quote_buy(mocker):
     tt.currency_client = MockClient()
     tt.cached_checks_limit = 100
     tt.is_up_market = True
-    tt.history=[]
-    tt.is_down_market = False
+    tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
 
     tt.get_action(11)
     assert tt.get_action(13) == 'buy'

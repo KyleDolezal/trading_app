@@ -52,7 +52,7 @@ def test_get_crypto_quote_buy(mocker):
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
     mocker.patch('api.currency_quote.WebSocketClient')
 
-    os.environ["HISTORY_LENGTH"] = '3'
+    os.environ["HISTORY_LENGTH"] = '11'
     os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
     os.environ["CHANGE_THRESHOLD"] = '.1'
     os.environ["CURRENCY_TICKER"] = '123'
@@ -61,7 +61,7 @@ def test_get_crypto_quote_buy(mocker):
     
     tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.currency_client = MockClient()
-    tt.history=[12, 12, 12]
+    tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
 
     assert tt.get_action(10.016) == 'buy'
 
