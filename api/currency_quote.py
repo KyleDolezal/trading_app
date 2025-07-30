@@ -183,11 +183,10 @@ class CurrencyClient:
     def get_ema_diff(self):
         response = None
         try:
-            ema_response = requests.get("https://api.polygon.io/v1/indicators/ema/X:{}USD?timespan=minute&window=10&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
-            sma_response = requests.get("https://api.polygon.io/v1/indicators/sma/X:{}USD?timespan=minute&window=10&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
+            ema_response = requests.get("https://api.polygon.io/v1/indicators/ema/X:{}USD?timespan=minute&window=6&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
+            sma_response = requests.get("https://api.polygon.io/v1/indicators/sma/X:{}USD?timespan=minute&window=6&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
             ema_val = self.parse_snapshot(ema_response.json())['value']
             sma_val = self.parse_snapshot(sma_response.json())['value']
-
             return float(ema_val) - float(sma_val)
         except(Exception) as e:
             self.logger.error("Problem requesting macd information: {}".format(e))
