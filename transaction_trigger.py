@@ -27,6 +27,7 @@ class TransactionTrigger(TransactionBase):
                 self.get_short_term_diff(price) >= 0 and \
                 self.currency_client.bid_spread < 5 and \
                 self.trending(self.currency_client.ema_diff) and \
+                self.currency_client.short_rsi > 0 and \
                 price < (self.currency_client.high - self.limit_value):
             return 'buy'
         else:

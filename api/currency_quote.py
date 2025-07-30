@@ -39,6 +39,8 @@ class CurrencyClient:
 
         self.bid_spread = 0
 
+        self.short_rsi = 0
+
         self.streaming_client = WebSocketClient(
         	api_key=self.api_key,
         	market=Market.Crypto
@@ -50,6 +52,9 @@ class CurrencyClient:
 
         thread_snap = threading.Thread(target=self.update_snapshot)
         thread_snap.start()
+
+        thread_short_rsi = threading.Thread(target=self.update_short_rsi)
+        thread_short_rsi.start()
 
         thread_macd = threading.Thread(target=self.update_macd)
         thread_macd.start()
@@ -95,6 +100,14 @@ class CurrencyClient:
                 pass
             time.sleep(1)
     
+    def update_short_rsi(self):
+        while True:
+            try:
+                resp = self.get_short_rsi()
+                self.short_rsi = resp['value']
+            except:
+                pass
+            time.sleep(1)
 
     def update_longterm(self):
         while True:
@@ -152,6 +165,14 @@ class CurrencyClient:
             self.logger.error("Problem requesting rsi information: {}".format(e))
         return self.parse_snapshot(response.json())
     
+    def get_short_rsi(self):
+        response = None
+        try:
+            response = requests.get("https://api.polygon.io/v1/indicators/rsi/X:{}USD?timespan=minute&window=1&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))                       
+        except(Exception) as e:
+            self.logger.error("Problem requesting rsi information: {}".format(e))
+        return self.parse_snapshot(response.json())
+
     def get_longterm(self):
         response = None
         try:

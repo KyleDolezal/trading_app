@@ -29,6 +29,7 @@ class MockClient(object):
         self.high = 1000000
         self.size_diff = 0
         self.bid_spread = 0
+        self.short_rsi = 1
 
 class MockResponse(object):
     def json(param):
