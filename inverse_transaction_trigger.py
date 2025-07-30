@@ -26,6 +26,7 @@ class InverseTransactionTrigger(TransactionBase):
                 self.size_diff > abs(self.currency_client.size_diff) and \
                 self.get_short_term_diff(price) <= 0 and \
                 self.currency_client.bid_spread < 5 and \
+                self.trending(self.currency_client.ema_diff) and \
                 price > (self.currency_client.low + self.limit_value):
             return 'buy'
         else:

@@ -106,3 +106,27 @@ def test_get_crypto_quote_buy(mocker):
 
     tt.get_action(11)
     assert tt.get_action(13) == 'buy'
+
+def test_trending(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
+    mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
+    mocker.patch('api.currency_quote.CurrencyClient.__init__', return_value=None)
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
+
+    os.environ["EQUITY_API_KEY"] = 'key'
+    os.environ["HISTORY_LENGTH"] = '3'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["EQUITY_API_KEY"] = 'key'
+    os.environ["INDEX_TICKER"] = 'key'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
+
+    tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.currency_client = MockClient()
+    tt.market_direction_threshold = -1
+    tt.target_symbol = 'SCHB'
+    tt.ema_diff = 1
+    assert tt.trending(2) == True
+    assert tt.trending(0) == False

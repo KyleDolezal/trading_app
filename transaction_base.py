@@ -25,6 +25,12 @@ class TransactionBase:
         self.sales = []
         self.today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
         self.today245pm = datetime.datetime.now().replace(hour=14, minute=45, second=0, microsecond=0)
+        self.ema_diff = 0
+
+    def trending(self, new_diff):
+        current_diff = self.ema_diff
+        self.ema_diff = new_diff
+        return abs(new_diff) >= abs(current_diff)
 
     def _get_price_difference(self, price):
         average = statistics.mean(self.history)
