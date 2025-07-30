@@ -22,7 +22,7 @@ class InverseTransactionTrigger(TransactionBase):
                 and abs(percent_difference) > self.change_threshold and \
                 (datetime.datetime.now() < self.today245pm or self.test_mode) and \
                 self._is_up_market() and \
-                self._time_since_snapshot() < 80 and \
+                self._time_since_snapshot() < 120 and \
                 self.size_diff > abs(self.currency_client.size_diff) and \
                 self.get_short_term_diff(price) <= 0 and \
                 self.currency_client.bid_spread < 5 and \
