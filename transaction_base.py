@@ -37,8 +37,9 @@ class TransactionBase:
         difference = price - average
         return ((difference/average) * 100)
     
-    def get_short_term_diff(self, price, length=-10):
-        return price - self.history[length]
+    def get_short_price_direction(self, long_price_avg):
+        short_avg = statistics.mean(self.history)
+        return short_avg - long_price_avg
     
     def _time_since_snapshot(self):
         if self.test_mode:
@@ -61,5 +62,4 @@ class TransactionBase:
         logger.info("MACD diff: {}".format(self.currency_client.macd_diff))
         logger.info("EMA diff: {}".format(self.currency_client.ema_diff))
         logger.info("Longterm value: {}".format(self.currency_client.longterm))
-        logger.info("Shorterm history: {}".format(self.get_short_term_diff(self.get_price())))
         logger.info("---------------------")

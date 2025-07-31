@@ -19,6 +19,9 @@ class CurrencyClient:
             raise ValueError("api key must be present")
         self.price = 0
 
+        self.short_term_history = []
+        self.short_term_avg_price = 0
+
         self.snapshot = 0.0
         self.timestamp = datetime.datetime.now()
 
@@ -39,8 +42,6 @@ class CurrencyClient:
 
         self.bid_spread = 0
 
-        self.short_rsi = 0
-
         self.streaming_client = WebSocketClient(
         	api_key=self.api_key,
         	market=Market.Crypto
@@ -52,9 +53,6 @@ class CurrencyClient:
 
         thread_snap = threading.Thread(target=self.update_snapshot)
         thread_snap.start()
-
-        thread_short_rsi = threading.Thread(target=self.update_short_rsi)
-        thread_short_rsi.start()
 
         thread_macd = threading.Thread(target=self.update_macd)
         thread_macd.start()
@@ -99,15 +97,6 @@ class CurrencyClient:
             except:
                 pass
             time.sleep(1)
-    
-    def update_short_rsi(self):
-        while True:
-            try:
-                resp = self.get_short_rsi()
-                self.short_rsi = resp['value']
-            except:
-                pass
-            time.sleep(1)
 
     def update_longterm(self):
         while True:
@@ -141,9 +130,16 @@ class CurrencyClient:
             price = m.bid_price
             self.update_size(m.ask_size)
             self.update_bid_spread(m.bid_price, m.ask_price)
+            self.update_short_term_history(m.bid_price)
 
             while price != self.price:
                 self.price = price
+
+    def update_short_term_history(self, price):
+        self.short_term_history.append(price)
+        if len(self.short_term_history) > 1000:
+            self.short_term_history = self.short_term_history[1:]
+        self.short_term_avg_price = statistics.mean(self.short_term_history)
 
     def update_bid_spread(self, bid, ask):
         self.bid_spread = bid - ask
@@ -165,14 +161,6 @@ class CurrencyClient:
             self.logger.error("Problem requesting rsi information: {}".format(e))
         return self.parse_snapshot(response.json())
     
-    def get_short_rsi(self):
-        response = None
-        try:
-            response = requests.get("https://api.polygon.io/v1/indicators/rsi/X:{}USD?timespan=minute&window=1&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))                       
-        except(Exception) as e:
-            self.logger.error("Problem requesting rsi information: {}".format(e))
-        return self.parse_snapshot(response.json())
-
     def get_longterm(self):
         response = None
         try:

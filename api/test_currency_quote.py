@@ -60,6 +60,7 @@ def test_quote(mocker):
     ec = CurrencyClient()
     ec.price = 0
     ec.size = []
+    ec.short_term_history = []
     ec.update_price([MockList(),MockList(),MockList()])
     quote = ec.get_forex_quote()
 
