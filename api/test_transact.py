@@ -11,6 +11,10 @@ class MockClient(object):
     def order_place(self, params, args):
         assert params == "1234"
         return self.response
+    
+    def order_cancel(self, id, params):
+        assert id == '1234'
+        return MockResponse()
 
 class MockResponse(object):
     def __init__(self):
@@ -40,6 +44,18 @@ def test_buy(mocker):
     transact_client.account_number = "1234"
 
     assert transact_client.buy(1, 2.0) == transact_client.client.response
+
+def test_buy_with_update_config(mocker):
+    mocker.patch('transact.TransactClient.__init__', return_value=None)
+    mocker.patch('transact.time.sleep')
+    transact_client = TransactClient()
+    transact_client.client = MockClient()
+    transact_client.stop_value = -.125
+    transact_client.target_symbol = "SCHB"
+    transact_client.account_number = "1234"
+
+    assert transact_client.buy(1, 2.0, order_id_to_update='123') == transact_client.client.response
+
 
 def test_sell(mocker):
     mocker.patch('transact.TransactClient.__init__', return_value=None)

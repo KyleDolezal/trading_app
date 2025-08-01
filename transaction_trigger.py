@@ -32,6 +32,8 @@ class TransactionTrigger(TransactionBase):
         else:
             return 'hold'
     
+    def _determine_order_update(self, bought_source_price, bought_equity_bid_price, current_source_price, current_ask_price):
+        return bought_source_price < current_source_price and bought_equity_bid_price <= current_ask_price
 
     def _is_up_market(self):
         return ((self.currency_client.snapshot >= self.lower_bound) and (self.currency_client.snapshot <= self.upper_bound) and (self.currency_client.macd_diff > 0) and (self.currency_client.ema_diff > 0) and (self.currency_client.longterm > 0))

@@ -40,7 +40,6 @@ class OrderStatus(ApiBase):
 
     def await_order_filled(self, order_numbers, buy_order = False):
         order_filled = False
-        counter = 0
         while order_filled != True:
             for order in order_numbers:
                 order_info = self.get_order_status(order)
@@ -50,10 +49,8 @@ class OrderStatus(ApiBase):
                     order_filled = True
                     return order_info['price']
 
-                time.sleep(2)
                 if buy_order:
-                    counter += 1
-                    if counter == 5:
-                        logger.info("cancelling buy order")
-                        self.client.order_cancel(self.account_number, order)
-                        return None
+                    logger.info("initial buy order not filled")
+                    return None
+                
+                time.sleep(2)

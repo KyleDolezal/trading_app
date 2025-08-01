@@ -14,7 +14,9 @@ class EquityClient:
     def __init__(self, logger = logger, test_mode = False, unit_test = False):
         self.test_mode = test_mode
         self.price = 0
+        self.ask_price = 0
         self.inverse_price = 0
+        self.inverse_ask_price = 0
         self.unit_test = unit_test
         self.api_key = os.getenv('EQUITY_API_KEY')
         self.currency_ticker = os.getenv('CURRENCY_TICKER')
@@ -54,9 +56,13 @@ class EquityClient:
             if m.symbol == self.target_symbol:
                 while self.price != price:
                     self.price = m.bid_price
+                while self.ask_price != m.ask_price:
+                    self.ask_price = m.ask_price
             if m.symbol == self.inverse_target_symbol:
                 while self.inverse_price != price:
                     self.inverse_price = m.bid_price
+                while self.inverse_ask_price != m.ask_price:
+                    self.inverse_ask_price = m.ask_price
 
 
     def get_equity_quote(self, symbol):
@@ -70,6 +76,21 @@ class EquityClient:
             return self.price
         elif symbol == self.inverse_target_symbol:
             return self.inverse_price
+        else:
+            return 0.0
+        
+
+    def get_ask_quote(self, symbol):
+        if self.test_mode:
+            return 1.0
+        
+        while self.ask_price == 0:
+            time.sleep(1)
+
+        if symbol == self.target_symbol:
+            return self.ask_price
+        elif symbol == self.inverse_target_symbol:
+            return self.inverse_ask_price
         else:
             return 0.0
     

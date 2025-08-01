@@ -13,7 +13,14 @@ class TransactClient(ApiBase):
         self.order_status = OrderStatus()
         self.stop_value = float(os.getenv('STOP_VALUE', .2))
     
-    def _transact(self, json):
+    def _transact(self, json, order_id_to_update=None):
+        order = None
+        if order_id_to_update != None:
+            res = self.cancel(order_id_to_update)
+            if res.status_code == 400:
+                logger.info('Original order already filled')
+                return
+
         order = self.client.order_place(self.account_number, json)
         if order.status_code != 201:
             logger.error("Error with order: {}".format(order.headers))
@@ -23,7 +30,10 @@ class TransactClient(ApiBase):
             raise Exception('Order error')
         return order
     
-    def buy(self, quantity, bounds_value):
+    def cancel(self, order_id):
+        return self.client.order_cancel(self.account_number, order_id)
+    
+    def buy(self, quantity, bounds_value, order_id_to_update=None):
         buy_price = round(bounds_value, 2)
         sell_price = round(buy_price + .01, 2)
         stop_price = round(sell_price - self.stop_value, 2)
@@ -85,7 +95,7 @@ class TransactClient(ApiBase):
             }]  
         }
 
-        return self._transact(request_body_json)
+        return self._transact(request_body_json, order_id_to_update=order_id_to_update)
     
 
     def sell(self, quantity, mode, bounds_value=0):

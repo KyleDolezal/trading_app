@@ -89,12 +89,8 @@ class Orchestrator():
         self.waiting_for_action = 'buy'
 
     def _buy_action(self, source_price=None):
-        if source_price == None:
-            source_price = self.transaction_trigger.get_price()
-        
         if self.buyable_shares < 1:
             return
-            
         if self.test_mode:
             logger.info('Buying in test mode')
             self.record_transaction(source_price, 'buy', 1, "'test_{}'".format(str(uuid.uuid4())))
@@ -102,12 +98,16 @@ class Orchestrator():
             self.sellable_shares = 1
             self.waiting_for_action = 'sell'
             return            
-            
+        
+        if source_price == None:
+            source_price = self.transaction_trigger.get_price()
+        current_equity_bid_price = self.equity_client.get_equity_quote(self.target_symbol)
+    
         order = None
         for i in range(20):
             quantity = self.buyable_shares
             try:
-                order = self.transact_client.buy(self.buyable_shares, self.equity_client.get_equity_quote(self.target_symbol))
+                order = self.transact_client.buy(self.buyable_shares, current_equity_bid_price)
                 self.transaction_trigger._diagnostic()
                 break
             except(Exception) as e:
@@ -121,16 +121,25 @@ class Orchestrator():
         self.equity_bought_price = self.order_status.await_order_filled([order_id], buy_order=True)
 
         if self.equity_bought_price == None:
-            self.waiting_for_action = 'buy'
-            self.equity_bought_price = self.equity_client.price
-            return
-        else:
-            if self.equity_bought_price == 0:
-                self.equity_bought_price = self.equity_client.price
-            self.record_transaction(source_price, 'buy', quantity, order_id)
+            ask_price = self.equity_client.get_ask_quote(self.target_symbol)
+            if self.transaction_trigger._determine_order_update(source_price, current_equity_bid_price, self.transaction_trigger.get_price(), ask_price):
+                order = self.transact_client.buy(self.buyable_shares, ask_price, order_id_to_update=order_id)
+                order_id = self.order_status.get_order_id(order)
+                time.sleep(2)
+                self.equity_bought_price = self.order_status.await_order_filled([order_id], buy_order=True)
+
+        if self.equity_bought_price == None:
+            self.transact_client.cancel(order_id)
+            time.sleep(3)
             self.account_status.update_positions()
-            self.sellable_shares = self.account_status.calculate_sellable_shares()
-            self.waiting_for_action = 'sell'
+            self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
+            return
+        
+        self.record_transaction(source_price, 'buy', quantity, order_id)
+        self.account_status.update_positions()
+        self.sellable_shares = self.account_status.calculate_sellable_shares()
+        self.waiting_for_action = 'sell'
+
     
     def _populate_order_sell_ids(self, buy_id):
         order_id_int_ref = int(buy_id)
