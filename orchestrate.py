@@ -118,15 +118,8 @@ class Orchestrator():
                 time.sleep(5)
         order_id = self.order_status.get_order_id(order)
         self._populate_order_sell_ids(order_id)
+        time.sleep(.025)
         self.equity_bought_price = self.order_status.await_order_filled([order_id], buy_order=True)
-
-        if self.equity_bought_price == None:
-            ask_price = self.equity_client.get_ask_quote(self.target_symbol)
-            if self.transaction_trigger._determine_order_update(source_price, current_equity_bid_price, self.transaction_trigger.get_price(), ask_price):
-                order = self.transact_client.buy(self.buyable_shares, ask_price, order_id_to_update=order_id)
-                order_id = self.order_status.get_order_id(order)
-                time.sleep(2)
-                self.equity_bought_price = self.order_status.await_order_filled([order_id], buy_order=True)
 
         if self.equity_bought_price == None:
             self.transact_client.cancel(order_id)
