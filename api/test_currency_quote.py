@@ -58,6 +58,7 @@ def test_quote(mocker):
     mock_ws_client.return_value = MockClient()
 
     ec = CurrencyClient()
+    ec.short_term_history_len = 10
     ec.price = 0
     ec.size = []
     ec.short_term_history = []

@@ -101,13 +101,12 @@ class Orchestrator():
         
         if source_price == None:
             source_price = self.transaction_trigger.get_price()
-        current_equity_bid_price = self.equity_client.get_equity_quote(self.target_symbol)
     
         order = None
         for i in range(20):
             quantity = self.buyable_shares
             try:
-                order = self.transact_client.buy(self.buyable_shares, current_equity_bid_price)
+                order = self.transact_client.buy(self.buyable_shares, self.equity_client.get_ask_quote(self.target_symbol))
                 self.transaction_trigger._diagnostic()
                 break
             except(Exception) as e:
@@ -118,12 +117,15 @@ class Orchestrator():
                 time.sleep(5)
         order_id = self.order_status.get_order_id(order)
         self._populate_order_sell_ids(order_id)
-        time.sleep(.025)
         self.equity_bought_price = self.order_status.await_order_filled([order_id], buy_order=True)
 
         if self.equity_bought_price == None:
+            time.sleep(.025)
+            self.equity_bought_price = self.order_status.await_order_filled([order_id], buy_order=True)
+
+        if self.equity_bought_price == None:    
             self.transact_client.cancel(order_id)
-            time.sleep(3)
+            time.sleep(.025)
             self.account_status.update_positions()
             self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
             return

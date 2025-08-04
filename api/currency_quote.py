@@ -19,8 +19,12 @@ class CurrencyClient:
             raise ValueError("api key must be present")
         self.price = 0
 
+        self.micro_term_avg_price = 0
+
         self.short_term_history = []
         self.short_term_avg_price = 0
+
+        self.short_term_history_len = int(os.getenv('SHORT_TERM_HISTORY_LEN', 500))
 
         self.snapshot = 0.0
         self.timestamp = datetime.datetime.now()
@@ -68,6 +72,9 @@ class CurrencyClient:
 
     def updates(self):
         self.streaming_client.run(self.update_price)
+
+    def bootstrapped(self):
+        return len(self.short_term_history) >= (self.short_term_history_len - 1)
 
     def update_size(self, val):
         self.size.append(val)
@@ -131,13 +138,20 @@ class CurrencyClient:
             self.update_size(m.ask_size)
             self.update_bid_spread(m.bid_price, m.ask_price)
             self.update_short_term_history(m.bid_price)
+            self.update_micro_history_avg()
 
             while price != self.price:
                 self.price = price
 
+    def update_micro_history_avg(self):
+        micro_len = int(round(self.short_term_history_len / 2, 0))
+        if len(self.short_term_history) > micro_len:
+            micro_history = self.short_term_history[micro_len:]
+            self.micro_term_avg_price = statistics.mean(micro_history)
+
     def update_short_term_history(self, price):
         self.short_term_history.append(price)
-        if len(self.short_term_history) > 1000:
+        if len(self.short_term_history) > self.short_term_history_len:
             self.short_term_history = self.short_term_history[1:]
         self.short_term_avg_price = statistics.mean(self.short_term_history)
 

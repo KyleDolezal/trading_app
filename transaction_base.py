@@ -41,6 +41,10 @@ class TransactionBase:
         short_avg = statistics.mean(self.history)
         return short_avg - long_price_avg
     
+    def get_micro_price_direction(self, micro_price_avg):
+        short_avg = statistics.mean(self.history)
+        return short_avg - micro_price_avg
+    
     def _time_since_snapshot(self):
         if self.test_mode:
             return 1

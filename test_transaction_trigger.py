@@ -30,6 +30,9 @@ class MockClient(object):
         self.size_diff = 0
         self.short_term_avg_price = 1
         self.bid_spread = 0
+        self.micro_term_avg_price = .5
+    def bootstrapped(self):
+        return True
 
 class MockResponse(object):
     def json(param):
