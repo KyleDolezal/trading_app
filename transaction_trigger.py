@@ -29,6 +29,7 @@ class TransactionTrigger(TransactionBase):
                 self.get_short_price_direction(self.currency_client.short_term_avg_price) > 0 and \
                 self.get_micro_price_direction(self.currency_client.micro_term_avg_price) > 0 and \
                 self.currency_client.bootstrapped() and \
+                self.price_history_increasing() and \
                 price < (self.currency_client.high - self.limit_value):
             return 'buy'
         else:
