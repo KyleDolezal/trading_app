@@ -4,7 +4,6 @@ import os
 import statistics
 import time
 import datetime
-import time
 
 class TransactionBase:
     def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None, target_symbol=None):

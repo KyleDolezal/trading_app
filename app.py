@@ -15,6 +15,7 @@ from typing import List
 from pg_adapter import PG_Adapter
 from api.currency_quote import CurrencyClient
 import datetime
+import time
 
 class App:
     def __init__(self):
@@ -23,6 +24,7 @@ class App:
         load_dotenv()
 
         self.equity_client = EquityClient(logger = logger)
+        time.sleep(1)
 
         today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
         while datetime.datetime.now() < today831am:
