@@ -22,10 +22,10 @@ up_response = {"results": [{"price": 1.0}], "last":{"conditions":[1],"exchange":
 
 class MockClient(object):
     def __init__(self):
-        self.snapshot = 5
+        self.snapshot = 1
         self.macd_diff = 1
         self.ema_diff = 1
-        self.longterm = 1
+        self.longterm = 5
         self.high = 1000000
         self.size_diff = 0
         self.short_size_diff = 0
