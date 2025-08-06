@@ -24,7 +24,7 @@ class App:
         load_dotenv()
 
         self.equity_client = EquityClient(logger = logger)
-        time.sleep(1)
+        time.sleep(3)
 
         today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
         while datetime.datetime.now() < today831am:
