@@ -25,11 +25,15 @@ class TransactionBase:
         self.today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
         self.today245pm = datetime.datetime.now().replace(hour=14, minute=45, second=0, microsecond=0)
         self.ema_diff = 0
+        self.velocity_threshold = float(os.getenv('VELOCITY_THRESHOLD', 500))
 
     def trending(self, new_diff):
         current_diff = self.ema_diff
         self.ema_diff = new_diff
         return abs(new_diff) >= abs(current_diff)
+    
+    def velocity(self):
+        return abs(self.get_micro_price_direction(self.currency_client.micro_term_avg_price))
     
     def price_history_increasing(self):
         history_len = len(self.history)

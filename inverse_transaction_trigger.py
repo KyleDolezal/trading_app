@@ -31,6 +31,7 @@ class InverseTransactionTrigger(TransactionBase):
                 self.get_micro_price_direction(self.currency_client.micro_term_avg_price) < 0 and \
                 self.currency_client.bootstrapped() and \
                 not self.price_history_increasing() and \
+                self.velocity() < self.velocity_threshold and \
                 price > (self.currency_client.low + self.limit_value):
             return 'buy'
         else:
