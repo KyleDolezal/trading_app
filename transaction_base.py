@@ -26,6 +26,7 @@ class TransactionBase:
         self.today245pm = datetime.datetime.now().replace(hour=14, minute=45, second=0, microsecond=0)
         self.ema_diff = 0
         self.velocity_threshold = float(os.getenv('VELOCITY_THRESHOLD', 500))
+        self.ema_diff_limit = float(os.getenv('EMA_DIFF_LIMIT', 2))
 
     def trending(self, new_diff):
         current_diff = self.ema_diff
