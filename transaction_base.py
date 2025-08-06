@@ -77,4 +77,5 @@ class TransactionBase:
         logger.info("MACD diff: {}".format(self.currency_client.macd_diff))
         logger.info("EMA diff: {}".format(self.currency_client.ema_diff))
         logger.info("Longterm value: {}".format(self.currency_client.longterm))
+        logger.info("Bid spread: {}".format(self.currency_client.bid_spread))
         logger.info("---------------------")
