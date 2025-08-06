@@ -61,6 +61,7 @@ def test_quote(mocker):
     ec.short_term_history_len = 10
     ec.price = 0
     ec.size = []
+    ec.short_size = []
     ec.short_term_history = []
     ec.update_price([MockList(),MockList(),MockList()])
     quote = ec.get_forex_quote()

@@ -44,6 +44,10 @@ class CurrencyClient:
         self.previous_avg = 0
         self.size_diff = 0
 
+        self.short_size = []
+        self.short_previous_avg = 0
+        self.short_size_diff = 0
+
         self.bid_spread = 0
 
         self.streaming_client = WebSocketClient(
@@ -83,8 +87,15 @@ class CurrencyClient:
             avg = statistics.mean(self.size)
             self.size_diff = avg - self.previous_avg
             self.previous_avg = avg
-            self.size = []
+            self.short_size = []
+    
+        self.short_size.append(val)
 
+        if len(self.short_size) == 25:
+            avg = statistics.mean(self.short_size)
+            self.short_size_diff = avg - self.previous_avg
+            self.previous_avg = avg
+            self.size = []
 
     def update_ema_diff(self):
         while True:

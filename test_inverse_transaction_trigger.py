@@ -44,6 +44,7 @@ class MockClient(object):
         self.longterm = -1
         self.low = -502
         self.size_diff = 0
+        self.short_size_diff = 0
         self.bid_spread = 0
         self.short_term_avg_price = 100
         self.micro_term_avg_price = 200
