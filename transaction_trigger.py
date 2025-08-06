@@ -18,7 +18,6 @@ class TransactionTrigger(TransactionBase):
     
         if (datetime.datetime.now() < self.today831am) and not self.test_mode:
             return 'hold'
-
         if (percent_difference > self.change_threshold) and \
                 (datetime.datetime.now() < self.today245pm or self.test_mode) and \
                 self._is_up_market() and \

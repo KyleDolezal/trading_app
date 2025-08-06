@@ -133,8 +133,8 @@ def test_trending(mocker):
     tt.market_direction_threshold = -1
     tt.target_symbol = 'SCHB'
     tt.ema_diff = 1
-    assert tt.trending(2) == True
-    assert tt.trending(0) == False
+    assert tt.trending(1.1111111) == True
+    assert tt.trending(-6) == False
 
 @freeze_time("2012-01-14 12:21:34")
 def test_price_history_increasing(mocker):

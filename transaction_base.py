@@ -30,7 +30,7 @@ class TransactionBase:
     def trending(self, new_diff):
         current_diff = self.ema_diff
         self.ema_diff = new_diff
-        return abs(new_diff) >= abs(current_diff)
+        return abs(new_diff) <= 5 and abs(current_diff) <= 5
     
     def velocity(self):
         return abs(self.get_micro_price_direction(self.currency_client.micro_term_avg_price))
