@@ -38,12 +38,20 @@ class AccountStatus(ApiBase):
     
     def calculate_buyable_shares(self):
         price = self.equity_client.get_equity_quote(self.target_symbol)
+        if price == 0:
+            logger.info('Waiting for equity client bootstrap')
+            time.sleep(1)
+            price = self.equity_client.get_equity_quote(self.target_symbol)
         shares = int(round(self.funds / price, 0))
             
         return {"price": price, "shares": shares}
     
     def calculate_sellable_shares(self):
         price = self.equity_client.get_equity_quote(self.target_symbol)
+        if price == 0:
+            logger.info('Waiting for equity client bootstrap')
+            time.sleep(1)
+            price = self.equity_client.get_equity_quote(self.target_symbol)
         return int(round(self.position_balance / price, 0))
 
     def update_positions(self):
