@@ -167,7 +167,7 @@ class CurrencyClient:
         self.short_term_avg_price = statistics.mean(self.short_term_history)
 
     def update_bid_spread(self, bid, ask):
-        self.bid_spread = bid - ask
+        self.bid_spread = ask - bid
 
     def get_forex_quote(self):
         while self.price == 0:
