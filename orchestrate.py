@@ -106,7 +106,7 @@ class Orchestrator():
         for i in range(20):
             quantity = self.buyable_shares
             try:
-                order = self.transact_client.buy(self.buyable_shares, self.equity_client.get_ask_quote(self.target_symbol))
+                order = self.transact_client.buy(self.buyable_shares, self.equity_client.bid_ask_mean(self.target_symbol))
                 self.transaction_trigger._diagnostic()
                 break
             except(Exception) as e:

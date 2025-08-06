@@ -48,6 +48,11 @@ class EquityClient:
         else:
             self.streaming_client.run(self.update_price)
 
+    def bid_ask_mean(self, target_symbol):
+        bid_quote = self.get_equity_quote(target_symbol)
+        ask_quote = self.get_ask_quote(target_symbol)
+        return round(float((bid_quote + ask_quote) / 2), 2)
+
     def update_price(self, msgs: List[WebSocketMessage]):
         if self.test_mode:
             return
@@ -82,7 +87,7 @@ class EquityClient:
 
     def get_ask_quote(self, symbol):
         if self.test_mode:
-            return 1.0
+            return 2.0
         
         while self.ask_price == 0:
             time.sleep(1)
