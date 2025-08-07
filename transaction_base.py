@@ -95,5 +95,4 @@ class TransactionBase:
         logger.info("Price history decreasing: {}".format(self.price_history_decreasing()))
         logger.info("Ceiling: {}".format((self.currency_client.high - self.limit_value)))
         logger.info("Floor: {}".format((self.currency_client.low + self.limit_value)))
-        logger.info("Trend: {}".format((self.trend)))
         logger.info("---------------------")
