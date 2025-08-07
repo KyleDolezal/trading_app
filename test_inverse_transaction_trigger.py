@@ -73,7 +73,7 @@ def test_get_crypto_quote_buy(mocker):
 
 
 @freeze_time("2012-01-14 12:21:34")
-def test_price_history_increasing(mocker):
+def test_price_history_decreasing(mocker):
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
     mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
@@ -89,10 +89,10 @@ def test_price_history_increasing(mocker):
     tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.currency_client = MockClient()
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
-    tt.price_history_increasing = lambda : True
+    tt.price_history_decreasing = lambda : False
     assert tt.get_action(10.016) == 'hold'
 
-    tt.price_history_increasing = lambda : False
+    tt.price_history_decreasing = lambda : True
     assert tt.get_action(10.016) == 'buy'
 
 @freeze_time("2012-01-14 12:21:34")

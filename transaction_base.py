@@ -43,7 +43,15 @@ class TransactionBase:
 
         latter_half_history = self.history[bisect_len:]
 
-        return statistics.mean(latter_half_history) > statistics.mean(self.history)
+        return statistics.mean(latter_half_history) >= statistics.mean(self.history)
+
+    def price_history_decreasing(self):
+        history_len = len(self.history)
+        bisect_len = int(round(history_len/2,0))
+
+        latter_half_history = self.history[bisect_len:]
+
+        return statistics.mean(latter_half_history) <= statistics.mean(self.history)
 
     def _get_price_difference(self, price):
         average = statistics.mean(self.history)
