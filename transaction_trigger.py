@@ -24,7 +24,7 @@ class TransactionTrigger(TransactionBase):
                 self._time_since_snapshot() < 180 and \
                 self.size_diff > abs(self.currency_client.size_diff) and \
                 self.size_diff > abs(self.currency_client.short_size_diff) and \
-                self.currency_client.bid_spread < 4 and \
+                self.currency_client.bid_spread < self.bid_spread_limit and \
                 self.get_short_price_direction(self.currency_client.short_term_avg_price) > 0 and \
                 self.get_micro_price_direction(self.currency_client.micro_term_avg_price) > 0 and \
                 self.currency_client.bootstrapped() and \
