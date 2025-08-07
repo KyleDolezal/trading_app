@@ -26,7 +26,6 @@ class InverseTransactionTrigger(TransactionBase):
                 self.size_diff > abs(self.currency_client.size_diff) and \
                 self.size_diff > abs(self.currency_client.short_size_diff) and \
                 self.currency_client.bid_spread < 4 and \
-                self.trending(self.currency_client.ema_diff) and \
                 self.get_short_price_direction(self.currency_client.short_term_avg_price) < 0 and \
                 self.get_micro_price_direction(self.currency_client.micro_term_avg_price) < 0 and \
                 self.currency_client.bootstrapped() and \
