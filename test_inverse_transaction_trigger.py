@@ -48,6 +48,7 @@ class MockClient(object):
         self.bid_spread = 0
         self.short_term_avg_price = 100
         self.micro_term_avg_price = 200
+        self.short_term_history = [100, 100, 100]
     def bootstrapped(self):
         return True
 
