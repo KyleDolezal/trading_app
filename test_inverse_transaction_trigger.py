@@ -37,7 +37,7 @@ class MockMarketDown(object):
 
 class MockClient(object):
     def __init__(self):
-        self.snapshot = -1
+        self.snapshot = -5
         self.timestamp = 123
         self.macd_diff = -1
         self.ema_diff = -1
