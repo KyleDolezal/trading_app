@@ -189,7 +189,7 @@ class CurrencyClient:
     def get_longterm(self):
         response = None
         try:
-            response = requests.get("https://api.polygon.io/v1/indicators/rsi/X:{}USD?timespan=minute&window=90&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))                       
+            response = requests.get("https://api.polygon.io/v1/indicators/rsi/X:{}USD?timespan=minute&window=10&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))            
         except(Exception) as e:
             self.logger.error("Problem requesting longterm rsi information: {}".format(e))
         return self.parse_snapshot(response.json())
@@ -201,7 +201,7 @@ class CurrencyClient:
     def get_macd(self):
         response = None
         try:
-            response = requests.get("https://api.polygon.io/v1/indicators/macd/X:{}USD?timespan=minute&short_window=10&long_window=30&signal_window=7&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))        
+            response = requests.get("https://api.polygon.io/v1/indicators/macd/X:{}USD?timespan=minute&short_window=6&long_window=9&signal_window=4&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))        
         except(Exception) as e:
             self.logger.error("Problem requesting macd information: {}".format(e))
         return self.parse_macd(response.json())
@@ -217,8 +217,8 @@ class CurrencyClient:
     def get_ema_diff(self):
         response = None
         try:
-            ema_response = requests.get("https://api.polygon.io/v1/indicators/ema/X:{}USD?timespan=minute&window=6&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
-            sma_response = requests.get("https://api.polygon.io/v1/indicators/sma/X:{}USD?timespan=minute&window=6&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
+            ema_response = requests.get("https://api.polygon.io/v1/indicators/ema/X:{}USD?timespan=minute&window=7&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
+            sma_response = requests.get("https://api.polygon.io/v1/indicators/sma/X:{}USD?timespan=minute&window=7&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
             ema_val = self.parse_snapshot(ema_response.json())['value']
             sma_val = self.parse_snapshot(sma_response.json())['value']
             return float(ema_val) - float(sma_val)
