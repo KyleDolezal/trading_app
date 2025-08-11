@@ -16,6 +16,7 @@ from pg_adapter import PG_Adapter
 from api.currency_quote import CurrencyClient
 import datetime
 import time
+from api.index_quote import IndexClient
 
 class App:
     def __init__(self):
@@ -23,11 +24,12 @@ class App:
         print("Welcome to the trading app. Hit \'q\' to quit.")
         load_dotenv()
 
+        self.index_client = IndexClient()
         self.equity_client = EquityClient(logger = logger)
         time.sleep(3)
 
-        today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
-        while datetime.datetime.now() < today831am:
+        today835am = datetime.datetime.now().replace(hour=8, minute=35, second=0, microsecond=0)
+        while datetime.datetime.now() < today835am:
             pass
 
         symbols = [os.getenv('TARGET_SYMBOL'), os.getenv('INVERSE_TARGET_SYMBOL')]
@@ -36,10 +38,10 @@ class App:
         
         self.currency_client = CurrencyClient(logger = logger)
 
-        self.transaction_trigger = TransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('TARGET_SYMBOL'))
+        self.transaction_trigger = TransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('TARGET_SYMBOL'), index_client = self.index_client)
         self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client)
 
-        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('INVERSE_TARGET_SYMBOL'))
+        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('INVERSE_TARGET_SYMBOL'), index_client = self.index_client)
 
         self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client)
 

@@ -52,9 +52,10 @@ class CurrencyClient:
 
         self.streaming_client = WebSocketClient(
         	api_key=self.api_key,
-        	market=Market.Crypto
+            feed=Feed.RealTime,
+        	market=Market.Forex
 	    )
-        self.streaming_client.subscribe("XQ.{}-USD".format(self.currency_ticker))
+        self.streaming_client.subscribe("CAS.USD/{}".format(self.currency_ticker))
 
         self.threading_update = threading.Thread(target=self.updates)
         self.threading_update.start()
@@ -145,10 +146,10 @@ class CurrencyClient:
 
     def update_price(self, msgs: List[WebSocketMessage]):
         for m in msgs:
-            price = m.bid_price
-            self.update_size(m.ask_size)
-            self.update_bid_spread(m.bid_price, m.ask_price)
-            self.update_short_term_history(m.bid_price)
+            price = m.close
+            self.update_size(m.volume)
+            self.update_bid_spread(m.low, m.high)
+            self.update_short_term_history(m.low)
             self.update_micro_history_avg()
 
             while price != self.price:
@@ -181,7 +182,7 @@ class CurrencyClient:
     def get_snapshot(self):
         response = None
         try:
-            response = requests.get("https://api.polygon.io/v1/indicators/rsi/X:{}USD?timespan=minute&window=3&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))                       
+            response = requests.get("https://api.polygon.io/v1/indicators/rsi/C:USD{}?timespan=minute&window=3&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))                       
         except(Exception) as e:
             self.logger.error("Problem requesting rsi information: {}".format(e))
         return self.parse_snapshot(response.json())
@@ -189,7 +190,7 @@ class CurrencyClient:
     def get_longterm(self):
         response = None
         try:
-            response = requests.get("https://api.polygon.io/v1/indicators/rsi/X:{}USD?timespan=minute&window=10&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))            
+            response = requests.get("https://api.polygon.io/v1/indicators/rsi/C:USD{}?timespan=minute&window=10&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))            
         except(Exception) as e:
             self.logger.error("Problem requesting longterm rsi information: {}".format(e))
         return self.parse_snapshot(response.json())
@@ -201,7 +202,7 @@ class CurrencyClient:
     def get_macd(self):
         response = None
         try:
-            response = requests.get("https://api.polygon.io/v1/indicators/macd/X:{}USD?timespan=minute&short_window=6&long_window=9&signal_window=4&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))        
+            response = requests.get("https://api.polygon.io/v1/indicators/macd/C:USD{}?timespan=minute&short_window=6&long_window=9&signal_window=4&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key))        
         except(Exception) as e:
             self.logger.error("Problem requesting macd information: {}".format(e))
         return self.parse_macd(response.json())
@@ -209,7 +210,7 @@ class CurrencyClient:
     def get_bounds(self):
         response = None
         try:
-            response = requests.get("https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/tickers/X:{}USD?apiKey={}".format(self.currency_ticker, self.api_key))        
+            response = requests.get("https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers/C:USDJPY?apiKey={}".format(self.currency_ticker, self.api_key))        
         except(Exception) as e:
             self.logger.error("Problem requesting bounds information: {}".format(e))
         return self.parse_bounds(response.json())
@@ -217,8 +218,8 @@ class CurrencyClient:
     def get_ema_diff(self):
         response = None
         try:
-            ema_response = requests.get("https://api.polygon.io/v1/indicators/ema/X:{}USD?timespan=minute&window=7&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
-            sma_response = requests.get("https://api.polygon.io/v1/indicators/sma/X:{}USD?timespan=minute&window=7&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
+            ema_response = requests.get("https://api.polygon.io/v1/indicators/ema/C:USD{}?timespan=minute&window=7&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
+            sma_response = requests.get("https://api.polygon.io/v1/indicators/sma/C:USD{}?timespan=minute&window=7&series_type=close&order=desc&limit=1&apiKey={}".format(self.currency_ticker, self.api_key)) 
             ema_val = self.parse_snapshot(ema_response.json())['value']
             sma_val = self.parse_snapshot(sma_response.json())['value']
             return float(ema_val) - float(sma_val)

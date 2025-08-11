@@ -19,6 +19,24 @@ up_response = {"results": [{"price": 1.0}], "last":{"conditions":[1],"exchange":
 "timestamp":1741532522429},"request_id":"44ac62cbfdae6adc14158dac0d57ba1a","status":"success",
 "symbol":"BTC-USD", "ticker": {"todaysChangePerc": 1}}
 
+class MockIndexClient(object):
+    def __init__(self):
+        self.snapshot = -5
+        self.timestamp = 123
+        self.macd_diff = -1
+        self.ema_diff = -1
+        self.longterm = -5
+        self.low = -502
+        self.size_diff = 0
+        self.short_size_diff = 0
+        self.bid_spread = 0
+        self.short_term_avg_price = 100
+        self.micro_term_avg_price = 200
+        self.short_term_history = [100, 100, 100]
+    def bootstrapped(self):
+        return True
+    def is_up_market(self):
+        return True
 
 class MockClient(object):
     def __init__(self):
@@ -64,6 +82,7 @@ def test_get_crypto_quote_hold(mocker):
     tt.history = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
     tt.get_action(10)
     tt.get_action(10)
+    tt.index_client = MockIndexClient()
     assert tt.get_action(10) == 'hold'
 
 def test_is_up_market(mocker):
@@ -88,6 +107,7 @@ def test_is_up_market(mocker):
     tt.is_down_market = False
     tt.market_direction_threshold = -1
     tt.target_symbol = 'SCHB'
+    tt.index_client = MockIndexClient()
     assert tt._is_up_market() == True
 
 
@@ -108,6 +128,7 @@ def test_get_crypto_quote_buy(mocker):
     tt.currency_client = MockClient()
     tt.cached_checks_limit = 100
     tt.is_up_market = True
+    tt.index_client = MockIndexClient()
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
 
     tt.get_action(11)
@@ -131,6 +152,7 @@ def test_price_history_increasing(mocker):
     tt.currency_client = MockClient()
     tt.cached_checks_limit = 100
     tt.is_up_market = True
+    tt.index_client = MockIndexClient()
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
 
     tt.price_history_increasing = lambda : False
@@ -159,6 +181,7 @@ def test_velocity(mocker):
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
     tt.velocity_threshold = 99
     tt.velocity = lambda : 100
+    tt.index_client = MockIndexClient()
     assert tt.get_action(13) == 'hold'
     tt.velocity = lambda : 98
     assert tt.get_action(13) == 'buy'

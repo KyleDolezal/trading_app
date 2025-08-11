@@ -5,7 +5,8 @@ from transaction_base import TransactionBase
 import datetime
 
 class TransactionTrigger(TransactionBase):
-    def __init__(self, test_mode=False, history=[], logger = logger, currency_client = None,  target_symbol = None):
+    def __init__(self, test_mode=False, history=[], logger = logger, currency_client = None,  target_symbol = None, index_client = None):
+        self.index_client = index_client
         super().__init__(test_mode, history, logger = logger, currency_client = currency_client, target_symbol =  target_symbol)
     def get_action(self, price=None):
         if price == None:
@@ -16,10 +17,10 @@ class TransactionTrigger(TransactionBase):
 
         percent_difference = self._get_price_difference(price)
     
-        if (datetime.datetime.now() < self.today831am) and not self.test_mode:
+        if (datetime.datetime.now() < self.today835am) and not self.test_mode:
             return 'hold'
         if (percent_difference > self.change_threshold) and \
-                (datetime.datetime.now() < self.today245pm or self.test_mode) and \
+                (datetime.datetime.now() < self.today1030am or self.test_mode) and \
                 self._is_up_market() and \
                 self._time_since_snapshot() < 180 and \
                 self.size_diff > abs(self.currency_client.size_diff) and \
@@ -29,8 +30,9 @@ class TransactionTrigger(TransactionBase):
                 self.get_micro_price_direction(self.currency_client.micro_term_avg_price) > 0 and \
                 self.currency_client.bootstrapped() and \
                 self.price_history_increasing() and \
-                self.velocity() < self.velocity_threshold and \
-                price < (self.currency_client.high - self.limit_value):
+                (self.test_mode or self.index_client.bootstrapped()) and \
+                (self.test_mode or self.index_client.is_up_market()) and \
+                self.velocity() < self.velocity_threshold:
             return 'buy'
         else:
             return 'hold'

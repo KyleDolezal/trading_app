@@ -21,6 +21,10 @@ class MockResponse(object):
 class MockList(object):
     def __init__(self):
         self.value = 46.75
+        self.close = 46.75
+        self.volume = 0
+        self.low = 0
+        self.high = 1000000
 
 
 def test_quote(mocker):
@@ -39,6 +43,11 @@ def test_quote(mocker):
     mock_ws_client.return_value = MockClient()
 
     ec = IndexClient()
+    ec.short_term_history_len = 10
+    ec.price = 0
+    ec.size = []
+    ec.short_size = []
+    ec.short_term_history = []
     ec.update_price([MockList(),MockList(),MockList()])
     quote = ec.get_equity_quote()
 

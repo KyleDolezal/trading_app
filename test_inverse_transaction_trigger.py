@@ -52,6 +52,25 @@ class MockClient(object):
     def bootstrapped(self):
         return True
 
+class MockIndexClient(object):
+    def __init__(self):
+        self.snapshot = -5
+        self.timestamp = 123
+        self.macd_diff = -1
+        self.ema_diff = -1
+        self.longterm = -5
+        self.low = -502
+        self.size_diff = 0
+        self.short_size_diff = 0
+        self.bid_spread = 0
+        self.short_term_avg_price = 100
+        self.micro_term_avg_price = 200
+        self.short_term_history = [100, 100, 100]
+    def bootstrapped(self):
+        return True
+    def is_down_market(self):
+        return True
+
 @freeze_time("2012-01-14 12:21:34")
 def test_get_crypto_quote_buy(mocker):
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
@@ -68,6 +87,7 @@ def test_get_crypto_quote_buy(mocker):
     
     tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.currency_client = MockClient()
+    tt.index_client = MockIndexClient()
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
 
     assert tt.get_action(10.016) == 'buy'
@@ -89,6 +109,7 @@ def test_price_history_decreasing(mocker):
     
     tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.currency_client = MockClient()
+    tt.index_client = MockIndexClient()
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
     tt.price_history_decreasing = lambda : False
     assert tt.get_action(10.016) == 'hold'
