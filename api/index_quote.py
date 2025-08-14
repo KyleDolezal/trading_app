@@ -13,13 +13,14 @@ class IndexClient:
         self.price = 0
         self.api_key = os.getenv('EQUITY_API_KEY')
         self.equity_ticker = os.getenv('INDEX_TICKER')
+        self.history_length = int(os.getenv('HISTORY_LENGTH'))
 
         self.micro_term_avg_price = 0
 
         self.short_term_history = []
         self.short_term_avg_price = 0
 
-        self.short_term_history_len = int(os.getenv('SHORT_TERM_HISTORY_LEN', 500))
+        self.short_term_history_len = int(self.history_length)
 
         if self.api_key is None:
             raise ValueError("api key must be present")
