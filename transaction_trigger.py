@@ -22,7 +22,6 @@ class TransactionTrigger(TransactionBase):
         if (percent_difference > self.change_threshold) and \
                 (datetime.datetime.now() < self.today1030am or self.test_mode) and \
                 self._is_up_market() and \
-                self._time_since_snapshot() < 180 and \
                 self.size_diff > abs(self.currency_client.size_diff) and \
                 self.size_diff > abs(self.currency_client.short_size_diff) and \
                 self.currency_client.bid_spread < self.bid_spread_limit and \
