@@ -38,7 +38,7 @@ class AccountStatus(ApiBase):
     
     def calculate_buyable_shares(self):
         price = self.equity_client.get_equity_quote(self.target_symbol)
-        if price == 0:
+        while price == 0 or price == None:
             logger.info('Waiting for equity client bootstrap')
             time.sleep(1)
             price = self.equity_client.get_equity_quote(self.target_symbol)
@@ -48,7 +48,7 @@ class AccountStatus(ApiBase):
     
     def calculate_sellable_shares(self):
         price = self.equity_client.get_equity_quote(self.target_symbol)
-        if price == 0:
+        while price == 0 or price == None:
             logger.info('Waiting for equity client bootstrap')
             time.sleep(1)
             price = self.equity_client.get_equity_quote(self.target_symbol)
