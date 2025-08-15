@@ -9,6 +9,7 @@ import time
 import requests
 import threading
 import datetime
+import statistics
 
 class EquityClient:
     def __init__(self, logger = logger, test_mode = False, unit_test = False):
@@ -17,6 +18,7 @@ class EquityClient:
         self.ask_price = 0
         self.inverse_price = 0
         self.inverse_ask_price = 0
+        self.reference_price = 0
         self.unit_test = unit_test
         self.api_key = os.getenv('EQUITY_API_KEY')
         self.currency_ticker = os.getenv('CURRENCY_TICKER')
@@ -24,6 +26,16 @@ class EquityClient:
         self.inverse_target_symbol = os.getenv('INVERSE_TARGET_SYMBOL')
         self.equity_ticker = os.getenv('EQUITY_TICKER', 'SCHB')
         self.logger = logger
+
+        self.reference_ticker = os.getenv('REFERENCE_TICKER')
+
+        self.micro_term_avg_price = 0
+
+        self.short_term_history = []
+        self.short_term_avg_price = 0
+
+        self.short_term_history_len = int(os.getenv('SHORT_TERM_HISTORY_LEN', 500))
+        
         if self.api_key is None:
             raise ValueError("api key must be present")
 
@@ -36,7 +48,7 @@ class EquityClient:
             feed=Feed.RealTime,
             market=Market.Stocks
 	    )
-        self.streaming_client.subscribe("Q.{},Q.{}".format(self.target_symbol, self.inverse_target_symbol))
+        self.streaming_client.subscribe("Q.{},Q.{},Q.{}".format(self.target_symbol, self.inverse_target_symbol, self.reference_ticker))
 
         self.threading_update = threading.Thread(target=self.updates)
         self.threading_update.start()
@@ -68,7 +80,32 @@ class EquityClient:
                     self.inverse_price = m.bid_price
                 while self.inverse_ask_price != m.ask_price:
                     self.inverse_ask_price = m.ask_price
+            if m.symbol == self.reference_ticker:
+                while self.reference_price != price:
+                    self.reference_price = m.bid_price
+                    self.update_short_term_history(price)
+                    self.update_micro_history_avg()
 
+    def down_market(self):
+        return self.micro_term_avg_price > self.short_term_avg_price 
+    
+    def up_market(self):
+        return self.micro_term_avg_price < self.short_term_avg_price 
+    
+    def bootstrapped(self):
+        return len(self.short_term_history) >= (self.short_term_history_len - 1)
+
+    def update_micro_history_avg(self):
+        micro_len = int(round(self.short_term_history_len / 2, 0))
+        if len(self.short_term_history) > micro_len:
+            micro_history = self.short_term_history[micro_len:]
+            self.micro_term_avg_price = statistics.mean(micro_history)
+
+    def update_short_term_history(self, price):
+        self.short_term_history.append(price)
+        if len(self.short_term_history) > self.short_term_history_len:
+            self.short_term_history = self.short_term_history[1:]
+        self.short_term_avg_price = statistics.mean(self.short_term_history)
 
     def get_equity_quote(self, symbol):
         if self.test_mode:

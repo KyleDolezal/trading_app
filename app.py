@@ -24,7 +24,6 @@ class App:
         print("Welcome to the trading app. Hit \'q\' to quit.")
         load_dotenv()
 
-        self.index_client = IndexClient()
         self.equity_client = EquityClient(logger = logger)
         time.sleep(3)
 
@@ -38,10 +37,10 @@ class App:
         
         self.currency_client = CurrencyClient(logger = logger)
 
-        self.transaction_trigger = TransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('TARGET_SYMBOL'), index_client = self.index_client)
+        self.transaction_trigger = TransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('TARGET_SYMBOL'), equity_client = self.equity_client)
         self.orchestrator = Orchestrator(os.getenv('TARGET_SYMBOL'), self.transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client)
 
-        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('INVERSE_TARGET_SYMBOL'), index_client = self.index_client)
+        self.inverse_transaction_trigger = InverseTransactionTrigger(logger = logger, currency_client = self.currency_client, target_symbol = os.getenv('INVERSE_TARGET_SYMBOL'), equity_client = self.equity_client)
 
         self.inverse_orchestrator = Orchestrator(os.getenv('INVERSE_TARGET_SYMBOL'), self.inverse_transaction_trigger, symbols, pg_adapter, logger = logger, equity_client = self.equity_client)
 

@@ -5,8 +5,8 @@ from transaction_base import TransactionBase
 import datetime
 
 class InverseTransactionTrigger(TransactionBase):
-    def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None, target_symbol=None, index_client = None):
-        self.index_client = index_client
+    def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None, target_symbol=None, equity_client = None):
+        self.equity_client = equity_client
         super().__init__(test_mode, history, logger = logger, currency_client=currency_client,  target_symbol= target_symbol)
     
     def get_action(self, price=None):
@@ -31,8 +31,8 @@ class InverseTransactionTrigger(TransactionBase):
                 self.currency_client.bootstrapped() and \
                 self.price_history_decreasing() and \
                 self.velocity() < self.velocity_threshold and \
-                (self.test_mode or self.index_client.bootstrapped()) and \
-                (self.test_mode or self.index_client.is_down_market()):
+                (self.test_mode or self.equity_client.bootstrapped()) and \
+                (self.test_mode or self.equity_client.is_down_market()):
             return 'buy'
         else:
             return 'hold'
