@@ -23,7 +23,7 @@ class TransactionBase:
         self.limit_value = float(os.getenv('LIMIT_VALUE', 500))
         self.sales = []
         self.today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
-        self.today1030am = datetime.datetime.now().replace(hour=10, minute=30, second=0, microsecond=0)
+        self.today245pm = datetime.datetime.now().replace(hour=14, minute=45, second=0, microsecond=0)
         self.ema_diff = 0
         self.velocity_threshold = float(os.getenv('VELOCITY_THRESHOLD', 500))
         self.ema_diff_limit = float(os.getenv('EMA_DIFF_LIMIT', 2))

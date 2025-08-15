@@ -21,7 +21,7 @@ class InverseTransactionTrigger(TransactionBase):
             return 'hold'
         elif (percent_difference < self.change_threshold) \
                 and abs(percent_difference) > self.change_threshold and \
-                (datetime.datetime.now() < self.today1030am or self.test_mode) and \
+                (datetime.datetime.now() < self.today245pm or self.test_mode) and \
                 self._is_up_market() and \
                 self.size_diff > abs(self.currency_client.size_diff) and \
                 self.size_diff > abs(self.currency_client.short_size_diff) and \
