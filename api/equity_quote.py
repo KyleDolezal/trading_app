@@ -34,7 +34,7 @@ class EquityClient:
         self.short_term_history = []
         self.short_term_avg_price = 0
 
-        self.short_term_history_len = int(os.getenv('SHORT_TERM_HISTORY_LEN', 500))
+        self.short_term_history_len = int(os.getenv('HISTORY_LENGTH'))
         
         if self.api_key is None:
             raise ValueError("api key must be present")
