@@ -34,7 +34,7 @@ class EquityClient:
         self.short_term_history = []
         self.short_term_avg_price = 0
 
-        self.short_term_history_len = int(os.getenv('HISTORY_LENGTH'))
+        self.short_term_history_len = int(os.getenv('REFERENCE_SIZE', 3))
         
         if self.api_key is None:
             raise ValueError("api key must be present")
@@ -86,10 +86,10 @@ class EquityClient:
                     self.update_short_term_history(price)
                     self.update_micro_history_avg()
 
-    def down_market(self):
+    def is_down_market(self):
         return self.micro_term_avg_price > self.short_term_avg_price 
     
-    def up_market(self):
+    def is_up_market(self):
         return self.micro_term_avg_price < self.short_term_avg_price 
     
     def bootstrapped(self):
