@@ -22,8 +22,8 @@ class TransactionTrigger(TransactionBase):
         if (percent_difference > self.change_threshold) and \
                 (datetime.datetime.now() < self.today245pm or self.test_mode) and \
                 self._is_up_market() and \
-                self.size_diff > self.currency_client.size_diff and \
-                self.size_diff > self.currency_client.short_size_diff and \
+                self.size_diff > abs(self.currency_client.size_diff) and \
+                self.size_diff > abs(self.currency_client.short_size_diff) and \
                 self.currency_client.bid_spread < self.bid_spread_limit and \
                 self.get_short_price_direction(self.currency_client.short_term_avg_price) > 0 and \
                 self.get_micro_price_direction(self.currency_client.micro_term_avg_price) > 0 and \
