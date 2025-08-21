@@ -120,7 +120,7 @@ class Orchestrator():
         self.equity_bought_price = self.order_status.await_order_filled([order_id], buy_order=True)
 
         if self.equity_bought_price == None:
-            time.sleep(.025)
+            time.sleep(.85)
             self.equity_bought_price = self.order_status.await_order_filled([order_id], buy_order=True)
 
         if self.equity_bought_price == None:    
