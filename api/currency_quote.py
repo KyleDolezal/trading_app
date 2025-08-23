@@ -152,8 +152,7 @@ class CurrencyClient:
             self.update_short_term_history(m.low)
             self.update_micro_history_avg()
 
-            while price != self.price:
-                self.price = price
+            self.price = price
 
     def update_micro_history_avg(self):
         micro_len = int(round(self.short_term_history_len / 2, 0))
