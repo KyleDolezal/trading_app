@@ -28,6 +28,8 @@ class TransactionBase:
         self.velocity_threshold = float(os.getenv('VELOCITY_THRESHOLD', 500))
         self.ema_diff_limit = float(os.getenv('EMA_DIFF_LIMIT', 2))
         self.bid_spread_limit = float(os.getenv('BID_SPREAD_LIMIT', 4))
+        self.vol_threshold = float(os.getenv('VOL_THRESHOLD', .0125))
+        self.size_selloff_threshold_multiplier = float(os.getenv('SIZE_SELLOFF_THRESHOLD_MULTIPLIER', 4))
 
     def trending(self, new_diff):
         current_diff = self.ema_diff
