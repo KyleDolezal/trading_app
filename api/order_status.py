@@ -38,7 +38,7 @@ class OrderStatus(ApiBase):
                 time.sleep(5)
         raise Exception('Problem with getting order status')
 
-    def await_order_filled(self, order_numbers, buy_order = False):
+    def await_order_filled(self, order_numbers, buy_order = False, selloff_check_method = None):
         order_filled = False
         while order_filled != True:
             for order in order_numbers:
@@ -51,6 +51,9 @@ class OrderStatus(ApiBase):
 
                 if buy_order:
                     logger.info("initial buy order not filled")
+                    return None
+                
+                if selloff_check_method != None and selloff_check_method():
                     return None
                 
                 time.sleep(2)

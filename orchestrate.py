@@ -81,7 +81,14 @@ class Orchestrator():
             if self.sellable_shares == 0:
                 self.sellable_shares = self.buyable_shares
     
-            self.order_status.await_order_filled([str(self.limit_id), str(self.stop_id)])
+            res = self.order_status.await_order_filled([str(self.limit_id), str(self.stop_id)], selloff_check_method=self.transaction_trigger.cancel_selloff)
+            if res == None:
+                logger.info('Cancelling outstanding sell orders and selling at market due to market conditions')
+                self.transact_client.cancel(self.limit_id)
+                self.transact_client.cancel(self.stop_id)
+                self.transact_client.sell(self.sellable_shares, 'market')
+                time.sleep(2)
+            
             self.record_transaction(source_price, 'sell', self.sellable_shares, self.limit_id)
             
             self.account_status.update_positions()
