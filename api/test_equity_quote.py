@@ -136,7 +136,6 @@ def test_calculate_percent(mocker):
     assert ec._calculate_percent(1, 1.01) == 0.5000000000000115
 
 
-
 def test_bid_ask_mean(mocker):
     os.environ["ACCOUNT_NUMBER"] = '123'
     os.environ["APP_KEY"] = 'key'
@@ -160,3 +159,50 @@ def test_bid_ask_mean(mocker):
     ec.price = 2.0
 
     assert ec.bid_ask_mean('IBIT') == 1.5
+
+def test_parse_rsi_snapshot(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'IBIT'
+
+    mock_account_status = mocker.patch('equity_quote.EquityClient.__init__')
+    mock_account_status.return_value = None
+
+    eq = EquityClient('IBIT')
+    resp = {'results': {'values': [{'value': 100, 'timestamp': 1}]}}
+
+    assert eq.parse_rsi_snapshot(resp)['value'] == 50
+
+def test_update_short_term_vol_history(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'IBIT'
+
+    mock_account_status = mocker.patch('equity_quote.EquityClient.__init__')
+    mock_account_status.return_value = None
+
+    eq = EquityClient('IBIT')
+    eq.short_term_history_len = 3
+    eq.short_term_history = [1, 2, 3]
+    eq.update_short_term_history(4)
+
+    assert eq.short_term_avg_price == 3
+
+def test_update_micro_term_vol_history(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'IBIT'
+
+    mock_account_status = mocker.patch('equity_quote.EquityClient.__init__')
+    mock_account_status.return_value = None
+
+    eq = EquityClient('IBIT')
+    eq.short_term_history_len = 3
+    eq.micro_term_vol_avg_price = 0
+    eq.short_term_vol_history = [5, 3, 7]
+    eq.update_micro_vol_history_avg()
+
+    assert eq.micro_term_vol_avg_price == 7

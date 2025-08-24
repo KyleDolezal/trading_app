@@ -19,6 +19,7 @@ class EquityClient:
         self.inverse_price = 0
         self.inverse_ask_price = 0
         self.reference_price = 0
+        self.volatility_price = 0
         self.unit_test = unit_test
         self.api_key = os.getenv('EQUITY_API_KEY')
         self.currency_ticker = os.getenv('CURRENCY_TICKER')
@@ -27,12 +28,18 @@ class EquityClient:
         self.equity_ticker = os.getenv('EQUITY_TICKER', 'SCHB')
         self.logger = logger
 
+        self.volatility_ticker = os.getenv('VOLATILITY_TICKER', 'SCHB')
+
         self.reference_ticker = os.getenv('REFERENCE_TICKER')
 
         self.micro_term_avg_price = 0
 
         self.short_term_history = []
         self.short_term_avg_price = 0
+
+        self.short_term_vol_history = []
+        self.short_term_vol_avg_price = 0
+        self.micro_term_vol_avg_price = 0
 
         self.short_term_history_len = int(os.getenv('REFERENCE_SIZE', 3))
         
@@ -48,7 +55,7 @@ class EquityClient:
             feed=Feed.RealTime,
             market=Market.Stocks
 	    )
-        self.streaming_client.subscribe("Q.{},Q.{},Q.{}".format(self.target_symbol, self.inverse_target_symbol, self.reference_ticker))
+        self.streaming_client.subscribe("Q.{},Q.{},Q.{},Q.{}".format(self.target_symbol, self.inverse_target_symbol, self.reference_ticker, self.volatility_ticker))
 
         self.threading_update = threading.Thread(target=self.updates)
         self.threading_update.start()
@@ -71,20 +78,19 @@ class EquityClient:
         for m in msgs:
             price = m.bid_price
             if m.symbol == self.target_symbol:
-                while self.price != price:
-                    self.price = m.bid_price
-                while self.ask_price != m.ask_price:
-                    self.ask_price = m.ask_price
+                self.price = m.bid_price
+                self.ask_price = m.ask_price
             if m.symbol == self.inverse_target_symbol:
-                while self.inverse_price != price:
-                    self.inverse_price = m.bid_price
-                while self.inverse_ask_price != m.ask_price:
-                    self.inverse_ask_price = m.ask_price
+                self.inverse_price = m.bid_price
+                self.inverse_ask_price = m.ask_price
             if m.symbol == self.reference_ticker:
-                while self.reference_price != price:
-                    self.reference_price = m.bid_price
-                    self.update_short_term_history(price)
-                    self.update_micro_history_avg()
+                self.reference_price = m.bid_price
+                self.update_short_term_history(price)
+                self.update_micro_history_avg()
+            if m.symbol == self.volatility_ticker:
+                self.volatility_price = m.bid_price
+                self.update_short_term_vol_history(price)
+                self.update_micro_vol_history_avg()
 
     def is_down_market(self):
         return self.micro_term_avg_price > self.short_term_avg_price 
@@ -106,6 +112,18 @@ class EquityClient:
         if len(self.short_term_history) > self.short_term_history_len:
             self.short_term_history = self.short_term_history[1:]
         self.short_term_avg_price = statistics.mean(self.short_term_history)
+
+    def update_micro_vol_history_avg(self):
+        micro_len = int(round(self.short_term_history_len / 2, 0))
+        if len(self.short_term_vol_history) > micro_len:
+            micro_history = self.short_term_vol_history[micro_len:]
+            self.micro_term_vol_avg_price = statistics.mean(micro_history)
+
+    def update_short_term_vol_history(self, price):
+        self.short_term_vol_history.append(price)
+        if len(self.short_term_vol_history) > self.short_term_history_len:
+            self.short_term_vol_history = self.short_term_vol_history[1:]
+        self.short_term_vol_avg_price = statistics.mean(self.short_term_vol_history)
 
     def get_equity_quote(self, symbol):
         if self.test_mode:
@@ -182,3 +200,16 @@ class EquityClient:
         difference = ema_since_5m_price - average
         snapshot = difference * 100
         return snapshot
+
+    def get_fixed_snapshot(self):
+        response = None
+        try:
+            response = requests.get("https://api.polygon.io/v1/indicators/rsi/{}?timespan=minute&adjusted=true&window=2&series_type=close&order=desc&limit=10&apiKey={}".format(self.fixed_income_ticker, self.api_key))                       
+        except(Exception) as e:
+            self.logger.error("Problem requesting rsi information: {}".format(e))
+        return self.parse_rsi_snapshot(response.json())
+    
+    def parse_rsi_snapshot(self, resp):
+        return {'value': (float(resp['results']['values'][0]['value']) - 50.0), 'timestamp': resp['results']['values'][0]['timestamp']}
+    
+    
