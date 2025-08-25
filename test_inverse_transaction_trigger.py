@@ -47,6 +47,7 @@ class MockClient(object):
         self.short_size_diff = 0
         self.bid_spread = 0
         self.short_term_avg_price = 100
+        self.fixed_snapshot = 1
         self.micro_term_avg_price = 200
         self.short_term_history = [100, 100, 100]
         self.short_term_vol_avg_price = 100

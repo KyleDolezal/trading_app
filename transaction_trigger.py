@@ -16,7 +16,7 @@ class TransactionTrigger(TransactionBase):
             self.history = self.history[1:]
 
         percent_difference = self._get_price_difference(price)
-    
+
         if (datetime.datetime.now() < self.today831am) and not self.test_mode:
             return 'hold'
         if (percent_difference > self.change_threshold) and \
@@ -43,4 +43,4 @@ class TransactionTrigger(TransactionBase):
         return ((self.currency_client.longterm >= self.lower_bound) and (self.currency_client.longterm <= self.upper_bound) and (self.currency_client.macd_diff > 0) and (self.currency_client.ema_diff > 0) and (self.currency_client.ema_diff < self.ema_diff_limit) and (self.currency_client.snapshot >= self.lower_bound) and (self.currency_client.snapshot <= self.upper_bound))
     
     def cancel_selloff(self):
-        return ((abs(self.equity_client.micro_term_vol_avg_price - self.equity_client.short_term_vol_avg_price) > self.vol_threshold) and (self.equity_client.get_fixed_snapshot() < 0) and self.equity_client.is_down_market() and self.price_history_decreasing() and (self.size_diff * self.size_selloff_threshold_multiplier) < abs(self.currency_client.size_diff))
+        return ((abs(self.equity_client.micro_term_vol_avg_price - self.equity_client.short_term_vol_avg_price) > self.vol_threshold) and (self.equity_client.fixed_snapshot < 0) and self.equity_client.is_down_market() and self.price_history_decreasing() and (self.size_diff * self.size_selloff_threshold_multiplier) < abs(self.currency_client.size_diff))

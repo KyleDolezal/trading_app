@@ -31,8 +31,11 @@ class EquityClient:
         self.volatility_ticker = os.getenv('VOLATILITY_TICKER', 'SCHB')
 
         self.reference_ticker = os.getenv('REFERENCE_TICKER')
+        self.fixed_income_ticker = os.getenv('FIXED_INCOME_TICKER')
 
         self.micro_term_avg_price = 0
+
+        self.fixed_snapshot = 0
 
         self.short_term_history = []
         self.short_term_avg_price = 0
@@ -59,6 +62,15 @@ class EquityClient:
 
         self.threading_update = threading.Thread(target=self.updates)
         self.threading_update.start()
+
+        self.threading_fixed_update = threading.Thread(target=self.update_fixed_snapshot)
+        self.threading_fixed_update.start()
+
+    def update_fixed_snapshot(self):
+        while True:
+            val = self.get_fixed_snapshot()['value']
+            if val != None:
+                self.fixed_snapshot = val
 
     def updates(self):
         if self.test_mode:
@@ -207,6 +219,7 @@ class EquityClient:
             response = requests.get("https://api.polygon.io/v1/indicators/rsi/{}?timespan=minute&adjusted=true&window=2&series_type=close&order=desc&limit=10&apiKey={}".format(self.fixed_income_ticker, self.api_key))                       
         except(Exception) as e:
             self.logger.error("Problem requesting rsi information: {}".format(e))
+            return None
         return self.parse_rsi_snapshot(response.json())
     
     def parse_rsi_snapshot(self, resp):
