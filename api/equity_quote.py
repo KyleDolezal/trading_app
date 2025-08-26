@@ -68,9 +68,9 @@ class EquityClient:
 
     def update_fixed_snapshot(self):
         while True:
-            val = self.get_fixed_snapshot()['value']
+            val = self.get_fixed_snapshot()
             if val != None:
-                self.fixed_snapshot = val
+                self.fixed_snapshot = val['value']
 
     def updates(self):
         if self.test_mode:
