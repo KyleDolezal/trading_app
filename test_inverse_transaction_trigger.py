@@ -203,5 +203,6 @@ def test_cancel_selloff(mocker):
     tt.history = [5, 4, 3, 2]
     tt.currency_client.short_term_history=[0]
     tt.currency_client.size_diff = 100
-   
+    tt.test_mode = False
+    tt.cancel_criteria = {'key': datetime.datetime.now()}
     assert tt.cancel_selloff() == True

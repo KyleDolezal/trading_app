@@ -9,6 +9,21 @@ class InverseTransactionTrigger(TransactionBase):
         self.equity_client = equity_client
         super().__init__(test_mode, history, logger = logger, currency_client=currency_client,  target_symbol= target_symbol)
     
+    def update_cancel_criteria(self):
+        if self.test_mode:
+            return
+        now = datetime.datetime.now()
+        if (abs(self.equity_client.micro_term_vol_avg_price - self.equity_client.short_term_vol_avg_price) > self.vol_threshold):
+            self.cancel_criteria['micro_minus_short'] = now
+        if (self.equity_client.fixed_snapshot > 0):
+            self.cancel_criteria['equity_snap'] = now
+        if (self.equity_client.is_up_market()):
+            self.cancel_criteria['equity_direction'] = now
+        if (self.price_history_increasing()):
+            self.cancel_criteria['price_history_direction'] = now
+        if (self.size_diff * self.size_selloff_threshold_multiplier) < abs(self.currency_client.size_diff):
+            self.cancel_criteria['size'] = now
+
     def get_action(self, price=None):
         if price == None:
             price = self.currency_client.get_forex_quote()
@@ -42,6 +57,3 @@ class InverseTransactionTrigger(TransactionBase):
 
     def _is_up_market(self):        
         return ((self.currency_client.longterm <= (self.lower_bound * -1)) and (self.currency_client.longterm >= (self.upper_bound * -1)) and (self.currency_client.macd_diff < 0) and (self.currency_client.ema_diff < 0) and (self.currency_client.ema_diff > (self.ema_diff_limit * -1)) and (self.currency_client.snapshot <= (self.lower_bound * -1)) and (self.currency_client.snapshot >= (self.upper_bound * -1)))
-    
-    def cancel_selloff(self):
-        return ((abs(self.equity_client.micro_term_vol_avg_price - self.equity_client.short_term_vol_avg_price) > self.vol_threshold) and (self.equity_client.fixed_snapshot > 0) and self.equity_client.is_up_market() and self.price_history_increasing() and (self.size_diff * self.size_selloff_threshold_multiplier) < abs(self.currency_client.size_diff))

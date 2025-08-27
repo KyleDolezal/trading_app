@@ -1,4 +1,5 @@
 import logging
+import threading
 logger = logging.getLogger(__name__)
 import os
 import statistics
@@ -31,6 +32,30 @@ class TransactionBase:
         self.vol_threshold = float(os.getenv('VOL_THRESHOLD', .0125))
         self.size_selloff_threshold_multiplier = float(os.getenv('SIZE_SELLOFF_THRESHOLD_MULTIPLIER', 4))
 
+        time_731am = datetime.datetime.now().replace(hour=7, minute=31, second=0, microsecond=0)
+        self.cancel_criteria = {
+            'micro_minus_short': time_731am,
+            'equity_snap': time_731am,
+            'size': time_731am,
+            'equity_direction': time_731am,
+            'price_history_direction':  time_731am
+        }
+
+        thread_cancel_criteria = threading.Thread(target=self.update_cancel_sell_attributes)
+        if not self.test_mode:
+            thread_cancel_criteria.start()
+
+    def update_cancel_sell_attributes(self):
+        while True:
+            self.update_cancel_criteria()
+        
+    def cancel_selloff(self):
+        now = datetime.datetime.now()
+        for key in self.cancel_criteria.keys():
+            if (abs((self.cancel_criteria[key] - now).total_seconds()) > 15):
+                return False
+        return True
+                
     def trending(self, new_diff):
         current_diff = self.ema_diff
         self.ema_diff = new_diff
