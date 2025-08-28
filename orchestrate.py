@@ -95,6 +95,11 @@ class Orchestrator():
             self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
         self.waiting_for_action = 'buy'
 
+    def handle_contrary_trend(self, order_id):
+        if not self.transaction_trigger.last_trend():
+            logger.info("Cancelling due to last trend")
+            self.transact_client.cancel(order_id)
+
     def _buy_action(self, source_price=None):
         if self.buyable_shares < 1:
             return
@@ -124,10 +129,12 @@ class Orchestrator():
                 time.sleep(5)
         order_id = self.order_status.get_order_id(order)
         self._populate_order_sell_ids(order_id)
+        self.handle_contrary_trend(order_id)
         self.equity_bought_price = self.order_status.await_order_filled([order_id], buy_order=True)
 
         if self.equity_bought_price == None:
             time.sleep(1)
+            self.handle_contrary_trend(order_id)
             self.equity_bought_price = self.order_status.await_order_filled([order_id], buy_order=True)
 
         if self.equity_bought_price == None:    

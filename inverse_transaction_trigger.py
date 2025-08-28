@@ -3,6 +3,7 @@ logger = logging.getLogger(__name__)
 from api.currency_quote import CurrencyClient
 from transaction_base import TransactionBase
 import datetime
+import statistics
 
 class InverseTransactionTrigger(TransactionBase):
     def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None, target_symbol=None, equity_client = None):
@@ -45,12 +46,16 @@ class InverseTransactionTrigger(TransactionBase):
                 self.get_micro_price_direction(self.currency_client.micro_term_avg_price) < 0 and \
                 self.currency_client.bootstrapped() and \
                 self.price_history_decreasing() and \
+                self.last_trend() and \
                 self.velocity() < self.velocity_threshold and \
                 (self.test_mode or self.equity_client.bootstrapped()) and \
                 (self.test_mode or self.equity_client.is_down_market()):
             return 'buy'
         else:
             return 'hold'
+        
+    def last_trend(self):
+        return self.history[-1] <= statistics.mean(self.history)
 
     def _determine_order_update(self, bought_source_price, bought_equity_bid_price, current_source_price, current_ask_price):
         return bought_source_price > current_source_price and bought_equity_bid_price <= current_ask_price
