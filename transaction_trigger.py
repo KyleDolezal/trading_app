@@ -44,6 +44,7 @@ class TransactionTrigger(TransactionBase):
                 self.currency_client.bid_spread < self.bid_spread_limit and \
                 self.get_short_price_direction(self.currency_client.short_term_avg_price) > 0 and \
                 self.get_micro_price_direction(self.currency_client.micro_term_avg_price) > 0 and \
+                self.equity_client.change_percent > 0 and \
                 self.currency_client.bootstrapped() and \
                 self.price_history_increasing() and \
                 self.last_trend() and \
