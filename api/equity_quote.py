@@ -28,9 +28,6 @@ class EquityClient:
         self.equity_ticker = os.getenv('EQUITY_TICKER', 'SCHB')
         self.logger = logger
 
-        self.change_percent = 0
-        self.direction_ticker = os.getenv('DIRECTION_TICKER', 'SCHB')
-
         self.volatility_ticker = os.getenv('VOLATILITY_TICKER', 'SCHB')
 
         self.reference_ticker = os.getenv('REFERENCE_TICKER')
@@ -68,9 +65,6 @@ class EquityClient:
 
         self.threading_fixed_update = threading.Thread(target=self.update_fixed_snapshot)
         self.threading_fixed_update.start()
-
-        self.threading_direction_update = threading.Thread(target=self.update_market_direction)
-        self.threading_direction_update.start()
 
     def update_fixed_snapshot(self):
         while True:
@@ -231,18 +225,4 @@ class EquityClient:
     def parse_rsi_snapshot(self, resp):
         return {'value': (float(resp['results']['values'][0]['value']) - 50.0), 'timestamp': resp['results']['values'][0]['timestamp']}
     
-    def update_market_direction(self):
-        while True:
-            try:
-                response = requests.get("https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/{}?apiKey={}".format(self.direction_ticker, self.api_key))  
-                self.change_percent = self.parse_direction_resp(response.json())
-            except(Exception) as e:
-                self.logger.error("Problem requesting direction information: {}".format(e))
-            time.sleep(1)
-
-    def parse_direction_resp(self, resp):
-        try:
-            return resp['ticker']['todaysChangePerc']
-        except(Exception) as e:
-            self.logger.error("Problem requesting direction information: {}".format(e))
-            return 0
+    

@@ -42,7 +42,6 @@ class MockClient(object):
         self.macd_diff = -1
         self.ema_diff = -1
         self.longterm = -5
-        self.change_percent = -1
         self.low = -502
         self.size_diff = 0
         self.short_size_diff = 0
@@ -98,7 +97,6 @@ def test_get_crypto_quote_buy(mocker):
     
     tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.currency_client = MockClient()
-    tt.equity_client = MockClient()
     tt.index_client = MockIndexClient()
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
 
@@ -121,7 +119,6 @@ def test_price_history_decreasing(mocker):
     
     tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.currency_client = MockClient()
-    tt.equity_client = MockClient()
     tt.index_client = MockIndexClient()
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
     tt.price_history_decreasing = lambda : False

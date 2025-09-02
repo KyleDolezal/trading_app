@@ -45,7 +45,6 @@ class MockClient(object):
         self.ema_diff = 1
         self.longterm = 5
         self.high = 1000000
-        self.change_percent = 1
         self.size_diff = 0
         self.short_size_diff = 0
         self.short_term_avg_price = 1
@@ -138,7 +137,6 @@ def test_get_crypto_quote_buy(mocker):
     tt.currency_client = MockClient()
     tt.cached_checks_limit = 100
     tt.is_up_market = True
-    tt.equity_client = MockClient()
     tt.index_client = MockIndexClient()
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
 
@@ -163,7 +161,6 @@ def test_price_history_increasing(mocker):
     tt.currency_client = MockClient()
     tt.cached_checks_limit = 100
     tt.is_up_market = True
-    tt.equity_client = MockClient()
     tt.index_client = MockIndexClient()
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
 
@@ -193,7 +190,6 @@ def test_velocity(mocker):
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
     tt.velocity_threshold = 99
     tt.velocity = lambda : 100
-    tt.equity_client = MockClient()
     tt.index_client = MockIndexClient()
     assert tt.get_action(13) == 'hold'
     tt.velocity = lambda : 98
@@ -260,32 +256,6 @@ def test_last_trend(mocker):
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
     tt.velocity_threshold = 99
     tt.velocity = lambda : 98
-    tt.equity_client = MockClient()
     assert tt.get_action(13) == 'buy'
     tt.last_trend = lambda : False
-    assert tt.get_action(13) == 'hold'
-
-@freeze_time("2012-01-14 12:21:34")
-def test_direction(mocker):
-    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
-    mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
-    mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
-
-    os.environ["HISTORY_LENGTH"] = '13'
-    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.25'
-    os.environ["CHANGE_THRESHOLD"] = '.1'
-    os.environ["CURRENCY_TICKER"] = '123'
-    os.environ["CURRENCY_API_KEY"] = 'key'
-    os.environ["TARGET_SYMBOL"] = 'SCHB'
-    
-    tt = TransactionTrigger(history=[0], test_mode=True)
-    tt.currency_client = MockClient()
-    tt.cached_checks_limit = 100
-    tt.is_up_market = True
-    tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
-    tt.velocity_threshold = 99
-    tt.velocity = lambda : 98
-    tt.equity_client = MockClient()
-    assert tt.get_action(13) == 'buy'
-    tt.equity_client.change_percent = -1
     assert tt.get_action(13) == 'hold'
