@@ -31,6 +31,7 @@ class TransactionBase:
         self.bid_spread_limit = float(os.getenv('BID_SPREAD_LIMIT', 4))
         self.vol_threshold = float(os.getenv('VOL_THRESHOLD', .0125))
         self.size_selloff_threshold_multiplier = float(os.getenv('SIZE_SELLOFF_THRESHOLD_MULTIPLIER', 4))
+        self.quick_selloff_threshold = float(os.getenv('QUICK_SELLOFF_THRESHOLD', .1))
 
         time_731am = datetime.datetime.now().replace(hour=7, minute=31, second=0, microsecond=0)
         self.cancel_criteria = {

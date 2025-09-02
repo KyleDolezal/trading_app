@@ -4,6 +4,7 @@ from api.currency_quote import CurrencyClient
 from transaction_base import TransactionBase
 import datetime
 import statistics
+import statistics
 
 class TransactionTrigger(TransactionBase):
     def __init__(self, test_mode=False, history=[], logger = logger, currency_client = None,  target_symbol = None, equity_client = None):
@@ -56,6 +57,11 @@ class TransactionTrigger(TransactionBase):
     
     def last_trend(self):
         return self.history[-1] >= statistics.mean(self.history)
+    
+    def last_trend_by_percent(self):
+        diff = self.history[-1] - self.history[-2]
+        percent = (diff / statistics.mean(self.history)) * 100
+        return percent < (self.quick_selloff_threshold * -1)
     
     def _determine_order_update(self, bought_source_price, bought_equity_bid_price, current_source_price, current_ask_price):
         return bought_source_price < current_source_price and bought_equity_bid_price <= current_ask_price

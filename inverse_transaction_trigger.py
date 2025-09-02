@@ -56,6 +56,12 @@ class InverseTransactionTrigger(TransactionBase):
         
     def last_trend(self):
         return self.history[-1] <= statistics.mean(self.history)
+    
+        
+    def last_trend_by_percent(self):
+        diff = self.history[-1] - self.history[-2]
+        percent = (diff / statistics.mean(self.history)) * 100
+        return percent > self.quick_selloff_threshold
 
     def _determine_order_update(self, bought_source_price, bought_equity_bid_price, current_source_price, current_ask_price):
         return bought_source_price > current_source_price and bought_equity_bid_price <= current_ask_price
