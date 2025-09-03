@@ -56,4 +56,4 @@ class OrderStatus(ApiBase):
                 if selloff_check_method != None and selloff_check_method():
                     return None
                 
-                time.sleep(2)
+                time.sleep(.51)
