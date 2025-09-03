@@ -14,6 +14,7 @@ class TransactionBase:
         self.change_threshold = float(os.getenv('CHANGE_THRESHOLD'))
         self.lower_bound = float(os.getenv('LOWER_BOUND', 5))
         self.upper_bound = float(os.getenv('UPPER_BOUND', 22))
+        self.short_upper_bound = float(os.getenv('SHORT_UPPER_BOUND', 22))
         self.size_diff = float(os.getenv('SIZE_DIFF', .05))
         self.history = history
         self.currency_client = currency_client

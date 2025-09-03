@@ -164,6 +164,9 @@ def test_is_up_market(mocker):
     tt.currency_client.snapshot = -5.0
     tt.market_direction_threshold = -.1
     tt.target_symbol = 'SCHB'
+    tt.short_upper_bound = 1
+    assert tt._is_up_market() == False
+    tt.short_upper_bound = 20
     assert tt._is_up_market() == True
 
 

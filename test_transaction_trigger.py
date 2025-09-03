@@ -117,6 +117,9 @@ def test_is_up_market(mocker):
     tt.market_direction_threshold = -1
     tt.target_symbol = 'SCHB'
     tt.index_client = MockIndexClient()
+    tt.short_upper_bound = 1
+    assert tt._is_up_market() == False
+    tt.short_upper_bound = 20
     assert tt._is_up_market() == True
 
 
