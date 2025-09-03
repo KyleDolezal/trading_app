@@ -283,4 +283,28 @@ def test_last_trend_by_percent(mocker):
     assert tt.last_trend_by_percent() == True
     tt.history=[11, 11, 11, 12]
     assert tt.last_trend_by_percent() == False
+
+
+@freeze_time("2012-01-14 12:21:34")
+def test_quick_selloff(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
+    mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
+
+    os.environ["HISTORY_LENGTH"] = '13'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.25'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+    
+    tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
+    tt.is_up_market = True
+    tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
+    assert tt.cancel_selloff() == False
+    tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 8]
+    tt.update_quick_selloff_criteria()
+    assert tt.cancel_selloff() == True
     

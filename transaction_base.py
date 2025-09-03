@@ -42,16 +42,33 @@ class TransactionBase:
             'price_history_direction':  time_731am
         }
 
+        self.quick_selloff_criteria = time_731am
+
         thread_cancel_criteria = threading.Thread(target=self.update_cancel_sell_attributes)
         if not self.test_mode:
             thread_cancel_criteria.start()
+        
+        thread_selloff_criteria = threading.Thread(target=self.update_quick_selloff_criteria_task)
+        if not self.test_mode:
+            thread_selloff_criteria.start()
 
     def update_cancel_sell_attributes(self):
         while True:
             self.update_cancel_criteria()
+
+    def update_quick_selloff_criteria_task(self):
+        while True:
+            self.update_quick_selloff_criteria()
+
+    def update_quick_selloff_criteria(self):
+        if self.last_trend_by_percent():
+            self.quick_selloff_criteria = datetime.datetime.now()
         
     def cancel_selloff(self):
         now = datetime.datetime.now()
+        if (abs((self.quick_selloff_criteria - now).total_seconds()) < 5):
+            return True
+        
         for key in self.cancel_criteria.keys():
             if (abs((self.cancel_criteria[key] - now).total_seconds()) > 15):
                 return False
