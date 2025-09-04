@@ -74,8 +74,8 @@ class MockIndexClient(object):
         self.short_size_diff = 0
         self.bid_spread = 0
         self.short_term_avg_price = 100
-        self.micro_term_avg_price = 200
-        self.short_term_history = [100, 100, 100]
+        self.micro_term_avg_price = 50
+        self.short_term_history = [100, 100, 9]
     def bootstrapped(self):
         return True
     def is_down_market(self):
@@ -256,4 +256,3 @@ def test_quick_selloff(mocker):
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 15]
     tt.update_quick_selloff_criteria()
     assert tt.cancel_selloff() == True
-    

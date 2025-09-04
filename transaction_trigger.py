@@ -48,6 +48,7 @@ class TransactionTrigger(TransactionBase):
                 self.currency_client.bootstrapped() and \
                 self.price_history_increasing() and \
                 self.last_trend() and \
+                (self.test_mode or self.equity_client.broadbased_snapshot > 0) and \
                 (self.test_mode or self.equity_client.bootstrapped()) and \
                 (self.test_mode or self.equity_client.is_up_market()) and \
                 self.velocity() < self.velocity_threshold:
