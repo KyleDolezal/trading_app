@@ -52,6 +52,8 @@ class MockClient(object):
         self.short_term_history = [100, 100, 100]
         self.short_term_vol_avg_price = 100
         self.micro_term_vol_avg_price = 100
+        self.broadbased_snapshot = 0
+
     def bootstrapped(self):
         return True
     def get_fixed_snapshot(self):
@@ -251,8 +253,34 @@ def test_quick_selloff(mocker):
     tt.currency_client = MockClient()
     tt.cached_checks_limit = 100
     tt.is_up_market = True
+    tt.equity_client = MockClient()
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
     assert tt.cancel_selloff() == False
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 15]
+    tt.update_quick_selloff_criteria()
+    assert tt.cancel_selloff() == True
+
+@freeze_time("2012-01-14 12:21:34")
+def test_broadbased_selloff(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
+    mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
+
+    os.environ["HISTORY_LENGTH"] = '13'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.25'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+    
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
+    tt.equity_client = MockClient()
+    tt.currency_client = MockClient()
+    tt.cached_checks_limit = 100
+    tt.is_up_market = True
+    tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 8]
+    tt.equity_client.broadbased_snapshot = -1
+    assert tt.cancel_selloff() == False
+    tt.equity_client.broadbased_snapshot = 1
     tt.update_quick_selloff_criteria()
     assert tt.cancel_selloff() == True

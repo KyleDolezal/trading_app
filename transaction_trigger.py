@@ -59,6 +59,9 @@ class TransactionTrigger(TransactionBase):
     def last_trend(self):
         return self.history[-1] >= statistics.mean(self.history)
     
+    def broadbased_selloff(self):
+        return self.equity_client.broadbased_snapshot < 0
+    
     def last_trend_by_percent(self):
         diff = self.history[-1] - self.history[-2]
         percent = (diff / statistics.mean(self.history)) * 100

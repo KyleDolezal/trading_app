@@ -67,7 +67,7 @@ class TransactionBase:
         
     def cancel_selloff(self):
         now = datetime.datetime.now()
-        if (abs((self.quick_selloff_criteria - now).total_seconds()) < 5):
+        if self.broadbased_selloff() or (abs((self.quick_selloff_criteria - now).total_seconds()) < 5):
             return True
         
         for key in self.cancel_criteria.keys():
