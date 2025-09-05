@@ -42,17 +42,13 @@ class TransactionTrigger(TransactionBase):
                 self._is_up_market() and \
                 self.size_diff > abs(self.currency_client.size_diff) and \
                 self.size_diff > abs(self.currency_client.short_size_diff) and \
-                self.currency_client.bid_spread < self.bid_spread_limit and \
-                self.get_short_price_direction(self.currency_client.short_term_avg_price) > 0 and \
-                self.get_micro_price_direction(self.currency_client.micro_term_avg_price) > 0 and \
                 self.currency_client.bootstrapped() and \
                 self.price_history_increasing() and \
+                (self.test_mode or self.equity_client.is_up_market()) and \
                 self.last_trend() and \
                 (self.test_mode or self.equity_client.broadbased_up()) and \
                 (self.test_mode or self.equity_client.broadbased_snapshot > 0) and \
-                (self.test_mode or self.equity_client.bootstrapped()) and \
-                (self.test_mode or self.equity_client.is_up_market()) and \
-                self.velocity() < self.velocity_threshold:
+                (self.test_mode or self.equity_client.bootstrapped()):
             return 'buy'
         else:
             return 'hold'
@@ -72,4 +68,4 @@ class TransactionTrigger(TransactionBase):
         return bought_source_price < current_source_price and bought_equity_bid_price <= current_ask_price
 
     def _is_up_market(self):
-        return ((self.currency_client.longterm >= self.lower_bound) and (self.currency_client.longterm <= self.upper_bound) and (self.currency_client.macd_diff > 0) and (self.currency_client.ema_diff > 0) and (self.currency_client.ema_diff < self.ema_diff_limit) and (self.currency_client.snapshot >= self.lower_bound) and (self.currency_client.snapshot <= self.short_upper_bound))
+        return ((self.currency_client.longterm >= self.lower_bound) and (self.currency_client.longterm <= self.upper_bound) and (self.currency_client.snapshot >= self.lower_bound) and (self.currency_client.snapshot <= self.short_upper_bound))
