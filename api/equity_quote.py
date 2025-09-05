@@ -77,7 +77,7 @@ class EquityClient:
 
     def update_broadbased_history(self, price):
         self.broadbased_history.append(price)
-        if len(self.broadbased_history) > self.short_term_history_len:
+        if len(self.broadbased_history) > int(self.short_term_history_len / 4):
             self.broadbased_history = self.broadbased_history[1:]
 
     def broadbased_up(self):

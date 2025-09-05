@@ -217,7 +217,7 @@ def test_update_broadbased(mocker):
     mock_account_status.return_value = None
 
     eq = EquityClient('IBIT')
-    eq.short_term_history_len = 3
+    eq.short_term_history_len = 30
     eq.broadbased_history = [1]
     eq.update_broadbased_history(2)
     assert eq.broadbased_history == [1, 2]
