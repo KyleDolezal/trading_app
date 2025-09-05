@@ -245,6 +245,10 @@ class EquityClient:
         return self.parse_rsi_snapshot(response.json())
     
     def parse_rsi_snapshot(self, resp):
-        return {'value': (float(resp['results']['values'][0]['value']) - 50.0), 'timestamp': resp['results']['values'][0]['timestamp']}
+        try:
+            return {'value': (float(resp['results']['values'][0]['value']) - 50.0), 'timestamp': resp['results']['values'][0]['timestamp']}
+        except(Exception) as e:
+            self.logger.error("Problem requesting rsi information: {}".format(e))
+            return None 
     
     
