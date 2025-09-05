@@ -44,6 +44,8 @@ class EquityClient:
         self.short_term_history = []
         self.short_term_avg_price = 0
 
+        self.broadbased_history = []
+
         self.short_term_vol_history = []
         self.short_term_vol_avg_price = 0
         self.micro_term_vol_avg_price = 0
@@ -62,7 +64,7 @@ class EquityClient:
             feed=Feed.RealTime,
             market=Market.Stocks
 	    )
-        self.streaming_client.subscribe("Q.{},Q.{},Q.{},Q.{}".format(self.target_symbol, self.inverse_target_symbol, self.reference_ticker, self.volatility_ticker))
+        self.streaming_client.subscribe("Q.{},Q.{},Q.{},Q.{},Q.{}".format(self.target_symbol, self.inverse_target_symbol, self.reference_ticker, self.volatility_ticker, self.broadbased_ticker))
 
         self.threading_update = threading.Thread(target=self.updates)
         self.threading_update.start()
@@ -72,6 +74,16 @@ class EquityClient:
 
         self.threading_broadbased_update = threading.Thread(target=self.update_broadbased_snapshot)
         self.threading_broadbased_update.start()
+
+    def update_broadbased_history(self, price):
+        self.broadbased_history.append(price)
+        if len(self.broadbased_history) > self.short_term_history_len:
+            self.broadbased_history = self.broadbased_history[1:]
+
+    def broadbased_up(self):
+        if len(self.broadbased_history) < 2:
+            return False
+        return self.broadbased_history[-1] > statistics.mean(self.broadbased_history)
 
     def update_fixed_snapshot(self):
         while True:
@@ -116,6 +128,8 @@ class EquityClient:
                 self.volatility_price = m.bid_price
                 self.update_short_term_vol_history(price)
                 self.update_micro_vol_history_avg()
+            if m.symbol == self.broadbased_ticker:
+                self.update_broadbased_history(price)
 
     def is_down_market(self):
         return self.micro_term_avg_price > self.short_term_avg_price 

@@ -206,3 +206,35 @@ def test_update_micro_term_vol_history(mocker):
     eq.update_micro_vol_history_avg()
 
     assert eq.micro_term_vol_avg_price == 7
+
+def test_update_broadbased(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'IBIT'
+
+    mock_account_status = mocker.patch('equity_quote.EquityClient.__init__')
+    mock_account_status.return_value = None
+
+    eq = EquityClient('IBIT')
+    eq.short_term_history_len = 3
+    eq.broadbased_history = [1]
+    eq.update_broadbased_history(2)
+    assert eq.broadbased_history == [1, 2]
+
+
+def test_broadbased_up(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'IBIT'
+
+    mock_account_status = mocker.patch('equity_quote.EquityClient.__init__')
+    mock_account_status.return_value = None
+
+    eq = EquityClient('IBIT')
+    eq.short_term_history_len = 3
+    eq.broadbased_history = [1, 1, 2]
+    assert eq.broadbased_up()
+    eq.broadbased_history = [1, 1, -2]
+    assert eq.broadbased_up() == False
