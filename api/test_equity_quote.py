@@ -3,6 +3,8 @@ from equity_quote import EquityClient
 import os
 
 class MockClient(object):
+    def __init__(self):
+        self.history_len = 33
     def get_equity_quote(params):
         return MockResponse()
     def quotes(params, kwargs):
@@ -217,6 +219,7 @@ def test_update_broadbased(mocker):
     mock_account_status.return_value = None
 
     eq = EquityClient('IBIT')
+    eq.history_len = 33
     eq.short_term_history_len = 30
     eq.broadbased_history = [1]
     eq.update_broadbased_history(2)
@@ -235,6 +238,7 @@ def test_broadbased_up(mocker):
     eq = EquityClient('IBIT')
     eq.short_term_history_len = 3
     eq.broadbased_history = [1, 1, 2]
+    eq.history_len = 33
     assert eq.broadbased_up()
     eq.broadbased_history = [1, 1, -2]
     assert eq.broadbased_up() == False

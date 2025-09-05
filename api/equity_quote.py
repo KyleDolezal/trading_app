@@ -51,6 +51,7 @@ class EquityClient:
         self.micro_term_vol_avg_price = 0
 
         self.short_term_history_len = int(os.getenv('REFERENCE_SIZE', 3))
+        self.history_len = int(os.getenv('HISTORY_LENGTH', 33))
         
         if self.api_key is None:
             raise ValueError("api key must be present")
@@ -77,13 +78,18 @@ class EquityClient:
 
     def update_broadbased_history(self, price):
         self.broadbased_history.append(price)
-        if len(self.broadbased_history) > int(self.short_term_history_len / 4):
+        if len(self.broadbased_history) > self.history_len:
             self.broadbased_history = self.broadbased_history[1:]
 
     def broadbased_up(self):
         if len(self.broadbased_history) < 2:
             return False
-        return self.broadbased_history[-1] > statistics.mean(self.broadbased_history)
+        return self.broadbased_history[-1] >= statistics.mean(self.broadbased_history)
+    
+    def broadbased_down(self):
+        if len(self.broadbased_history) < 2:
+            return False
+        return self.broadbased_history[-1] <= statistics.mean(self.broadbased_history)
 
     def update_fixed_snapshot(self):
         while True:
@@ -260,6 +266,8 @@ class EquityClient:
     
     def parse_rsi_snapshot(self, resp):
         try:
+            if not 'values' in resp['results'].keys():
+                return None
             return {'value': (float(resp['results']['values'][0]['value']) - 50.0), 'timestamp': resp['results']['values'][0]['timestamp']}
         except(Exception) as e:
             self.logger.error("Problem requesting rsi information: {}".format(e))

@@ -34,13 +34,13 @@ class MockIndexClient(object):
         self.micro_term_avg_price = 200
         self.short_term_history = [100, 100, 100]
         self.broadbased_snapshot = 0
-        self.broadbased_up
+        self.broadbased_up_val = True
     def bootstrapped(self):
         return True
     def is_up_market(self):
         return True
     def broadbased_up(self):
-        self.broadbased_up
+        return self.broadbased_up_val
 
 class MockClient(object):
     def __init__(self):
@@ -59,6 +59,7 @@ class MockClient(object):
         self.short_term_vol_avg_price = 100
         self.micro_term_vol_avg_price = 100
         self.broadbased_snapshot = 0
+        self.broadbased_up_val = True
 
     def bootstrapped(self):
         return True
@@ -68,6 +69,8 @@ class MockClient(object):
         return True
     def is_down_market(self):
         return True
+    def broadbased_up(self):
+        return self.broadbased_up_val
 
 class MockResponse(object):
     def json(param):
@@ -368,6 +371,7 @@ def test_broadbased(mocker):
     tt.get_action(11)
     assert tt.get_action(13) == 'hold'
     tt.equity_client.broadbased_snapshot = 1
+    tt.equity_client.broadbased_up_val = True
     assert tt.get_action(13) == 'buy'
-    tt.equity_client.broadbased_up = False
+    tt.equity_client.broadbased_up_val = False
     assert tt.get_action(13) == 'hold'
