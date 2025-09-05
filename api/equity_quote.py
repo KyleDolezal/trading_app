@@ -70,10 +70,10 @@ class EquityClient:
         self.threading_update.start()
 
         self.threading_fixed_update = threading.Thread(target=self.update_fixed_snapshot)
-        self.threading_fixed_update.start()
-
         self.threading_broadbased_update = threading.Thread(target=self.update_broadbased_snapshot)
-        self.threading_broadbased_update.start()
+        if not self.test_mode:
+            self.threading_fixed_update.start()
+            self.threading_broadbased_update.start()
 
     def update_broadbased_history(self, price):
         self.broadbased_history.append(price)
