@@ -34,10 +34,13 @@ class MockIndexClient(object):
         self.micro_term_avg_price = 200
         self.short_term_history = [100, 100, 100]
         self.broadbased_snapshot = 0
+        self.broadbased_up
     def bootstrapped(self):
         return True
     def is_up_market(self):
         return True
+    def broadbased_up(self):
+        self.broadbased_up
 
 class MockClient(object):
     def __init__(self):
@@ -366,3 +369,5 @@ def test_broadbased(mocker):
     assert tt.get_action(13) == 'hold'
     tt.equity_client.broadbased_snapshot = 1
     assert tt.get_action(13) == 'buy'
+    tt.equity_client.broadbased_up = False
+    assert tt.get_action(13) == 'hold'

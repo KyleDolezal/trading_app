@@ -47,6 +47,7 @@ class InverseTransactionTrigger(TransactionBase):
                 self.currency_client.bootstrapped() and \
                 self.price_history_decreasing() and \
                 self.last_trend() and \
+                (self.test_mode or not self.equity_client.broadbased_up) and \
                 (self.test_mode or self.equity_client.broadbased_snapshot < 0) and \
                 self.velocity() < self.velocity_threshold and \
                 (self.test_mode or self.equity_client.bootstrapped()) and \

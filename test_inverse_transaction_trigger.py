@@ -53,7 +53,6 @@ class MockClient(object):
         self.short_term_vol_avg_price = 100
         self.micro_term_vol_avg_price = 100
         self.broadbased_snapshot = 0
-
     def bootstrapped(self):
         return True
     def get_fixed_snapshot(self):
@@ -100,6 +99,7 @@ def test_get_crypto_quote_buy(mocker):
     tt = InverseTransactionTrigger(history=[0], test_mode=True)
     tt.currency_client = MockClient()
     tt.index_client = MockIndexClient()
+    tt.equity_client = MockClient()
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
 
     assert tt.get_action(10.016) == 'buy'
