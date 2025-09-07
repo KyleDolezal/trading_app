@@ -284,3 +284,23 @@ def test_broadbased_selloff(mocker):
     tt.equity_client.broadbased_snapshot = 1
     tt.update_quick_selloff_criteria()
     assert tt.cancel_selloff() == True
+
+@freeze_time("2012-01-14 12:21:34")
+def test_broadbased_selloff(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
+    mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
+
+    os.environ["HISTORY_LENGTH"] = '13'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.25'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+    
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
+    tt.equity_client = MockClient()
+    tt.equity_client.broadbased_average = 1
+    tt.equity_client.short_term_avg_price = 2
+    tt.update_broadbased_reference_ratio()
+    assert tt.broadbased_reference_ratio['value'] == 1.0/2

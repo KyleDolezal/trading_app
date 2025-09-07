@@ -53,8 +53,11 @@ class EquityClient:
 
         self.short_term_history_len = int(os.getenv('REFERENCE_SIZE', 3))
         self.history_len = int(os.getenv('HISTORY_LENGTH', 33))
+
+        if test_mode:
+            return
         
-        if self.api_key is None:
+        if self.api_key:
             raise ValueError("api key must be present")
 
         self.client = RESTClient(self.api_key)

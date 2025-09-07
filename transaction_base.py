@@ -5,9 +5,11 @@ import os
 import statistics
 import time
 import datetime
+from api.equity_quote import EquityClient
 
 class TransactionBase:
-    def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None, target_symbol=None):
+    def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None, target_symbol=None, equity_client=EquityClient(test_mode=True)):
+        self.equity_client = equity_client
         self.test_mode = test_mode
         self.target_symbol= target_symbol
         self.history_length = int(os.getenv('HISTORY_LENGTH'))
@@ -42,6 +44,11 @@ class TransactionBase:
             'equity_direction': time_731am,
             'price_history_direction':  time_731am
         }
+        self.broadbased_reference_ratio = {
+            "value": .5,
+            "timestamp": time_731am,
+            "up": False 
+        }
 
         self.quick_selloff_criteria = time_731am
 
@@ -52,6 +59,18 @@ class TransactionBase:
         thread_selloff_criteria = threading.Thread(target=self.update_quick_selloff_criteria_task)
         if not self.test_mode:
             thread_selloff_criteria.start()
+
+    def update_broadbased_reference_ratio(self):
+        if  self.equity_client.short_term_avg_price != 0:
+            now = datetime.datetime.now()
+            current_ratio = float(self.equity_client.broadbased_average / self.equity_client.short_term_avg_price)
+            if self.broadbased_reference_ratio['value'] != current_ratio:
+                self.broadbased_reference_ratio = {
+                    "value": current_ratio,
+                    "up": current_ratio > self.broadbased_reference_ratio['value'],
+                    "timestamp": now
+                }
+        
 
     def update_cancel_sell_attributes(self):
         while True:

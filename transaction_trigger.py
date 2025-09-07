@@ -9,7 +9,7 @@ import statistics
 class TransactionTrigger(TransactionBase):
     def __init__(self, test_mode=False, history=[], logger = logger, currency_client = None,  target_symbol = None, equity_client = None):
         self.equity_client = equity_client
-        super().__init__(test_mode, history, logger = logger, currency_client = currency_client, target_symbol =  target_symbol)
+        super().__init__(test_mode, history, logger = logger, currency_client = currency_client, target_symbol =  target_symbol, equity_client=self.equity_client)
     
     def update_cancel_criteria(self):
         if self.test_mode:
