@@ -62,12 +62,6 @@ class CurrencyClient:
 
         thread_snap = threading.Thread(target=self.update_snapshot)
         thread_snap.start()
-
-        thread_macd = threading.Thread(target=self.update_macd)
-        thread_macd.start()
-
-        thread_ema_diff = threading.Thread(target=self.update_ema_diff)
-        thread_ema_diff.start()
     
         thread_longterm = threading.Thread(target=self.update_longterm)
         thread_longterm.start()
