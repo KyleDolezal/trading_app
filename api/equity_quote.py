@@ -45,6 +45,7 @@ class EquityClient:
         self.short_term_avg_price = 0
 
         self.broadbased_history = []
+        self.broadbased_average = 0
 
         self.short_term_vol_history = []
         self.short_term_vol_avg_price = 0
@@ -80,6 +81,7 @@ class EquityClient:
         self.broadbased_history.append(price)
         if len(self.broadbased_history) > self.history_len:
             self.broadbased_history = self.broadbased_history[1:]
+        self.broadbased_average = statistics.mean(self.broadbased_history)
 
     def broadbased_up(self):
         if len(self.broadbased_history) < 2:
