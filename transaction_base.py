@@ -76,6 +76,8 @@ class TransactionBase:
                         "up": current_ratio > self.broadbased_reference_ratio['value'],
                         "timestamp": now
                     }
+            if self.test_mode:
+                return
             
 
     def update_cancel_sell_attributes(self):
@@ -102,13 +104,13 @@ class TransactionBase:
     
     def broadbased_reference_ratio_up(self):
         now = datetime.datetime.now()
-        if (abs((self.broadbased_reference_ratio['timestamp'] - now).total_seconds()) > 7):
+        if (abs((self.broadbased_reference_ratio['timestamp'] - now).total_seconds()) > 10):
             return False
         return self.broadbased_reference_ratio['up']
 
     def broadbased_reference_ratio_down(self):
         now = datetime.datetime.now()
-        if (abs((self.broadbased_reference_ratio['timestamp'] - now).total_seconds()) > 7):
+        if (abs((self.broadbased_reference_ratio['timestamp'] - now).total_seconds()) > 10):
             return False
         return not self.broadbased_reference_ratio['up']
                 

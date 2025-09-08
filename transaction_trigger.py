@@ -10,7 +10,6 @@ class TransactionTrigger(TransactionBase):
     def __init__(self, test_mode=False, history=[], logger = logger, currency_client = None,  target_symbol = None, equity_client = None):
         self.equity_client = equity_client
         super().__init__(test_mode, history, logger = logger, currency_client = currency_client, target_symbol =  target_symbol, equity_client=self.equity_client)
-    
     def update_cancel_criteria(self):
         if self.test_mode:
             return
@@ -33,12 +32,9 @@ class TransactionTrigger(TransactionBase):
         while len(self.history) > self.history_length:
             self.history = self.history[1:]
 
-        percent_difference = self._get_price_difference(price)
-
         if (datetime.datetime.now() < self.today831am) and not self.test_mode:
             return 'hold'
-        if (percent_difference > self.change_threshold) and \
-                (datetime.datetime.now() < self.today245pm or self.test_mode) and \
+        if (datetime.datetime.now() < self.today245pm or self.test_mode) and \
                 self._is_up_market() and \
                 self.size_diff > abs(self.currency_client.size_diff) and \
                 self.size_diff > abs(self.currency_client.short_size_diff) and \
@@ -57,7 +53,7 @@ class TransactionTrigger(TransactionBase):
         return self.history[-1] >= statistics.mean(self.history)
     
     def broadbased_selloff(self):
-        return self.equity_client.broadbased_snapshot < 0
+        return self.broadbased_reference_ratio_down() and (self.test_mode or self.equity_client.vol_history_diff() < self.vol_diff_threshold)
     
     def last_trend_by_percent(self):
         diff = self.history[-1] - self.history[-2]

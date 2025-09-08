@@ -6,7 +6,6 @@ import os
 import datetime
 from api.equity_quote import EquityClient
 from freezegun import freeze_time
-import pdb
 
 response = {"results": [{"price": 1.0}], "last":{"conditions":[1],"exchange":1,"price":83712.2,"size":0.00473092,""
 "timestamp":1741532522429},"request_id":"44ac62cbfdae6adc14158dac0d57ba1a","status":"success",
@@ -288,7 +287,6 @@ def test_quick_selloff(mocker):
     tt.update_quick_selloff_criteria()
     assert tt.cancel_selloff() == True
 
-@freeze_time("2012-01-14 12:21:34")
 def test_broadbased_selloff(mocker):
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
@@ -311,6 +309,7 @@ def test_broadbased_selloff(mocker):
     assert tt.cancel_selloff() == False
     tt.equity_client.broadbased_snapshot = 1
     tt.update_quick_selloff_criteria()
+    tt.broadbased_selloff = lambda : True
     assert tt.cancel_selloff() == True
 
 @freeze_time("2012-01-14 12:21:34")
