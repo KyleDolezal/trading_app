@@ -6,6 +6,7 @@ import os
 import datetime
 from api.equity_quote import EquityClient
 from freezegun import freeze_time
+import pdb
 
 response = {"results": [{"price": 1.0}], "last":{"conditions":[1],"exchange":1,"price":83712.2,"size":0.00473092,""
 "timestamp":1741532522429},"request_id":"44ac62cbfdae6adc14158dac0d57ba1a","status":"success",
@@ -101,7 +102,7 @@ def test_get_crypto_quote_buy(mocker):
     tt.index_client = MockIndexClient()
     tt.equity_client = MockClient()
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
-
+    tt.broadbased_reference_ratio = {"up": False, "value": 1, "timestamp": datetime.datetime.now()}
     assert tt.get_action(10.016) == 'buy'
 
 
@@ -125,7 +126,7 @@ def test_price_history_decreasing(mocker):
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
     tt.price_history_decreasing = lambda : False
     assert tt.get_action(10.016) == 'hold'
-
+    tt.broadbased_reference_ratio = {"up": False, "value": 1, "timestamp": datetime.datetime.now()}
     tt.price_history_decreasing = lambda : True
     assert tt.get_action(10.016) == 'buy'
 

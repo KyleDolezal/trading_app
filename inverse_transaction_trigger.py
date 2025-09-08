@@ -44,10 +44,8 @@ class InverseTransactionTrigger(TransactionBase):
                 self.currency_client.bootstrapped() and \
                 self.price_history_decreasing() and \
                 self.last_trend() and \
-                (self.test_mode or self.equity_client.broadbased_down()) and \
-                (self.test_mode or self.equity_client.broadbased_snapshot < 0) and \
-                (self.test_mode or self.equity_client.bootstrapped()) and \
-                (self.test_mode or self.equity_client.is_down_market()):
+                self.broadbased_reference_ratio_down() and \
+                (self.test_mode or self.equity_client.bootstrapped()):
             return 'buy'
         else:
             return 'hold'

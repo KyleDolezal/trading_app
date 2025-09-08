@@ -151,7 +151,7 @@ def test_get_crypto_quote_buy(mocker):
     tt.is_up_market = True
     tt.index_client = MockIndexClient()
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
-
+    tt.broadbased_reference_ratio = {"up": True, "value": 1, "timestamp": datetime.datetime.now()}
     tt.get_action(11)
     assert tt.get_action(13) == 'buy'
 
@@ -180,6 +180,7 @@ def test_price_history_increasing(mocker):
     assert tt.get_action(13) == 'hold'
 
     tt.price_history_increasing = lambda : True
+    tt.broadbased_reference_ratio = {"up": True, "value": 1, "timestamp": datetime.datetime.now()}
     assert tt.get_action(13) == 'buy'
 
 @freeze_time("2012-01-14 12:21:34")
@@ -243,6 +244,7 @@ def test_last_trend(mocker):
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
     tt.velocity_threshold = 99
     tt.velocity = lambda : 98
+    tt.broadbased_reference_ratio = {"up": True, "value": 1, "timestamp": datetime.datetime.now()}
     assert tt.get_action(13) == 'buy'
     tt.last_trend = lambda : False
     assert tt.get_action(13) == 'hold'
@@ -321,7 +323,6 @@ def test_broadbased_selloff(mocker):
     tt.update_quick_selloff_criteria()
     assert tt.cancel_selloff() == True
 
-@freeze_time("2012-01-14 12:21:34")
 def test_broadbased(mocker):
     mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
     mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
@@ -340,13 +341,8 @@ def test_broadbased(mocker):
     tt.is_up_market = True
     tt.index_client = MockIndexClient()
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
-    tt.equity_client = MockIndexClient()
-    tt.equity_client.broadbased_snapshot = -1
-    tt.test_mode = False
+    tt.broadbased_reference_ratio = {"up": True, "value": 1, "timestamp": datetime.datetime.now()}
     tt.get_action(11)
-    assert tt.get_action(13) == 'hold'
-    tt.equity_client.broadbased_snapshot = 1
-    tt.equity_client.broadbased_up_val = True
     assert tt.get_action(13) == 'buy'
-    tt.equity_client.broadbased_up_val = False
+    tt.broadbased_reference_ratio = {"up": False, "value": 1, "timestamp": datetime.datetime.now()}
     assert tt.get_action(13) == 'hold'
