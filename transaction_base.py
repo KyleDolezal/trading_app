@@ -60,6 +60,10 @@ class TransactionBase:
         if not self.test_mode:
             thread_selloff_criteria.start()
 
+        thread_ratio = threading.Thread(target=self.update_broadbased_reference_ratio)
+        if not self.test_mode:
+            thread_ratio.start()
+
     def update_broadbased_reference_ratio(self):
         if  self.equity_client.short_term_avg_price != 0:
             now = datetime.datetime.now()
@@ -93,6 +97,18 @@ class TransactionBase:
             if (abs((self.cancel_criteria[key] - now).total_seconds()) > 15):
                 return False
         return True
+    
+    def broadbased_reference_ratio_up(self):
+        now = datetime.datetime.now()
+        if (abs((self.broadbased_reference_ratio['timestamp'] - now).total_seconds()) > 7):
+            return False
+        return self.broadbased_reference_ratio['up']
+
+    def broadbased_reference_ratio_down(self):
+        now = datetime.datetime.now()
+        if (abs((self.broadbased_reference_ratio['timestamp'] - now).total_seconds()) > 7):
+            return False
+        return not self.broadbased_reference_ratio['up']
                 
     def trending(self, new_diff):
         current_diff = self.ema_diff
