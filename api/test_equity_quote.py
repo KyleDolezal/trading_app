@@ -242,3 +242,27 @@ def test_broadbased_up(mocker):
     assert eq.broadbased_up()
     eq.broadbased_history = [1, 1, -2]
     assert eq.broadbased_up() == False
+
+
+def test_price_diff(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'IBIT'
+    os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
+
+    mock_account_status = mocker.patch('equity_quote.EquityClient.__init__')
+    mock_account_status.return_value = None
+
+    mock_client = mocker.patch('equity_quote.RESTClient')
+    mock_ws_client = mocker.patch('equity_quote.WebSocketClient')
+
+    mock_client.return_value = MockClient()
+    mock_ws_client.return_value = MockClient()
+
+    ec = EquityClient('IBIT')
+    ec.short_term_vol_avg_price = 1
+    ec.micro_term_vol_avg_price = 2
+
+    assert ec.vol_history_diff() == 1

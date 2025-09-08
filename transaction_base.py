@@ -23,6 +23,7 @@ class TransactionBase:
         if len(self.history) == 0:
             self._populate_price()
         self.logger = logger
+        self.vol_diff_threshold = float(os.getenv('VOL_DIFF_THRESHOLD', .1))
 
         self.limit_value = float(os.getenv('LIMIT_VALUE', 500))
         self.sales = []

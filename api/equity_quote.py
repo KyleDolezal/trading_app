@@ -80,6 +80,9 @@ class EquityClient:
             self.threading_fixed_update.start()
             self.threading_broadbased_update.start()
 
+    def vol_history_diff(self):
+        return abs(self.short_term_vol_avg_price - self.micro_term_vol_avg_price)
+
     def update_broadbased_history(self, price):
         self.broadbased_history.append(price)
         if len(self.broadbased_history) > self.history_len:

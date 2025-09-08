@@ -41,6 +41,7 @@ class InverseTransactionTrigger(TransactionBase):
                 self._is_up_market() and \
                 self.size_diff > abs(self.currency_client.size_diff) and \
                 self.size_diff > abs(self.currency_client.short_size_diff) and \
+                (self.test_mode or self.equity_client.vol_history_diff() < self.vol_diff_threshold) and \
                 self.currency_client.bootstrapped() and \
                 (self.test_mode or self.equity_client.fixed_snapshot > 0) and \
                 self.price_history_decreasing() and \

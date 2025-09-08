@@ -65,6 +65,8 @@ class MockClient(object):
         return True
     def get_fixed_snapshot(self):
         return -10
+    def vol_history_diff(self):
+        return 0
     def is_up_market(self):
         return True
     def is_down_market(self):
