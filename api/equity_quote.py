@@ -57,7 +57,7 @@ class EquityClient:
         if test_mode:
             return
         
-        if self.api_key:
+        if self.api_key is None:
             raise ValueError("api key must be present")
 
         self.client = RESTClient(self.api_key)
