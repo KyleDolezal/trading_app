@@ -66,16 +66,17 @@ class TransactionBase:
             thread_ratio.start()
 
     def update_broadbased_reference_ratio(self):
-        if  self.equity_client.short_term_avg_price != 0:
-            now = datetime.datetime.now()
-            current_ratio = float(self.equity_client.broadbased_average / self.equity_client.short_term_avg_price)
-            if self.broadbased_reference_ratio['value'] != current_ratio:
-                self.broadbased_reference_ratio = {
-                    "value": current_ratio,
-                    "up": current_ratio > self.broadbased_reference_ratio['value'],
-                    "timestamp": now
-                }
-        
+        while True:
+            if  self.equity_client.short_term_avg_price != 0:
+                now = datetime.datetime.now()
+                current_ratio = float(self.equity_client.broadbased_average / self.equity_client.short_term_avg_price)
+                if self.broadbased_reference_ratio['value'] != current_ratio:
+                    self.broadbased_reference_ratio = {
+                        "value": current_ratio,
+                        "up": current_ratio > self.broadbased_reference_ratio['value'],
+                        "timestamp": now
+                    }
+            
 
     def update_cancel_sell_attributes(self):
         while True:
