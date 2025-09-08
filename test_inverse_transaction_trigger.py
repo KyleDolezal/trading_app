@@ -333,3 +333,28 @@ def test_broadbased_ratio_update(mocker):
     tt.update_broadbased_reference_ratio()  
     assert tt.broadbased_reference_ratio_up() == False
     assert tt.broadbased_reference_ratio_down() == True
+
+@freeze_time("2012-01-14 12:21:34")
+def test_get_crypto_quote_buy(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('api.equity_quote.EquityClient.get_snapshot', return_value=.1)
+    mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
+    mocker.patch('api.currency_quote.WebSocketClient')
+
+    os.environ["HISTORY_LENGTH"] = '11'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.2'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+    
+    tt = InverseTransactionTrigger(history=[0], test_mode=True)
+    tt.currency_client = MockClient()
+    tt.index_client = MockIndexClient()
+    tt.equity_client = MockClient()
+    tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
+    tt.broadbased_reference_ratio = {"up": False, "value": 1, "timestamp": datetime.datetime.now()}
+    assert tt.get_action(10.016) == 'buy'
+    tt.equity_client.fixed_snapshot = -1
+    tt.test_mode = False
+    assert tt.get_action(10.016) == 'hold'

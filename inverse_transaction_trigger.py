@@ -42,6 +42,7 @@ class InverseTransactionTrigger(TransactionBase):
                 self.size_diff > abs(self.currency_client.size_diff) and \
                 self.size_diff > abs(self.currency_client.short_size_diff) and \
                 self.currency_client.bootstrapped() and \
+                (self.test_mode or self.equity_client.fixed_snapshot > 0) and \
                 self.price_history_decreasing() and \
                 self.last_trend() and \
                 self.broadbased_reference_ratio_down() and \
