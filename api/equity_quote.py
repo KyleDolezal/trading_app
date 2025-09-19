@@ -155,7 +155,6 @@ class EquityClient:
         if self.test_mode:
             return
         for m in msgs:
-            price = m.bid_price
             if m.symbol == self.target_symbol:
                 self.price = m.bid_price
                 self.ask_price = m.ask_price
