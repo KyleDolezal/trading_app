@@ -47,6 +47,8 @@ class EquityClient:
         self.broadbased_history = []
         self.broadbased_average = 0
 
+        self.broadbased_price = 0
+
         self.short_term_vol_history = []
         self.short_term_vol_avg_price = 0
         self.micro_term_vol_avg_price = 0
@@ -76,9 +78,12 @@ class EquityClient:
 
         self.threading_fixed_update = threading.Thread(target=self.update_fixed_snapshot)
         self.threading_broadbased_update = threading.Thread(target=self.update_broadbased_snapshot)
+        self.threading_history_values_update = threading.Thread(target=self.update_price_history_values)
+
         if not self.test_mode:
             self.threading_fixed_update.start()
             self.threading_broadbased_update.start()
+            self.threading_history_values_update.start()
 
     def vol_history_diff(self):
         return abs(self.short_term_vol_avg_price - self.micro_term_vol_avg_price)
@@ -122,6 +127,14 @@ class EquityClient:
         bid_quote = self.get_equity_quote(target_symbol)
         ask_quote = self.get_ask_quote(target_symbol)
         return round(float((bid_quote + ask_quote) / 2), 2)
+    
+    def update_price_history_values(self):
+        while True:
+            self.update_short_term_history(self.reference_price)
+            self.update_micro_history_avg()
+            self.update_short_term_vol_history(self.volatility_price)
+            self.update_micro_vol_history_avg()
+            self.update_broadbased_history(self.broadbased_price)
 
     def update_price(self, msgs: List[WebSocketMessage]):
         if self.test_mode:
@@ -136,14 +149,10 @@ class EquityClient:
                 self.inverse_ask_price = m.ask_price
             if m.symbol == self.reference_ticker:
                 self.reference_price = m.bid_price
-                self.update_short_term_history(price)
-                self.update_micro_history_avg()
             if m.symbol == self.volatility_ticker:
                 self.volatility_price = m.bid_price
-                self.update_short_term_vol_history(price)
-                self.update_micro_vol_history_avg()
             if m.symbol == self.broadbased_ticker:
-                self.update_broadbased_history(price)
+                self.broadbased_price = m.bid_price
 
     def is_down_market(self):
         return self.micro_term_avg_price > self.short_term_avg_price 
