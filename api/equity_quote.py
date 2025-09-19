@@ -144,15 +144,20 @@ class EquityClient:
             if m.symbol == self.target_symbol:
                 self.price = m.bid_price
                 self.ask_price = m.ask_price
-            if m.symbol == self.inverse_target_symbol:
+                continue
+            elif m.symbol == self.inverse_target_symbol:
                 self.inverse_price = m.bid_price
                 self.inverse_ask_price = m.ask_price
-            if m.symbol == self.reference_ticker:
+                continue
+            elif m.symbol == self.reference_ticker:
                 self.reference_price = m.bid_price
-            if m.symbol == self.volatility_ticker:
+                continue
+            elif m.symbol == self.volatility_ticker:
                 self.volatility_price = m.bid_price
-            if m.symbol == self.broadbased_ticker:
+                continue
+            elif m.symbol == self.broadbased_ticker:
                 self.broadbased_price = m.bid_price
+                continue
 
     def is_down_market(self):
         return self.micro_term_avg_price > self.short_term_avg_price 
