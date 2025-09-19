@@ -49,6 +49,8 @@ class EquityClient:
 
         self.broadbased_price = 0
 
+        self.lastbought = datetime.datetime.now().replace(hour=7, minute=31, second=0, microsecond=0)
+
         self.short_term_vol_history = []
         self.short_term_vol_avg_price = 0
         self.micro_term_vol_avg_price = 0
@@ -79,11 +81,24 @@ class EquityClient:
         self.threading_fixed_update = threading.Thread(target=self.update_fixed_snapshot)
         self.threading_broadbased_update = threading.Thread(target=self.update_broadbased_snapshot)
         self.threading_history_values_update = threading.Thread(target=self.update_price_history_values)
+        self.threading_diag = threading.Thread(target=self.show_diagnostic)
 
         if not self.test_mode:
             self.threading_fixed_update.start()
             self.threading_broadbased_update.start()
             self.threading_history_values_update.start()
+            self.threading_diag.start()
+   
+    def bought_recently(self):
+        now = datetime.datetime.now()
+        return (abs((self.lastbought - now).total_seconds()) < 15)
+    
+    def show_diagnostic(self):
+        while True:
+            if self.bought_recently():
+                logger.info("target price: {}".info(self.price))
+                logger.info("inverse price: {}".info(self.inverse_price))
+            time.sleep(1)
 
     def vol_history_diff(self):
         return abs(self.short_term_vol_avg_price - self.micro_term_vol_avg_price)

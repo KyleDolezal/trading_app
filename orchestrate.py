@@ -110,7 +110,10 @@ class Orchestrator():
             self.sellable_shares = 1
             self.waiting_for_action = 'sell'
             return            
-        
+         
+        now = datetime.datetime.now()
+        self.equity_client.lastbought = now
+
         if source_price == None:
             source_price = self.transaction_trigger.get_price()
     
