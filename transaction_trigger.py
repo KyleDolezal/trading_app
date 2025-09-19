@@ -38,6 +38,7 @@ class TransactionTrigger(TransactionBase):
                 self._is_up_market() and \
                 self.size_diff > abs(self.currency_client.size_diff) and \
                 self.size_diff > abs(self.currency_client.short_size_diff) and \
+                self.size_floor < abs(self.currency_client.size_diff) and \
                 self.currency_client.bootstrapped() and \
                 self.price_history_increasing() and \
                 (self.test_mode or self.equity_client.vol_history_diff() < self.vol_diff_threshold) and \

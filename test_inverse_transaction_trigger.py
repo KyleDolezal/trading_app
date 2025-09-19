@@ -99,7 +99,10 @@ def test_get_crypto_quote_buy(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
     tt = InverseTransactionTrigger(history=[0], test_mode=True)
+    tt.size_floor = .001
+    tt.size_diff = .003
     tt.currency_client = MockClient()
+    tt.size_diff = .002
     tt.index_client = MockIndexClient()
     tt.equity_client = MockClient()
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
@@ -121,7 +124,10 @@ def test_vol_diff(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
     tt = InverseTransactionTrigger(history=[0], test_mode=True)
+    tt.size_floor = .001
+    tt.size_diff = .003
     tt.currency_client = MockClient()
+    tt.currency_client.size_diff = .002
     tt.index_client = MockIndexClient()
     tt.equity_client = MockClient()
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
@@ -147,7 +153,10 @@ def test_price_history_decreasing(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
     tt = InverseTransactionTrigger(history=[0], test_mode=True)
+    tt.size_floor = .001
+    tt.size_diff = .003
     tt.currency_client = MockClient()
+    tt.currency_client.size_diff = .002
     tt.index_client = MockIndexClient()
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
     tt.price_history_decreasing = lambda : False
@@ -375,7 +384,10 @@ def test_get_crypto_quote_buy(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
     tt = InverseTransactionTrigger(history=[0], test_mode=True)
+    tt.size_floor = .001
+    tt.size_diff = .003
     tt.currency_client = MockClient()
+    tt.currency_client.size_diff = .002
     tt.index_client = MockIndexClient()
     tt.equity_client = MockClient()
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]

@@ -148,7 +148,10 @@ def test_get_crypto_quote_buy(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.size_floor = .001
+    tt.size_diff = .003
     tt.currency_client = MockClient()
+    tt.currency_client.size_diff = .002
     tt.cached_checks_limit = 100
     tt.is_up_market = True
     tt.index_client = MockIndexClient()
@@ -172,7 +175,10 @@ def test_price_history_increasing(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.size_floor = .001
+    tt.size_diff = .003
     tt.currency_client = MockClient()
+    tt.currency_client.size_diff = .002
     tt.cached_checks_limit = 100
     tt.is_up_market = True
     tt.index_client = MockIndexClient()
@@ -240,7 +246,10 @@ def test_last_trend(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.size_floor = .001
+    tt.size_diff = .003
     tt.currency_client = MockClient()
+    tt.currency_client.size_diff = .002
     tt.cached_checks_limit = 100
     tt.is_up_market = True
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
@@ -338,7 +347,10 @@ def test_broadbased(mocker):
     os.environ["TARGET_SYMBOL"] = 'SCHB'
     
     tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.size_floor = .001
+    tt.size_diff = .003
     tt.currency_client = MockClient()
+    tt.currency_client.size_diff = .002
     tt.cached_checks_limit = 100
     tt.is_up_market = True
     tt.index_client = MockIndexClient()

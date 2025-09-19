@@ -18,6 +18,7 @@ class TransactionBase:
         self.upper_bound = float(os.getenv('UPPER_BOUND', 22))
         self.short_upper_bound = float(os.getenv('SHORT_UPPER_BOUND', 22))
         self.size_diff = float(os.getenv('SIZE_DIFF', .05))
+        self.size_floor = float(os.getenv('SIZE_FLOOR', .01))
         self.history = history
         self.currency_client = currency_client
         if len(self.history) == 0:
