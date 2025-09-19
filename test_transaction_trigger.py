@@ -160,6 +160,35 @@ def test_get_crypto_quote_buy(mocker):
     tt.get_action(11)
     assert tt.get_action(13) == 'buy'
 
+@freeze_time("2012-01-14 12:21:34")
+def test_size_floor(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
+    mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
+
+    os.environ["HISTORY_LENGTH"] = '13'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.25'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+    
+    tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.size_floor = .001
+    tt.size_diff = .003
+    tt.currency_client = MockClient()
+    tt.currency_client.size_diff = .004
+    tt.cached_checks_limit = 100
+    tt.is_up_market = True
+    tt.index_client = MockIndexClient()
+    tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
+    tt.broadbased_reference_ratio = {"up": True, "value": 1, "timestamp": datetime.datetime.now()}
+    tt.get_action(11)
+    assert tt.get_action(13) == 'hold'
+    tt.currency_client.size_diff = .002
+    assert tt.get_action(13) == 'buy'
+
+
 
 @freeze_time("2012-01-14 12:21:34")
 def test_price_history_increasing(mocker):
