@@ -91,13 +91,13 @@ class EquityClient:
    
     def bought_recently(self):
         now = datetime.datetime.now()
-        return (abs((self.lastbought - now).total_seconds()) < 15)
+        return (abs((self.lastbought - now).total_seconds()) < 20)
     
     def show_diagnostic(self):
         while True:
             if self.bought_recently():
-                logger.info("target price: {}".info(self.price))
-                logger.info("inverse price: {}".info(self.inverse_price))
+                logger.info("target price: {}".format(self.price))
+                logger.info("inverse price: {}".format(self.inverse_price))
             time.sleep(1)
 
     def vol_history_diff(self):
@@ -158,20 +158,15 @@ class EquityClient:
             if m.symbol == self.target_symbol:
                 self.price = m.bid_price
                 self.ask_price = m.ask_price
-                continue
             elif m.symbol == self.inverse_target_symbol:
                 self.inverse_price = m.bid_price
                 self.inverse_ask_price = m.ask_price
-                continue
             elif m.symbol == self.reference_ticker:
                 self.reference_price = m.bid_price
-                continue
             elif m.symbol == self.volatility_ticker:
                 self.volatility_price = m.bid_price
-                continue
             elif m.symbol == self.broadbased_ticker:
                 self.broadbased_price = m.bid_price
-                continue
 
     def is_down_market(self):
         return self.micro_term_avg_price > self.short_term_avg_price 
