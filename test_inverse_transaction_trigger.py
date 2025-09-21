@@ -43,8 +43,8 @@ class MockClient(object):
         self.ema_diff = -1
         self.longterm = -5
         self.low = -502
-        self.size_diff = 0
-        self.short_size_diff = 0
+        self.size_diff = -.002
+        self.short_size_diff = -.002
         self.bid_spread = 0
         self.short_term_avg_price = 100
         self.fixed_snapshot = 1
@@ -73,8 +73,8 @@ class MockIndexClient(object):
         self.ema_diff = -1
         self.longterm = -5
         self.low = -502
-        self.size_diff = 0
-        self.short_size_diff = 0
+        self.size_diff = -.002
+        self.short_size_diff = -.002
         self.bid_spread = 0
         self.short_term_avg_price = 100
         self.micro_term_avg_price = 50
@@ -102,9 +102,10 @@ def test_get_crypto_quote_buy(mocker):
     tt.size_floor = .001
     tt.size_diff = .003
     tt.currency_client = MockClient()
-    tt.size_diff = .002
     tt.index_client = MockIndexClient()
     tt.equity_client = MockClient()
+    tt.currency_client.size_diff = -.002
+    tt.currency_client.short_size_diff = -.002
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
     tt.broadbased_reference_ratio = {"up": False, "value": 1, "timestamp": datetime.datetime.now()}
     assert tt.get_action(10.016) == 'buy'
@@ -127,9 +128,10 @@ def test_vol_diff(mocker):
     tt.size_floor = .001
     tt.size_diff = .003
     tt.currency_client = MockClient()
-    tt.currency_client.size_diff = .002
     tt.index_client = MockIndexClient()
     tt.equity_client = MockClient()
+    tt.currency_client.size_diff = -.002
+    tt.currency_client.short_size_diff = -.002
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
     tt.broadbased_reference_ratio = {"up": False, "value": 1, "timestamp": datetime.datetime.now()}
     assert tt.get_action(10.016) == 'buy'
@@ -156,7 +158,8 @@ def test_price_history_decreasing(mocker):
     tt.size_floor = .001
     tt.size_diff = .003
     tt.currency_client = MockClient()
-    tt.currency_client.size_diff = .002
+    tt.currency_client.size_diff = -.002
+    tt.currency_client.short_size_diff = -.002
     tt.index_client = MockIndexClient()
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
     tt.price_history_decreasing = lambda : False
@@ -391,9 +394,10 @@ def test_get_crypto_quote_buy(mocker):
     tt.size_floor = .001
     tt.size_diff = .003
     tt.currency_client = MockClient()
-    tt.currency_client.size_diff = .002
     tt.index_client = MockIndexClient()
     tt.equity_client = MockClient()
+    tt.currency_client.size_diff = -.002
+    tt.currency_client.short_size_diff = -.002
     tt.history=[12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
     tt.broadbased_reference_ratio = {"up": False, "value": 1, "timestamp": datetime.datetime.now()}
     assert tt.get_action(10.016) == 'buy'
