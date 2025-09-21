@@ -73,7 +73,7 @@ class EquityClient:
             feed=Feed.RealTime,
             market=Market.Stocks
 	    )
-        self.streaming_client.subscribe("Q.{},Q.{},Q.{},Q.{},Q.{}".format(self.target_symbol, self.inverse_target_symbol, self.reference_ticker, self.volatility_ticker, self.broadbased_ticker))
+        self.streaming_client.subscribe("A.{},A.{},A.{},A.{},A.{}".format(self.target_symbol, self.inverse_target_symbol, self.reference_ticker, self.volatility_ticker, self.broadbased_ticker))
 
         self.threading_update = threading.Thread(target=self.updates)
         self.threading_update.start()
@@ -155,18 +155,18 @@ class EquityClient:
         if self.test_mode:
             return
         for m in msgs:
-            if m.symbol == self.target_symbol:
-                self.price = m.bid_price
-                self.ask_price = m.ask_price
-            elif m.symbol == self.inverse_target_symbol:
-                self.inverse_price = m.bid_price
-                self.inverse_ask_price = m.ask_price
-            elif m.symbol == self.reference_ticker:
-                self.reference_price = m.bid_price
-            elif m.symbol == self.volatility_ticker:
-                self.volatility_price = m.bid_price
-            elif m.symbol == self.broadbased_ticker:
-                self.broadbased_price = m.bid_price
+            if m.sym == self.target_symbol:
+                self.price = m.l
+                self.ask_price = m.h
+            elif m.sym == self.inverse_target_symbol:
+                self.inverse_price = m.l
+                self.inverse_ask_price = m.h
+            elif m.sym == self.reference_ticker:
+                self.reference_price = m.v
+            elif m.sym == self.volatility_ticker:
+                self.volatility_price = m.l
+            elif m.sym == self.broadbased_ticker:
+                self.broadbased_price = m.v
 
     def is_down_market(self):
         return self.micro_term_avg_price > self.short_term_avg_price 
