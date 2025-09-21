@@ -361,6 +361,10 @@ def test_broadbased_ratio_update(mocker):
     tt.update_broadbased_reference_ratio()
     tt.equity_client.broadbased_average = 2
     tt.equity_client.short_term_avg_price = 2
+    tt.ratio_buffer = .5
+    tt.update_broadbased_reference_ratio()
+    assert tt.broadbased_reference_ratio_up() == False
+    tt.equity_client.broadbased_average = 20
     tt.update_broadbased_reference_ratio()
     assert tt.broadbased_reference_ratio_up() == True
     tt.equity_client.broadbased_average = 2

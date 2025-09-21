@@ -53,7 +53,7 @@ class InverseTransactionTrigger(TransactionBase):
         return self.history[-1] <= statistics.mean(self.history)
     
     def broadbased_selloff(self):
-        return self.broadbased_reference_ratio_up() and (self.test_mode or self.equity_client.vol_history_diff() < self.vol_diff_threshold)
+        return self.broadbased_reference_ratio_up()
         
     def last_trend_by_percent(self):
         diff = self.history[-1] - self.history[-2]

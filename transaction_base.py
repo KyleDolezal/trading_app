@@ -37,6 +37,7 @@ class TransactionBase:
         self.vol_threshold = float(os.getenv('VOL_THRESHOLD', .0125))
         self.size_selloff_threshold_multiplier = float(os.getenv('SIZE_SELLOFF_THRESHOLD_MULTIPLIER', 4))
         self.quick_selloff_threshold = float(os.getenv('QUICK_SELLOFF_THRESHOLD', .1))
+        self.ratio_buffer = float(os.getenv('RATIO_BUFFER', .00035))
 
         time_731am = datetime.datetime.now().replace(hour=7, minute=31, second=0, microsecond=0)
         self.cancel_criteria = {
@@ -71,7 +72,7 @@ class TransactionBase:
             if  self.equity_client.short_term_avg_price != 0:
                 now = datetime.datetime.now()
                 current_ratio = float(self.equity_client.broadbased_average / self.equity_client.short_term_avg_price)
-                if self.broadbased_reference_ratio['value'] != current_ratio:
+                if ((self.broadbased_reference_ratio['value'] + self.ratio_buffer) < current_ratio) or  ((self.broadbased_reference_ratio['value'] - self.ratio_buffer) > current_ratio) :
                     self.broadbased_reference_ratio = {
                         "value": current_ratio,
                         "up": current_ratio > self.broadbased_reference_ratio['value'],
@@ -105,13 +106,13 @@ class TransactionBase:
     
     def broadbased_reference_ratio_up(self):
         now = datetime.datetime.now()
-        if (abs((self.broadbased_reference_ratio['timestamp'] - now).total_seconds()) > 10):
+        if (abs((self.broadbased_reference_ratio['timestamp'] - now).total_seconds()) > 4):
             return False
         return self.broadbased_reference_ratio['up']
 
     def broadbased_reference_ratio_down(self):
         now = datetime.datetime.now()
-        if (abs((self.broadbased_reference_ratio['timestamp'] - now).total_seconds()) > 10):
+        if (abs((self.broadbased_reference_ratio['timestamp'] - now).total_seconds()) > 4):
             return False
         return not self.broadbased_reference_ratio['up']
                 
