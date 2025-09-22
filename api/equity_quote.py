@@ -155,18 +155,18 @@ class EquityClient:
         if self.test_mode:
             return
         for m in msgs:
-            if m.sym == self.target_symbol:
-                self.price = m.l
-                self.ask_price = m.h
-            elif m.sym == self.inverse_target_symbol:
-                self.inverse_price = m.l
-                self.inverse_ask_price = m.h
-            elif m.sym == self.reference_ticker:
-                self.reference_price = m.v
-            elif m.sym == self.volatility_ticker:
-                self.volatility_price = m.l
-            elif m.sym == self.broadbased_ticker:
-                self.broadbased_price = m.v
+            if m.symbol == self.target_symbol:
+                self.price = m.low
+                self.ask_price = m.high
+            elif m.symbol == self.inverse_target_symbol:
+                self.inverse_price = m.low
+                self.inverse_ask_price = m.high
+            elif m.symbol == self.reference_ticker:
+                self.reference_price = m.accumulated_volume
+            elif m.symbol == self.volatility_ticker:
+                self.volatility_price = m.low
+            elif m.symbol == self.broadbased_ticker:
+                self.broadbased_price = m.accumulated_volume
 
     def is_down_market(self):
         return self.micro_term_avg_price > self.short_term_avg_price 
