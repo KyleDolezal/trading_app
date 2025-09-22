@@ -73,7 +73,7 @@ class EquityClient:
             feed=Feed.RealTime,
             market=Market.Stocks
 	    )
-        self.streaming_client.subscribe("A.{},A.{},A.{},A.{},A.{}".format(self.target_symbol, self.inverse_target_symbol, self.reference_ticker, self.volatility_ticker, self.broadbased_ticker))
+        self.streaming_client.subscribe("Q.{},Q.{},A.{},A.{},A.{}".format(self.target_symbol, self.inverse_target_symbol, self.reference_ticker, self.volatility_ticker, self.broadbased_ticker))
 
         self.threading_update = threading.Thread(target=self.updates)
         self.threading_update.start()
@@ -156,11 +156,11 @@ class EquityClient:
             return
         for m in msgs:
             if m.symbol == self.target_symbol:
-                self.price = m.low
-                self.ask_price = m.high
+                self.price = m.bid_price
+                self.ask_price = m.ask_price
             elif m.symbol == self.inverse_target_symbol:
-                self.inverse_price = m.low
-                self.inverse_ask_price = m.high
+                self.inverse_price = m.bid_price
+                self.inverse_ask_price = m.ask_price
             elif m.symbol == self.reference_ticker:
                 self.reference_price = m.accumulated_volume
             elif m.symbol == self.volatility_ticker:
