@@ -281,19 +281,19 @@ class EquityClient:
         response = None
         try:
             response = requests.get("https://api.polygon.io/v1/indicators/rsi/{}?timespan=minute&adjusted=true&window=2&series_type=close&order=desc&limit=10&apiKey={}".format(self.fixed_income_ticker, self.api_key))                       
+            return self.parse_rsi_snapshot(response.json())
         except(Exception) as e:
             self.logger.error("Problem requesting rsi information: {}".format(e))
             return None
-        return self.parse_rsi_snapshot(response.json())
 
     def get_broadbased_snapshot(self):
         response = None
         try:
             response = requests.get("https://api.polygon.io/v1/indicators/rsi/{}?timespan=minute&adjusted=true&window=5&series_type=close&order=desc&limit=10&apiKey={}".format(self.broadbased_ticker, self.api_key))                       
+            return self.parse_rsi_snapshot(response.json())
         except(Exception) as e:
             self.logger.error("Problem requesting rsi information: {}".format(e))
             return None
-        return self.parse_rsi_snapshot(response.json())
     
     def parse_rsi_snapshot(self, resp):
         try:
