@@ -35,9 +35,8 @@ class InverseTransactionTrigger(TransactionBase):
             return 'hold'
         elif (datetime.datetime.now() < self.today245pm or self.test_mode) and \
                 self._is_up_market() and \
-                ((self.currency_client.size_diff < 0) and (self.currency_client.short_size_diff < 0)) and \
-                self.size_diff > abs(self.currency_client.size_diff) and \
-                self.size_diff > abs(self.currency_client.short_size_diff) and \
+                self.size_diff > self.currency_client.size_diff and \
+                self.size_floor < self.currency_client.size_diff and \
                 self.size_floor < abs(self.currency_client.size_diff) and \
                 (self.test_mode or self.equity_client.vol_history_diff() < self.vol_diff_threshold) and \
                 self.currency_client.bootstrapped() and \

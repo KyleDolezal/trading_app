@@ -49,6 +49,10 @@ class EquityClient:
 
         self.broadbased_price = 0
 
+        self.broadbased_size_history = []
+
+        self.reference_size_history = []
+
         self.lastbought = datetime.datetime.now().replace(hour=7, minute=31, second=0, microsecond=0)
 
         self.short_term_vol_history = []
@@ -163,10 +167,12 @@ class EquityClient:
                 self.inverse_ask_price = m.ask_price
             elif m.symbol == self.reference_ticker:
                 self.reference_price = m.ask_price
+                self.update_reference_vol_history(m.ask_size)
             elif m.symbol == self.volatility_ticker:
                 self.volatility_price = m.low
             elif m.symbol == self.broadbased_ticker:
                 self.broadbased_price = m.low
+                self.update_broadbased_vol_history(m.average_size)
 
     def is_down_market(self):
         return self.micro_term_avg_price > self.short_term_avg_price 
@@ -200,6 +206,26 @@ class EquityClient:
         if len(self.short_term_vol_history) > self.short_term_history_len:
             self.short_term_vol_history = self.short_term_vol_history[1:]
         self.short_term_vol_avg_price = statistics.mean(self.short_term_vol_history)
+
+    def update_broadbased_vol_history(self, vol):
+        self.broadbased_size_history.append(vol)
+        if len(self.broadbased_size_history) > self.short_term_history_len:
+            self.broadbased_size_history = self.broadbased_size_history[1:]
+
+    def broadbased_trending(self):
+        if len(self.broadbased_size_history) < 2:
+            return False
+        return self.broadbased_size_history[-1] >= statistics.mean(self.broadbased_size_history)
+    
+    def update_reference_vol_history(self, vol):
+        self.reference_size_history.append(vol)
+        if len(self.reference_size_history) > self.short_term_history_len:
+            self.reference_size_history = self.reference_size_history[1:]
+
+    def reference_trending(self):
+        if len(self.reference_size_history) < 2:
+            return False
+        return self.reference_size_history[-1] >= statistics.mean(self.reference_size_history)
 
     def get_equity_quote(self, symbol):
         if self.test_mode:

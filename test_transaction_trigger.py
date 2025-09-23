@@ -389,3 +389,32 @@ def test_broadbased(mocker):
     assert tt.get_action(13) == 'buy'
     tt.broadbased_reference_ratio = {"up": False, "value": 1, "timestamp": datetime.datetime.now()}
     assert tt.get_action(13) == 'hold'
+
+
+def test_broadbased_ratio_update(mocker):
+    mocker.patch('api.equity_quote.EquityClient.__init__', return_value=None)
+    mocker.patch('api.index_quote.IndexClient.__init__', return_value=None)
+    mock_ws_client = mocker.patch('api.currency_quote.WebSocketClient')
+
+    os.environ["HISTORY_LENGTH"] = '13'
+    os.environ["MARKET_DIRECTION_THRESHOLD"] = '.25'
+    os.environ["CHANGE_THRESHOLD"] = '.1'
+    os.environ["CURRENCY_TICKER"] = '123'
+    os.environ["CURRENCY_API_KEY"] = 'key'
+    os.environ["TARGET_SYMBOL"] = 'SCHB'
+    
+    tt = TransactionTrigger(history=[0], test_mode=True)
+    tt.equity_client = MockClient()
+    tt.equity_client.broadbased_average = 1
+    tt.equity_client.short_term_avg_price = 2
+    tt.equity_client.broadbased_trending = lambda: False
+    tt.equity_client.reference_trending = lambda: False
+    tt.update_broadbased_reference_ratio() 
+    assert tt.broadbased_reference_ratio_up() == False
+    tt.equity_client.broadbased_trending = lambda: True
+    tt.equity_client.reference_trending = lambda: True
+    tt.equity_client.broadbased_average = 100
+    tt.equity_client.short_term_avg_price = 1
+    tt.equity_client.ratio_buffer = 0
+    tt.update_broadbased_reference_ratio()  
+    assert tt.broadbased_reference_ratio_up() == True
