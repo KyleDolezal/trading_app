@@ -121,6 +121,8 @@ class Orchestrator():
         for i in range(20):
             quantity = self.buyable_shares
             try:
+                if quantity < 1:
+                    return
                 order = self.transact_client.buy(self.buyable_shares, self.equity_client.bid_ask_mean(self.target_symbol))
                 self.transaction_trigger._diagnostic()
                 break
