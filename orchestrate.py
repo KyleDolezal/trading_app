@@ -157,5 +157,5 @@ class Orchestrator():
     
     def _populate_order_sell_ids(self, buy_id):
         order_id_int_ref = int(buy_id)
-        self.limit_id = order_id_int_ref + 1
+        self.limit_id = order_id_int_ref + 2
         self.stop_id = self.limit_id + 1

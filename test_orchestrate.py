@@ -248,5 +248,5 @@ def test_populate_ids(mocker):
 
     orchestrator = Orchestrator('AAPL', MockTT())
     orchestrator._populate_order_sell_ids(1)
-    assert orchestrator.limit_id == 2
-    assert orchestrator.stop_id == 3
+    assert orchestrator.limit_id == 3
+    assert orchestrator.stop_id == 4
