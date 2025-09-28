@@ -16,8 +16,6 @@ class TransactionTrigger(TransactionBase):
         now = datetime.datetime.now()
         if (abs(self.equity_client.micro_term_vol_avg_price - self.equity_client.short_term_vol_avg_price) > self.vol_threshold):
             self.cancel_criteria['micro_minus_short'] = now
-        if ((self.equity_client.fixed_snapshot < 0)):
-            self.cancel_criteria['equity_snap'] = now
         if (self.equity_client.is_down_market()):
             self.cancel_criteria['equity_direction'] = now
         if (self.price_history_decreasing()):

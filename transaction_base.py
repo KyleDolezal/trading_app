@@ -42,7 +42,6 @@ class TransactionBase:
         time_731am = datetime.datetime.now().replace(hour=7, minute=31, second=0, microsecond=0)
         self.cancel_criteria = {
             'micro_minus_short': time_731am,
-            'equity_snap': time_731am,
             'size': time_731am,
             'equity_direction': time_731am,
             'price_history_direction':  time_731am
