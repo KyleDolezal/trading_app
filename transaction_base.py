@@ -161,6 +161,7 @@ class TransactionBase:
     
     def _diagnostic(self):
         logger.info("Buy action ----------------")
+        logger.info("Expected price: {}".format(self.equity_client.bid_ask_mean(self.target_symbol)))
         logger.info("Size diff: {}".format(self.currency_client.size_diff))
         logger.info("Time since snapshot: {}".format(self._time_since_snapshot()))
         logger.info("Snapshot value: {}".format(self.currency_client.snapshot))
