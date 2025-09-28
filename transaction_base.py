@@ -44,7 +44,8 @@ class TransactionBase:
             'micro_minus_short': time_731am,
             'size': time_731am,
             'equity_direction': time_731am,
-            'price_history_direction':  time_731am
+            'price_history_direction':  time_731am,
+            'quick_selloff_criteria': time_731am
         }
         self.broadbased_reference_ratio = {
             "value": .5,
