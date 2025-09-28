@@ -99,6 +99,9 @@ class TransactionBase:
     def cancel_selloff(self):
         now = datetime.datetime.now()
 
+        logger.info("Checking cancel selloff criteria")
+        logger.info(self.cancel_criteria)
+
         for key in self.cancel_criteria.keys():
             if (abs((self.cancel_criteria[key] - now).total_seconds()) > 15):
                 return False
