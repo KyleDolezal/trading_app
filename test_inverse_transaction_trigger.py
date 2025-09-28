@@ -300,6 +300,7 @@ def test_quick_selloff(mocker):
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
     assert tt.cancel_selloff() == False
     tt.history=[11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 15]
+    tt.cancel_criteria = {'key': datetime.datetime.now()}
     tt.update_quick_selloff_criteria()
     assert tt.cancel_selloff() == True
 
