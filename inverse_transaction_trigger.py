@@ -23,8 +23,6 @@ class InverseTransactionTrigger(TransactionBase):
             self.cancel_criteria['size'] = now
         if (abs((self.quick_selloff_criteria - now).total_seconds()) < 1):
             self.cancel_criteria['quick_selloff_criteria'] = now
-        if self.broadbased_selloff():
-            self.cancel_criteria['broadbased_selloff'] = now
 
     def get_action(self, price=None):
         if price == None:

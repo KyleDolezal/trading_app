@@ -45,8 +45,7 @@ class TransactionBase:
             'size': time_731am,
             'equity_direction': time_731am,
             'price_history_direction':  time_731am,
-            'quick_selloff_criteria': time_731am,
-            'broadbased_selloff': time_731am
+            'quick_selloff_criteria': time_731am
         }
         self.broadbased_reference_ratio = {
             "value": .5,
@@ -98,7 +97,9 @@ class TransactionBase:
         
     def cancel_selloff(self):
         now = datetime.datetime.now()
-
+        if self.broadbased_selloff() or (abs((self.quick_selloff_criteria - now).total_seconds()) < 5):
+            return True
+        
         for key in self.cancel_criteria.keys():
             if (abs((self.cancel_criteria[key] - now).total_seconds()) > 15):
                 return False
