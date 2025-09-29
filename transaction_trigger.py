@@ -22,8 +22,6 @@ class TransactionTrigger(TransactionBase):
             self.cancel_criteria['price_history_direction'] = now
         if (self.size_diff * self.size_selloff_threshold_multiplier) < abs(self.currency_client.size_diff):
             self.cancel_criteria['size'] = now
-        if (abs((self.quick_selloff_criteria - now).total_seconds()) < 1):
-            self.cancel_criteria['quick_selloff_criteria'] = now
         
     def get_action(self, price=None):
         if price == None:
