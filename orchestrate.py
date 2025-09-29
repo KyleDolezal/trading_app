@@ -118,20 +118,16 @@ class Orchestrator():
             source_price = self.transaction_trigger.get_price()
     
         order = None
-        for i in range(20):
-            quantity = self.buyable_shares
-            try:
-                if quantity < 1:
-                    return
-                order = self.transact_client.buy(self.buyable_shares, self.equity_client.bid_ask_mean(self.target_symbol))
-                self.transaction_trigger._diagnostic()
-                break
-            except(Exception) as e:
-                time.sleep(.01)
-            if i % 5 == 0:
-                self.account_status.update_positions()
-                self.buyable_shares = self.account_status.calculate_buyable_shares()['shares']
-                time.sleep(5)
+        quantity = self.buyable_shares
+        try:
+            if quantity < 1:
+                return
+            order = self.transact_client.buy(self.buyable_shares, self.equity_client.bid_ask_mean(self.target_symbol))
+            self.transaction_trigger._diagnostic()
+        except(Exception) as e:
+            logger.info("Problem buying {}".format(e))
+            return
+     
         order_id = self.order_status.get_order_id(order)
         self._populate_order_sell_ids(order_id)
         self.handle_contrary_trend(order_id)

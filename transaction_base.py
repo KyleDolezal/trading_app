@@ -170,7 +170,6 @@ class TransactionBase:
         logger.info("Longterm value: {}".format(self.currency_client.longterm))
         logger.info("Bid spread: {}".format(self.currency_client.bid_spread))
         logger.info("Size diff: {}".format(self.currency_client.size_diff))
-        logger.info("Short diff: {}".format(self.currency_client.short_size_diff))
         logger.info("Velocity: {}".format(self.velocity()))
         logger.info("Price history increasing: {}".format(self.price_history_increasing()))
         logger.info("Price history decreasing: {}".format(self.price_history_decreasing()))
