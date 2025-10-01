@@ -162,6 +162,31 @@ def test_bid_ask_mean(mocker):
 
     assert ec.bid_ask_mean('IBIT') == 1.5
 
+def test_rounding_for_bid_ask_mean(mocker):
+    os.environ["ACCOUNT_NUMBER"] = '123'
+    os.environ["APP_KEY"] = 'key'
+    os.environ["APP_SECRET"] = 'secret'
+    os.environ["TARGET_SYMBOL"] = 'IBIT'
+    os.environ["CASH_TO_SAVE"] = '100'
+    os.environ["EQUITY_API_KEY"] = 'abc'
+
+    mock_account_status = mocker.patch('equity_quote.EquityClient.__init__')
+    mock_account_status.return_value = None
+
+    mock_client = mocker.patch('equity_quote.RESTClient')
+    mock_ws_client = mocker.patch('equity_quote.WebSocketClient')
+
+    mock_client.return_value = MockClient()
+    mock_ws_client.return_value = MockClient()
+
+    ec = EquityClient(test_mode=True)
+    ec.target_symbol = 'IBIT'
+    ec.test_mode = False
+    ec.ask_price = 1.667
+    ec.price = 2.667
+
+    assert ec.bid_ask_mean('IBIT') == 2.16
+
 def test_parse_rsi_snapshot(mocker):
     os.environ["ACCOUNT_NUMBER"] = '123'
     os.environ["APP_KEY"] = 'key'

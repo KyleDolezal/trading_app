@@ -42,8 +42,7 @@ class TransactClient(ApiBase):
             "orderStrategyType": "TRIGGER",
             "session": "NORMAL",
             "duration": "DAY",
-            "orderType": "LIMIT",
-            "price": buy_price,
+            "orderType": "MARKET",
             "orderLegCollection": [
                 {
                     "instruction": "BUY",

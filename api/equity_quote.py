@@ -145,7 +145,7 @@ class EquityClient:
     def bid_ask_mean(self, target_symbol):
         bid_quote = self.get_equity_quote(target_symbol)
         ask_quote = self.get_ask_quote(target_symbol)
-        return round(float((bid_quote + ask_quote) / 2), 2)
+        return round((float((bid_quote + ask_quote) / 2) - .004), 2)
     
     def update_price_history_values(self):
         while True:
