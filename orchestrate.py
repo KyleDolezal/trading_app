@@ -132,11 +132,13 @@ class Orchestrator():
         self._populate_order_sell_ids(order_id)
         self.handle_contrary_trend(order_id)
         self.equity_bought_price = self.order_status.await_order_filled([order_id], buy_order=True)
+        self.transaction_trigger.equity_bought_price = self.equity_bought_price
 
         if self.equity_bought_price == None:
             time.sleep(1)
             self.handle_contrary_trend(order_id)
             self.equity_bought_price = self.order_status.await_order_filled([order_id], buy_order=True)
+            self.transaction_trigger.equity_bought_price = self.equity_bought_price
 
         if self.equity_bought_price == None:    
             self.transact_client.cancel(order_id)

@@ -11,6 +11,7 @@ class TransactionBase:
     def __init__(self, test_mode=False, history=[], logger = logger, currency_client=None, target_symbol=None, equity_client=EquityClient(test_mode=True)):
         self.equity_client = equity_client
         self.test_mode = test_mode
+        self.equity_bought_price = 0
         self.target_symbol= target_symbol
         self.history_length = int(os.getenv('HISTORY_LENGTH'))
         self.change_threshold = float(os.getenv('CHANGE_THRESHOLD'))
@@ -29,7 +30,7 @@ class TransactionBase:
         self.limit_value = float(os.getenv('LIMIT_VALUE', 500))
         self.sales = []
         self.today831am = datetime.datetime.now().replace(hour=8, minute=31, second=0, microsecond=0)
-        self.today245pm = datetime.datetime.now().replace(hour=14, minute=45, second=0, microsecond=0)
+        self.today245pm = datetime.datetime.now().replace(hour=14, minute=59, second=0, microsecond=0)
         self.ema_diff = 0
         self.velocity_threshold = float(os.getenv('VELOCITY_THRESHOLD', 500))
         self.ema_diff_limit = float(os.getenv('EMA_DIFF_LIMIT', 2))
@@ -98,6 +99,9 @@ class TransactionBase:
     def cancel_selloff(self):
         now = datetime.datetime.now()
         if self.broadbased_selloff() or (abs((self.quick_selloff_criteria - now).total_seconds()) < 5):
+            return True
+        
+        if self.equity_client.bid_ask_mean(self.target_symbol) > self.equity_bought_price:
             return True
         
         for key in self.cancel_criteria.keys():

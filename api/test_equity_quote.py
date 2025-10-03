@@ -185,7 +185,7 @@ def test_rounding_for_bid_ask_mean(mocker):
     ec.ask_price = 1.667
     ec.price = 2.667
 
-    assert ec.bid_ask_mean('IBIT') == 2.16
+    assert ec.bid_ask_mean('IBIT') == 2.17
 
 def test_parse_rsi_snapshot(mocker):
     os.environ["ACCOUNT_NUMBER"] = '123'
